@@ -1,0 +1,70 @@
+<p id="notice"><%= notice %></p>
+<div id="playground"></div>
+<table>
+  <tbody>
+    <% @concepts.each do |concept| %>
+      <tr>
+        <td><%= concept.content %></td>
+        <td><%= link_to 'Show', concept %></td>
+        <td><%= link_to 'Edit', edit_concept_path(concept) %></td>
+        <td><%= link_to 'Destroy', concept, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Concept', new_concept_path %>
+
+<script type="text/javascript">
+var graph = new joint.dia.Graph;
+var paper = new joint.dia.Paper({
+    el: $('#playground'),
+    width: 600,
+    height: 200,
+    model: graph,
+    gridSize: 1
+});
+<% @concepts.each_with_index do |concept, index| %>
+  var r<%= concept.id %> = new joint.shapes.basic.Rect({
+      position: { x: <%= 10 + (index * 100)%>, y: 30 },
+      size: { width: 100, height: 30 },
+      attrs: { rect: { fill: 'blue', rx: 10,
+      ry: 10 },
+      text: { text: '<%= concept.content %>', fill: 'white', 'font-variant': 'small-caps'} }
+  });
+  r<%= concept.id %>.attr('rect/filter', { name: 'dropShadow', args: { dx: 2, dy: 2, blur: 3 } });
+<% end %>
+var rect2 = new joint.shapes.basic.Rect({
+    position: { x: 100, y: 30 },
+    size: { width: 100, height: 30 },
+    attrs: { rect: { fill: 'red', rx: 10,
+    ry: 10 }, text: { text: 'Renacimiento', fill: 'white', 'font-variant': 'small-caps' } }
+});
+rect2.attr('rect/filter', { name: 'dropShadow', args: { dx: 2, dy: 2, blur: 3 } });
+rect2.translate(300);
+
+<% @concepts.each do |concept| %>
+  var link<%= concept.id %> = new joint.dia.Link({
+      source: { id: r<%= concept.id %>.id },
+      target: { id: rect2.id }
+  });
+link<%= concept.id %>.attr({
+    '.connection': { stroke: 'blue' },
+});
+<% end %>
+
+graph.addCells([
+  <% @concepts.each do |concept| %>
+  r<%= concept.id %>,
+  <% end %>
+   rect2,
+  <% @concepts.each do |concept| %>
+  link<%= concept.id %>,
+  <% end %>
+   ]);
+// graph.on('all', function(eventName, cell) {
+//     console.log(arguments);
+// });
+</script>
