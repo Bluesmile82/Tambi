@@ -1,22 +1,44 @@
 <p id="notice"><%= notice %></p>
-<div id="playground"></div>
-<table>
-  <tbody>
-    <% @concepts.each do |concept| %>
-      <tr>
-        <td><%= concept.content %></td>
-        <td><%= link_to 'Show', concept %></td>
-        <td><%= link_to 'Edit', edit_concept_path(concept) %></td>
-        <td><%= link_to 'Destroy', concept, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<div id="window">
+  <div id="playground">
+    <div class="concept" id="initial">Laura</div>
+  </div>
+</div>
+<div id="controls">
+  <table>
+    <tbody>
+      <% @concepts.each do |concept| %>
+        <tr>
+          <td><%= concept.content %></td>
+          <td><%= link_to 'Show', concept %></td>
+          <td><%= link_to 'Edit', edit_concept_path(concept) %></td>
+          <td><%= link_to 'Destroy', concept, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= link_to 'New Concept', new_concept_path %>
+</div>
 
-<br>
+<script type="text/javascript">
+function start(){
 
-<%= link_to 'New Concept', new_concept_path %>
+document.getElementById('window').scrollLeft += 500;
+document.getElementById('window').scrollTop += 1500;
 
+
+<% @concepts.each do |concept| %>
+var duration = <%= rand(1000..4000) %>;
+  var left = '<%= 40 + rand(0..20)%>%';
+  var top = '<%= 30 + rand(0..20)%>%';
+  var delay = <%= rand(500..4000) %>;
+    new_concept = d3.select("#playground").append('div').attr('class', 'concept').style({'top': top, 'left': left }).html('<%= concept.content %>');
+    new_concept.style({'opacity':'0'}).transition().duration(duration).style({'opacity':'1'}).transition().delay(delay).style({'opacity':'0'}).remove();
+<% end %>
+}
+</script>
+
+<!--
 <script type="text/javascript">
 var graph = new joint.dia.Graph;
 var paper = new joint.dia.Paper({
@@ -68,3 +90,4 @@ graph.addCells([
 //     console.log(arguments);
 // });
 </script>
+ -->
