@@ -26,10 +26,11 @@
   overflow: scroll;
 }
 #window{
-  width: 150%;
-  height: 150%;
+  width: 100%;
+  height: 100%;
   background-color: linen;
   position: absolute;
+  font-family: 'Quicksand', sans-serif;
 }
 #controls{
   position: fixed;
@@ -42,5 +43,4 @@
   left: 50%;
   width: 200px;
   height: 50px;
-
 }

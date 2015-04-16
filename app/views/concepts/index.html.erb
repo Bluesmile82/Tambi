@@ -23,6 +23,23 @@
 <script type="text/javascript">
 function start(){
 
+console.log(randomIdeas());
+function randomIdeas(){
+  $.ajax({
+    url: "http://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=10&iwurl=&redirects=&converttitles=&format=json&callback=?",
+    async: false,
+    dataType: 'json',
+    success: function (data) {
+      var ideas = [];
+     $.each(data.query.random, function( index, value ) {
+        ideas.push(value.title);
+      });
+     return ideas
+    }
+  });
+}
+
+
 document.getElementById('window').scrollLeft += 500;
 document.getElementById('window').scrollTop += 1500;
 
