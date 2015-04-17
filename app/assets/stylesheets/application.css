@@ -46,6 +46,7 @@
 }
 
 .random{
-  position: absolute;
+  position: relative;
+  opacity: 0;
   font-size: 150%;
 }
