@@ -7,6 +7,8 @@ Rails.application.config.assets.version = '1.0'
 # Rails.application.config.assets.paths << Emoji.images_path
 Rails.application.config.assets.precompile += %w( show.js )
 Rails.application.config.assets.precompile += %w( graph-creator.js )
+Rails.application.config.assets.precompile += %w( bossterms.js )
+
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 # Rails.application.config.assets.precompile += %w( search.js )

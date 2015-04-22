@@ -32,15 +32,17 @@ function ajaxCall(url){
   function createIdeas(id, type){
     getIdeas(type).done(function(data){
 
-      var parent_top = parsePx(d3.select('#initial').style('top'));
-      var parent_left = parsePx(d3.select('#initial').style('left'));
-
+      var translate = d3.select(id).attr('transform');
+      var parent = translate.match(/\((.+),(.+)\)/);
+      var parent_left = parent[1];
+      var parent_top = parent[2];
       // $.each(data.query.random, function( index, value ) {
       function sign(){ return Math.random() < 0.5 ? -1 : 1};
       function delay(){ return (Math.random() * 5000) };
       console.log('delay',delay() )
-      function left(){ return parent_left + (( Math.random()  + 200 ) *  sign() ) };
+      function left(){ return parseInt(parent_left) + (( Math.random() + 200) *  sign() ) };
       var duration = 3000;
+      console.log('left',left() )
 
       var  new_concept = d3.select("#playground").selectAll('div').data(data.query.random)
                             .enter().append('div').attr('class', 'concept random')
@@ -57,8 +59,8 @@ function ajaxCall(url){
     });
   }
   // createIdeas("#initial","random");
-  d3.select('#random-button').on("click", function(){ createIdeas("#initial","random")} );
-  d3.select('#related-button').on("click", function(){ createIdeas("#initial","related")} );
+  d3.select('#random-button').on("click", function(){ createIdeas("#Laura","random")} );
+  d3.select('#related-button').on("click", function(){ createIdeas("#Laura","related")} );
 
 
   function parsePx(string){

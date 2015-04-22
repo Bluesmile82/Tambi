@@ -345,6 +345,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
             d3.select(this.parentElement).attr('id', d.title);
             thisGraph.insertTitleLinebreaks(d3node, d.title);
             d3.select(this.parentElement).remove();
+        d3.select(htmlEl).attr('id',d.title);
           });
     return d3txt;
   };
@@ -388,8 +389,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           // shift-clicked node: edit text content
           var d3txt = thisGraph.changeTextOfNode(d3node, d);
           var txtNode = d3txt.node();
-          console.log(txtNode.parent());
-          txtNode.parent().parent().attr('id','lalala');
           thisGraph.selectElementContents(txtNode);
           txtNode.focus();
         } else{
