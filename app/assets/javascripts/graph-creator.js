@@ -648,23 +648,29 @@ function ajaxCall(url){
 
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
-      var parent_left = parent[1];
-      var parent_top = parent[2];
+      var parent_left = parseInt(parent[1]);
+      var parent_top = parseInt(parent[2]);
       // $.each(data.query.random, function( index, value ) {
       function sign(){ return Math.random() < 0.5 ? -1 : 1};
       function delay(){ return (Math.random() * 5000) };
       console.log('delay',delay() )
-      function left(){ return parseInt(parent_left) + (( Math.random() + 200) *  sign() ) };
+      function top(){ return parseInt(sign() * Math.random() * 200 + parent_top) };
+      function left(){ return parent_left + (( Math.random() + 200) *  sign() ) };
       var duration = 3000;
+      function data_title(data) { return data.title; };
       console.log('left',left() )
 
-      var  new_concept = d3.select("#playground").selectAll('div').data(data.query.random)
-                            .enter().append('div').attr('class', 'concept random')
-                            .style('top', function(data){ return sign() * 10 + 'px' })
-                            .style('left', function(data){ return left() +'px'  })
-                            .html(function(data) { return data.title; });
+      var  new_concept = d3.select(".graph").selectAll('g').data(data.query.random)
+                            .enter().append('g').append('text').attr('class', 'concept random')
+                            .attr('transform', function(data){
+                             var l = left();
+                             var t = top();
+                              return 'translate(' + l + ',' + t + ')'
+                            })
+                            .on("click", function(){  graph.createIdea( 'Nuevo' , left() , top() ); } )
+                            .text(function(data) { return data.title; });
 
-      dead_concept = new_concept
+      var dead_concept = new_concept
                   .transition().delay(delay).duration(duration).style({'opacity':'1'})
                   .transition().duration(duration).style({'opacity':'0'})
                   .duration(duration).attr('data-status','dead')
@@ -675,18 +681,13 @@ function ajaxCall(url){
   // createIdeas("#initial","random");
   d3.select('#random-button').on("click", function(){ createIdeas("#Laura","random")} );
   d3.select('#related-button').on("click", function(){ createIdeas("#Laura","related")} );
- graph.createIdea("lalassssl", 500 , 600);
+  d3.select('.selected').on("click", function(){ createIdeas("#Laura","random")} );
+  graph.createIdea("lalassssl", 500 , 600);
 
 
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
-
-
-
-
-
-
 
 });
 })(window.d3, window.saveAs, window.Blob);

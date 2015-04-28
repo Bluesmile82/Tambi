@@ -44,8 +44,8 @@ function ajaxCall(url){
       var duration = 3000;
       console.log('left',left() )
 
-      var  new_concept = d3.select("#playground").selectAll('div').data(data.query.random)
-                            .enter().append('div').attr('class', 'concept random')
+      var  new_concept = d3.select(".graph").selectAll('text').data(data.query.random)
+                            .enter().append('text').attr('class', 'concept random')
                             .style('top', function(data){ return sign() * 10 + 'px' })
                             .style('left', function(data){ return left() +'px'  })
                             .html(function(data) { return data.title; });
@@ -66,8 +66,4 @@ function ajaxCall(url){
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
-
-
-
-
 }
