@@ -599,6 +599,8 @@ $.getScript("show.js", function(){
         d = {id: thisGraph.idct++, title: toWhiteSpace(title) , x: x , y: y};
     thisGraph.nodes.push(d);
     thisGraph.updateGraph();
+    console.log( d);
+    return d;
   }
 
   /** MAIN SVG **/
@@ -609,7 +611,13 @@ $.getScript("show.js", function(){
       graph.setIdCt(2);
   graph.updateGraph();
 
-
+ GraphCreator.prototype.createLink = function ( idea_one, idea_two){
+        // we're in a different node: create new edge for mousedown edge and add to graph
+      var newEdge = {source: idea_one, target: idea_two};
+    var thisGraph = this;
+        thisGraph.edges.push(newEdge);
+        thisGraph.updateGraph();
+ }
 // show.js
 
 
@@ -699,7 +707,9 @@ function ajaxCall(url){
     createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
     );
   d3.select('#related-button').on("click", function(){ createIdeas("#Laura","related")} );
-  graph.createIdea("otra", 500 , 600);
+  var otra = graph.createIdea("otra", 500 , 600)
+  var otra2 = graph.createIdea("otra2", 600 , 600)
+  graph.createLink( otra, otra2 );
 
 
   function parsePx(string){
