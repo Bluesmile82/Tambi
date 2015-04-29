@@ -348,7 +348,7 @@ $.getScript("show.js", function(){
             d3.select(this.parentElement).attr('id', d.title);
             thisGraph.insertTitleLinebreaks(d3node, d.title);
             d3.select(this.parentElement).remove();
-        d3.select(htmlEl).attr('id',d.title);
+        d3.select(htmlEl).attr('id',toSnakeCase(d.title));
           });
     return d3txt;
   };
@@ -548,7 +548,7 @@ $.getScript("show.js", function(){
     newGs.append("circle")
       .attr("r", String(consts.nodeRadius));
 
-    newGs.attr("id",function(d){return d.title}).each(function(d){
+    newGs.attr("id",function(d){return toSnakeCase(d.title)}).each(function(d){
       thisGraph.insertTitleLinebreaks(d3.select(this), d.title);
     });
 
@@ -596,7 +596,7 @@ $.getScript("show.js", function(){
 
   GraphCreator.prototype.createIdea = function( title, x , y ) {
     var thisGraph = this,
-        d = {id: thisGraph.idct++, title: title, x: x , y: y};
+        d = {id: thisGraph.idct++, title: toWhiteSpace(title) , x: x , y: y};
     thisGraph.nodes.push(d);
     thisGraph.updateGraph();
   }
@@ -643,6 +643,15 @@ function ajaxCall(url){
     });
   }
 
+  function toSnakeCase( text ){
+    return text.replace(/\s/g, '_')
+  };
+
+  function toWhiteSpace( text ){
+    return text.replace(/_/g, ' ')
+  };
+
+
   function createIdeas(id, type){
     getIdeas(type).done(function(data){
 
@@ -660,15 +669,20 @@ function ajaxCall(url){
       function data_title(data) { return data.title; };
       console.log('left',left() )
 
-      var  new_concept = d3.select(".graph").selectAll('g').data(data.query.random)
-                            .enter().append('g').append('text').attr('class', 'concept random')
+      var  new_concept = d3.select(".graph").selectAll('text').data(data.query.random)
+                            .enter().append('text').attr('class', 'concept random')
                             .attr('transform', function(data){
                              var l = left();
                              var t = top();
                               return 'translate(' + l + ',' + t + ')'
                             })
-                            .on("click", function(){  graph.createIdea( 'Nuevo' , left() , top() ); } )
-                            .text(function(data) { return data.title; });
+                            .text(function(data) { return data.title; })
+                            .attr('id', function(data) { return data.title; })
+                            .on("click", function(){
+                            var transform = d3.select(this).attr('transform');
+                            var translate = d3.transform(transform).translate;
+                             graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] );
+                              });
 
       var dead_concept = new_concept
                   .transition().delay(delay).duration(duration).style({'opacity':'1'})
@@ -679,10 +693,13 @@ function ajaxCall(url){
     });
   }
   // createIdeas("#initial","random");
-  d3.select('#random-button').on("click", function(){ createIdeas("#Laura","random")} );
+  d3.select('#random-button').on("click", function(){
+    console.log(toSnakeCase(d3.select('.selected')[0][0].id));
+    console.log('#' + d3.select('.selected')[0][0].id);
+    createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
+    );
   d3.select('#related-button').on("click", function(){ createIdeas("#Laura","related")} );
-  d3.select('.selected').on("click", function(){ createIdeas("#Laura","random")} );
-  graph.createIdea("lalassssl", 500 , 600);
+  graph.createIdea("otra", 500 , 600);
 
 
   function parsePx(string){
