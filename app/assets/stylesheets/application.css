@@ -32,6 +32,39 @@ p{
   padding-left: 1em;
 }
 
+
+#toolbox{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-bottom: 0.5em;
+    margin-left: 1em;
+    border: 2px solid #EEEEEE;
+    border-radius: 5px;
+    padding: 1em;
+    z-index: 5;
+    background-color: white;
+}
+
+
+#toolbox input{
+    width: 30px;
+    opacity: 0.4;
+}
+
+#toolbox input:hover{
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+#hidden-file-upload{
+    display: none;
+}
+
+#download-input{
+    margin: 0 0.5em;
+}
 .fa{
   color: #AFAFAF;
 }
@@ -60,13 +93,22 @@ p{
   position: fixed;
   top:5%;
 }
-#wiki{
+.wiki{
   position: fixed;
   bottom: 0;
-  height: 15%;
+  height: 0%;
   width: 100%;
-  padding: 2%;
   background-color: white;
+}
+.wiki-open{
+  overflow: scroll;
+  height: 50%;
+  padding: 5%;
+}
+#close-wiki{
+position: absolute;
+  top: 2%;
+  right:1%;
 }
 /*
 circle{

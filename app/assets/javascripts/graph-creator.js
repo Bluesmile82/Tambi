@@ -738,6 +738,7 @@ function ajaxCall(url){
     var nodes = this.nodes;
     var idea = null;
     id = id.slice(3);
+    console.log('idea' +  id)
     $.each( nodes, function(index, value){
       if (value['id'] == id){
         return idea = value;
@@ -763,23 +764,68 @@ function ajaxCall(url){
   }
 
   function selected_id(){
-    return d3.select('.selected')[0][0].id
+    var selected =  d3.select('.selected')[0][0]
+    if (selected != null){
+      clear_alert();
+      return selected.id}
+    else{
+      no_selection();
+      }
+  }
+
+  function no_selection(){
+    d3.select('#alert').text('Please select an Idea first');
+  };
+
+  function clear_alert(){
+    d3.select('#alert').text('');
+  };
+
+  function show_wiki(title){
+
+    var url = 'http://es.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
+    get_wiki(url).done(function(data){
+      console.log(data);
+      if(data.error != null){d3.select('.wiki div').html('Not found')}
+      else{
+      d3.select('.wiki div').html(data.parse.text['*'])};
+      d3.select('.wiki').classed("wiki-open", true);
+    });
+  }
+
+  function get_wiki(url){
+    return $.ajax({
+      url: url,
+      dataType: 'json',
+    });
   }
 
   // createIdeas("#initial","random");
   d3.select('#related-button-wt').on("click", function(){
-    createIdeas( '#' + selected_id() ,"related_idol_wt")
+    if (selected_id() != null){
+    createIdeas( '#' + selected_id() ,"related_idol_wt" )
+    }
   });
   d3.select('#related-button').on("click", function(){
+    if (selected_id() != null){
     createIdeas( '#' + selected_id() ,"related_idol")
+    }
   });
 
  d3.select('#random-button').on("click", function(){
+    if (selected_id() != null){
   createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
+    }
   );
 
   d3.select('#wikishow').on("click", function(){
-    console.log(graph.find_title_by_id( selected_id() ));
+    if (selected_id() != null){
+      var wiki = d3.select('.wiki');
+      show_wiki( graph.find_title_by_id( '#' + selected_id() ));
+    }
+  });
+   d3.select('#close-wiki').on("click", function(){
+    d3.select('.wiki').classed('wiki-open', false);
   });
 
 
