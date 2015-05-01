@@ -29,7 +29,16 @@ body{
 
 p{
   text-align: left;
+  padding-left: 1em;
 }
+
+.fa{
+  color: #AFAFAF;
+}
+
+.fa:hover{
+    color:black;
+  };
 
 #playground{
   width: 100%;
@@ -51,7 +60,14 @@ p{
   position: fixed;
   top:5%;
 }
-
+#wiki{
+  position: fixed;
+  bottom: 0;
+  height: 15%;
+  width: 100%;
+  padding: 2%;
+  background-color: white;
+}
 /*
 circle{
   opacity: 0;

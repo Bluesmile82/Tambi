@@ -1,8 +1,6 @@
 document.onload = (function(d3, saveAs, Blob, undefined){
   "use strict";
 
-$.getScript("show.js", function(){
-
 
   // define graphcreator object
   var GraphCreator = function(svg, nodes, edges){
@@ -672,7 +670,6 @@ function ajaxCall(url){
 
   function createIdeas(id, type){
     var title =  graph.find_idea_by_id(id)['title'];
-
     getIdeas(type, title).done(function(data){
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
@@ -761,21 +758,33 @@ function ajaxCall(url){
     return idea;
   }
 
+  GraphCreator.prototype.find_title_by_id = function(id){
+   return this.find_idea_by_id(id)['title']
+  }
+
+  function selected_id(){
+    return d3.select('.selected')[0][0].id
+  }
+
   // createIdeas("#initial","random");
-  d3.select('#random-button').on("click", function(){
-    createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
-    );
-  d3.select('#related-button').on("click", function(){
-    createIdeas( '#' + d3.select('.selected')[0][0].id ,"related_idol")}
-    );
   d3.select('#related-button-wt').on("click", function(){
-    createIdeas( '#' + d3.select('.selected')[0][0].id ,"related_idol_wt")}
-    );
-  // d3.select('#related-button').on("click", function(){ createIdeas("#0","related")} );
+    createIdeas( '#' + selected_id() ,"related_idol_wt")
+  });
+  d3.select('#related-button').on("click", function(){
+    createIdeas( '#' + selected_id() ,"related_idol")
+  });
+
+ d3.select('#random-button').on("click", function(){
+  createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
+  );
+
+  d3.select('#wikishow').on("click", function(){
+    console.log(graph.find_title_by_id( selected_id() ));
+  });
+
 
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
 
-});
 })(window.d3, window.saveAs, window.Blob);
