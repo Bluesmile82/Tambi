@@ -52,8 +52,13 @@ p{
   position: fixed;
   top:25%;
 }
+
+/*
+circle{
+  opacity: 0;
+}
+*/
 .concept{
-  color:white;
   font-size: 300%;
   position: relative;
   top: 50%;
@@ -63,7 +68,8 @@ p{
 }
 
 .random{
+  font-size: 1em;
+  fill:grey;
   opacity: 0;
   position: relative;
-  font-size: 150%;
 }

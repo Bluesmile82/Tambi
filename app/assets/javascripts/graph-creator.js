@@ -695,6 +695,7 @@ function ajaxCall(url){
                     var translate = d3.transform(transform).translate;
                     var newIdea = graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] );
                     graph.createLink( graph.find_idea_by_id(id), newIdea );
+                    d3.select(this).remove();
                   })
                   .append('text').text(function(data) { return data.title; });
 
