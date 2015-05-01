@@ -349,6 +349,7 @@ $.getScript("show.js", function(){
             thisGraph.insertTitleLinebreaks(d3node, d.title);
             d3.select(this.parentElement).remove();
         d3.select(htmlEl).attr('id', 'id' + d.id);
+        d3.select(htmlEl).attr('title', d.title);
           });
     return d3txt;
   };
@@ -688,18 +689,14 @@ function ajaxCall(url){
       function data_title(data) {
         switch(type) {
           case 'random':
-          return data.title;
+            return data.title;
           case 'related_idol':
-          return data.text;
+            return data.text;
           case 'related_idol_wt':
-          console.log('eachdata', data)
-
-          return data;
+            return data;
           default:
           alert('not found');
         } };
-
-      console.log('left',left() )
 
       var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
       .data(function(){
@@ -709,8 +706,7 @@ function ajaxCall(url){
           case 'related_idol':
             return data.entities;
           case 'related_idol_wt':
-          console.log(d3.keys(data.wikipedia_type));
-          return d3.keys(data.wikipedia_type);
+            return d3.keys(data.wikipedia_type);
           default:
           alert('not found');
         }
