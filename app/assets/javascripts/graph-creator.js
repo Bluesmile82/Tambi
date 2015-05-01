@@ -429,7 +429,7 @@ $.getScript("show.js", function(){
     } else if (state.graphMouseDown && d3.event.shiftKey){
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node()),
-          d = {id: thisGraph.idct++, title: "new concept", x: xycoords[0], y: xycoords[1]};
+          d = {id: thisGraph.idct++, title: "new idea", x: xycoords[0], y: xycoords[1]};
   // thisGraph.createIdea('New Concept', xycoords[0] , xycoords[1]);
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();

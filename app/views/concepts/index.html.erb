@@ -2,26 +2,17 @@
   <div id="playground">
   </div>
 </div>
-<!-- <div id="controls">
-  <table>
-    <tbody>
-      <% @concepts.each do |concept| %>
-        <tr>
-          <td><%= concept.content %></td>
-          <td><%= link_to 'Show', concept %></td>
-          <td><%= link_to 'Edit', edit_concept_path(concept) %></td>
-          <td><%= link_to 'Destroy', concept, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <%= link_to 'New Concept', new_concept_path %>
-  <br> -->
+<div id="controls">
+
   <button id="random-button">Create Random</button>
   <button id="related-button">Create Related</button>
   <button id="related-button-wt">Create Wikipedia Type</button>
   <p>Select an Idea clicking on it and create Random concepts from it</p>
-
+  <p>Shift + click to create a new idea</p>
+  <p>Shift + click in an idea to change the content</p>
+  <p>Shift + drag to relate ideas,</p>
+  <p>Backspace to delete </p>
+</div>
 
     <div id="toolbox">
       <input type="file" id="hidden-file-upload"><input id="upload-input" type="image" title="upload graph" src="upload-icon.png" alt="upload graph"> <input type="image" id="download-input" title="download graph" src="download-icon.png" alt="download graph"> <input type="image" id="delete-graph" title="delete graph" src="trash-icon.png" alt="delete graph">

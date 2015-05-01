@@ -29,7 +29,6 @@ body{
 
 p{
   text-align: left;
-  padding: 1em;
 }
 
 #playground{
@@ -50,7 +49,7 @@ p{
 }
 #controls{
   position: fixed;
-  top:25%;
+  top:5%;
 }
 
 /*
