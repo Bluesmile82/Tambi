@@ -589,8 +589,8 @@ $.getScript("show.js", function(){
   var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth,
       height =  window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
 
-  var xLoc = width/2 - 25,
-      yLoc = 100;
+  var xLoc = width/2 + 50,
+      yLoc = height/2;
 
   // initial node data
   var nodes = [{title: "Laura", id: 0, x: xLoc, y: yLoc}];
@@ -736,10 +736,6 @@ function ajaxCall(url){
     createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
     );
   // d3.select('#related-button').on("click", function(){ createIdeas("#0","related")} );
-  var otra = graph.createIdea("otra", 500 , 600)
-  var otra2 = graph.createIdea("otra2", 600 , 600)
-  graph.createLink( otra, otra2 );
-
 
   function parsePx(string){
     return parseInt(string.replace('px',''));
