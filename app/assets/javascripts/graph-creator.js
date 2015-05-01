@@ -637,11 +637,17 @@ function ajaxCall(url){
     });
 }
 
-  function getIdeas(type){
+  function getIdeas(type, title){
     var url = "";
     switch(type) {
     case 'random':
       url = "http://es.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=10&iwurl=&redirects=&converttitles=&format=json&callback=?";
+        break;
+    case 'related_idol':
+      url = "https://api.idolondemand.com/1/api/sync/findrelatedconcepts/v1?text=" + title + "&indexes=&min_score=80&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
+        break;
+    case 'related_idol_wt':
+      url = "https://api.idolondemand.com/1/api/sync/getparametricvalues/v1?index=wiki_es&field_name=wikipedia_type&text=" + title + "&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
         break;
     case 'related':
       parseRelated().done(function(data){console.log('parsed ', data)});
@@ -664,8 +670,9 @@ function ajaxCall(url){
 
 
   function createIdeas(id, type){
-    getIdeas(type).done(function(data){
+    var title =  graph.find_idea_by_id(id)['title'];
 
+    getIdeas(type, title).done(function(data){
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
@@ -676,11 +683,38 @@ function ajaxCall(url){
       console.log('delay',delay() )
       function top(){ return parseInt(sign() * Math.random() * 200 + parent_top) };
       function left(){ return parent_left + (( Math.random() + 200) *  sign() ) };
-      var duration = 3000;
-      function data_title(data) { return data.title; };
+      var duration = 6000;
+
+      function data_title(data) {
+        switch(type) {
+          case 'random':
+          return data.title;
+          case 'related_idol':
+          return data.text;
+          case 'related_idol_wt':
+          console.log('eachdata', data)
+
+          return data;
+          default:
+          alert('not found');
+        } };
+
       console.log('left',left() )
 
-      var  new_concept = d3.select(".graph").selectAll('g.' + data.title).data(data.query.random)
+      var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
+      .data(function(){
+        switch(type) {
+          case 'random':
+            return data.query.random;
+          case 'related_idol':
+            return data.entities;
+          case 'related_idol_wt':
+          console.log(d3.keys(data.wikipedia_type));
+          return d3.keys(data.wikipedia_type);
+          default:
+          alert('not found');
+        }
+      });
 
       new_concept.enter().append('g')
                   .attr('class', 'concept random')
@@ -689,7 +723,7 @@ function ajaxCall(url){
                    var t = top();
                     return 'translate(' + l + ',' + t + ')'
                   })
-                  .attr('id', function(data) { return data.title; })
+                  .attr('id', function(data) { return data_title(data); })
                   .on("click", function(){
                     var transform = d3.select(this).attr('transform');
                     var translate = d3.transform(transform).translate;
@@ -697,7 +731,7 @@ function ajaxCall(url){
                     graph.createLink( graph.find_idea_by_id(id), newIdea );
                     d3.select(this).remove();
                   })
-                  .append('text').text(function(data) { return data.title; });
+                  .append('text').text(function(data) { return data_title(data); });
 
       var dead_concept = new_concept
                   .transition().delay(delay).duration(duration).style({'opacity':'1'})
@@ -734,6 +768,12 @@ function ajaxCall(url){
   // createIdeas("#initial","random");
   d3.select('#random-button').on("click", function(){
     createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
+    );
+  d3.select('#related-button').on("click", function(){
+    createIdeas( '#' + d3.select('.selected')[0][0].id ,"related_idol")}
+    );
+  d3.select('#related-button-wt').on("click", function(){
+    createIdeas( '#' + d3.select('.selected')[0][0].id ,"related_idol_wt")}
     );
   // d3.select('#related-button').on("click", function(){ createIdeas("#0","related")} );
 

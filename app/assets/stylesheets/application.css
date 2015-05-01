@@ -63,7 +63,7 @@ circle{
 }
 
 .random{
-
+ font-size: 2em;
   fill:grey;
   opacity: 0;
   position:absolute;
