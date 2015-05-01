@@ -672,7 +672,7 @@ function ajaxCall(url){
       var parent_top = parseInt(parent[2]);
       // $.each(data.query.random, function( index, value ) {
       function sign(){ return Math.random() < 0.5 ? -1 : 1};
-      function delay(){ return (Math.random() * 5000) };
+      function delay(){ return (Math.random() * 2000) };
       console.log('delay',delay() )
       function top(){ return parseInt(sign() * Math.random() * 200 + parent_top) };
       function left(){ return parent_left + (( Math.random() + 200) *  sign() ) };
@@ -680,9 +680,10 @@ function ajaxCall(url){
       function data_title(data) { return data.title; };
       console.log('left',left() )
 
-      var  new_concept = d3.select(".graph").selectAll('g.random').data(data.query.random)
+      var  new_concept = d3.select(".graph").selectAll('g.' + data.title).data(data.query.random)
 
-      new_concept.enter().append('g').attr('class', 'concept random')
+      new_concept.enter().append('g')
+                  .attr('class', 'concept random')
                   .attr('transform', function(data){
                    var l = left();
                    var t = top();
@@ -690,14 +691,11 @@ function ajaxCall(url){
                   })
                   .attr('id', function(data) { return data.title; })
                   .on("click", function(){
-                  var transform = d3.select(this).attr('transform');
-                  var translate = d3.transform(transform).translate;
-                  var newIdea = graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] );
-                  console.log('parent id', id);
-                  console.log('graph nodes', graph.nodes)
-                  console.log('idea', graph.find_idea_by_id(id));
-                  graph.createLink( graph.find_idea_by_id(id), newIdea );
-                    })
+                    var transform = d3.select(this).attr('transform');
+                    var translate = d3.transform(transform).translate;
+                    var newIdea = graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] );
+                    graph.createLink( graph.find_idea_by_id(id), newIdea );
+                  })
                   .append('text').text(function(data) { return data.title; });
 
       var dead_concept = new_concept
