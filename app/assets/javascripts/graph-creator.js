@@ -680,7 +680,7 @@ function ajaxCall(url){
       function data_title(data) { return data.title; };
       console.log('left',left() )
 
-      var  new_concept = d3.select(".selected").selectAll('g').data(data.query.random)
+      var  new_concept = d3.select(".graph").selectAll('g.random').data(data.query.random)
 
       new_concept.enter().append('g').attr('class', 'concept random')
                   .attr('transform', function(data){
@@ -689,7 +689,6 @@ function ajaxCall(url){
                     return 'translate(' + l + ',' + t + ')'
                   })
                   .attr('id', function(data) { return data.title; })
-                  .append('text').text(function(data) { return data.title; })
                   .on("click", function(){
                   var transform = d3.select(this).attr('transform');
                   var translate = d3.transform(transform).translate;
@@ -698,7 +697,8 @@ function ajaxCall(url){
                   console.log('graph nodes', graph.nodes)
                   console.log('idea', graph.find_idea_by_id(id));
                   graph.createLink( graph.find_idea_by_id(id), newIdea );
-                    });
+                    })
+                  .append('text').text(function(data) { return data.title; });
 
       var dead_concept = new_concept
                   .transition().delay(delay).duration(duration).style({'opacity':'1'})
