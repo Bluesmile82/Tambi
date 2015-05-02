@@ -107,12 +107,14 @@ position: absolute;
   top: 2%;
   right:1%;
 }
-/*
+
 circle{
   opacity: 0;
 }
-*/
 
+.selected text{
+  fill: #6666ff;
+}
 .random{
   color: #ddd;
   height: 1em;
