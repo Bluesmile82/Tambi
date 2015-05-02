@@ -1,13 +1,13 @@
 <div id="window">
-  <div id="playground">
-  </div>
 </div>
 <div id="controls">
 
   <p id='alert'></p>
-  <button id="random-button">Create Random</button>
-  <button id="related-button">Create Related</button>
-  <button id="related-button-wt">Create Wikipedia Type</button>
+  <p>
+  <button id="random-button" class="btn btn-default">Create Random</button>
+  <button id="related-button" class="btn btn-default">Create Related</button>
+  <button id="related-button-wt" class="btn btn-default">Create Wikipedia Type</button>
+  </p>
   <p>Select an Idea clicking on it and create Random concepts from it</p>
   <p>Shift + click to create a new idea</p>
   <p>Shift + click in an idea to change the content</p>
@@ -18,7 +18,10 @@
 <div class="wiki"><div></div><i class="fa fa-times fa-3x" id="close-wiki"></i></div>
 
     <div id="toolbox">
-      <input type="file" id="hidden-file-upload"><input id="upload-input" type="image" title="upload graph" src="upload-icon.png" alt="upload graph"> <input type="image" id="download-input" title="download graph" src="download-icon.png" alt="download graph"> <input type="image" id="delete-graph" title="delete graph" src="trash-icon.png" alt="delete graph">
+      <input type="file" id="hidden-file-upload">
+      <input id="upload-input" type="image" title="upload graph" src="upload-icon.png" alt="upload graph">
+      <input type="image" id="download-input" title="download graph" src="download-icon.png" alt="download graph">
+      <input type="image" id="delete-graph" title="delete graph" src="trash-icon.png" alt="delete graph">
       <i class="fa fa-question-circle fa-3x" id="wikishow"></i>
     </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>

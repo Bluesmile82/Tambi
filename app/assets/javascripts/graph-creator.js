@@ -52,6 +52,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       .attr('markerHeight', 3.5)
       .attr('orient', 'auto')
       .append('svg:path')
+      .attr('fill', '#ccc')
       .attr('d', 'M0,-5L10,0L0,5');
 
     // define arrow markers for leading arrow
@@ -63,6 +64,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       .attr('markerHeight', 3.5)
       .attr('orient', 'auto')
       .append('svg:path')
+      .attr('fill', '#ccc')
       .attr('d', 'M0,-5L10,0L0,5');
 
     thisGraph.svg = svg;
@@ -75,6 +77,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     thisGraph.dragLine = svgG.append('svg:path')
           .attr('class', 'link dragline hidden')
           .attr('d', 'M0,0L0,0')
+          .attr("stroke-dasharray", '0.5,20')
+          .attr("stroke-linecap", 'round')
           .style('marker-end', 'url(#mark-end-arrow)');
 
     // svg nodes and edges
@@ -526,6 +530,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       .append("path")
       .style('marker-end','url(#end-arrow)')
       .classed("link", true)
+      .attr("stroke-dasharray", '0.5,20')
+      .attr("stroke-linecap", 'round')
       .attr("d", function(d){
         return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
       })
