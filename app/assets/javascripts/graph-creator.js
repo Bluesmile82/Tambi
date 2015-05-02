@@ -664,11 +664,11 @@ function ajaxCall(url){
     });
 }
 
-  function getIdeas(type, title){
+  function get_ideas(type, title, language){
     var url = "";
     switch(type) {
     case 'random':
-      url = "http://es.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=10&iwurl=&redirects=&converttitles=&format=json&callback=?";
+      url = "http://" + language + ".wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=10&iwurl=&redirects=&converttitles=&format=json&callback=?";
         break;
     case 'related_idol':
       url = "https://api.idolondemand.com/1/api/sync/findrelatedconcepts/v1?text=" + title + "&indexes=&min_score=80&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
@@ -685,7 +685,6 @@ function ajaxCall(url){
       url: url,
       dataType: 'json',
        error: function (request, error) {
-        console.log(arguments);
         alert(" Can't do because: " + error);
     },
     });
@@ -700,16 +699,13 @@ function ajaxCall(url){
   };
 
 
-  function createIdeas(id, type){
+  function createIdeas(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
-    getIdeas(type, title).done(function(data, errors){
+    get_ideas(type, title, language).done(function(data, errors){
 
       if(data_base(data) != undefined && data_base(data).length == 0){
          d3.select('#alert').text('Term not found');
       }
-
-      console.log('errors', errors);
-      console.log('data', data);
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
@@ -784,7 +780,6 @@ function ajaxCall(url){
     var nodes = this.nodes;
     var idea = null;
     id = id.slice(3);
-    console.log('idea' +  id)
     $.each( nodes, function(index, value){
       if (value['id'] == id){
         return idea = value;
@@ -810,7 +805,7 @@ function ajaxCall(url){
   }
 
   function selected_id(){
-    var selected =  graph.selected[0][0]
+    var selected =  graph.selected.node()
     if (selected != null){
       clear_alert();
       return selected.id}
@@ -828,14 +823,15 @@ function ajaxCall(url){
   };
 
   function show_wiki(title){
-    var url = 'http://es.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
+    var language = 'en'
+    var url = 'http://' + language + '.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
     get_wiki(url).done(function(data){
-      console.log(data);
       if(data.error != null){
         d3.select('#alert').html('Not found')
         d3.select('.wiki div').html('Not found')
       }else{
-      d3.select('.wiki div').html(data.parse.text['*'])};
+      var text = data.parse.text['*'];
+      d3.select('.wiki div').html(text)};
       d3.select('.wiki').classed("wiki-open", true);
     });
   }
@@ -847,23 +843,22 @@ function ajaxCall(url){
     });
   }
 
-  // createIdeas("#initial","random");
   d3.select('#related-button-wt').on("click", function(){
     if (selected_id() != null){
-    createIdeas( '#' + selected_id() ,"related_idol_wt" )
+    createIdeas( '#' + selected_id() ,"related_idol_wt" , 'en')
     }
   });
   d3.select('#related-button').on("click", function(){
     if (selected_id() != null){
-    createIdeas( '#' + selected_id() ,"related_idol")
+    createIdeas( '#' + selected_id() ,"related_idol" , 'en')
     }
   });
 
  d3.select('#random-button').on("click", function(){
     if (selected_id() != null){
-  createIdeas( '#' + d3.select('.selected')[0][0].id ,"random")}
+  createIdeas( '#' + selected_id() ,"random" , 'en')
     }
-  );
+  });
 
   d3.select('#wikishow').on("click", function(){
     if (selected_id() != null){
@@ -873,8 +868,17 @@ function ajaxCall(url){
    d3.select('#close-wiki').on("click", function(){
     d3.select('.wiki').classed('wiki-open', false);
   });
-
-
+   d3.select('#idea-plus').on("click", function(){
+    change_size(1)
+  });
+   d3.select('#idea-minus').on("click", function(){
+    change_size(-1)
+  });
+   function change_size(plus_minus){
+    var selected = d3.select('.selected');
+    var size = parsePx(selected.style('font-size'));
+    selected.style('font-size', parseInt( size + 2 * plus_minus ) + 'px');
+  }
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
