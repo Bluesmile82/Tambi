@@ -24,6 +24,26 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
     // define arrow markers for graph links
     var defs = svg.append('svg:defs');
+
+    defs.append("svg:linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "100%")
+    .attr("spreadMethod", "pad");
+
+    // Define the gradient colors
+    defs.append("svg:stop")
+        .attr("offset", "0%")
+        .attr("stop-color", "#a00000")
+        .attr("stop-opacity", 1);
+
+    defs.append("svg:stop")
+        .attr("offset", "100%")
+        .attr("stop-color", "#aaaa00")
+        .attr("stop-opacity", 1);
+
     defs.append('svg:marker')
       .attr('id', 'end-arrow')
       .attr('viewBox', '0 -5 10 10')
@@ -48,6 +68,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     thisGraph.svg = svg;
     thisGraph.svgG = svg.append("g")
           .classed(thisGraph.consts.graphClass, true);
+          // .attr('fill', "url(#gradient)" );
     var svgG = thisGraph.svgG;
 
     // displayed when dragging between nodes
@@ -676,12 +697,15 @@ function ajaxCall(url){
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
       // $.each(data.query.random, function( index, value ) {
+      var bias = 300;
       function sign(){ return Math.random() < 0.5 ? -1 : 1};
-      function delay(){ return (Math.random() * 2000) };
-      console.log('delay',delay() )
-      function top(){ return parseInt(sign() * Math.random() * 200 + parent_top) };
-      function left(){ return parent_left + (( Math.random() + 200) *  sign() ) };
+      function delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
+      function top(){ return parseInt( parent_top + (Math.random() * bias) * sign() )}; // top parent + 100 + (0 to bias * sign)
+      function left(){ return parent_left + (( Math.random() * bias) *  sign() ) }; // left parent + 100 + 0 to bias * sign
+      function font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
+      console.log(font_size());
       var duration = 6000;
+      console.log('delay',delay() )
 
       function data_title(data) {
         switch(type) {
@@ -716,6 +740,7 @@ function ajaxCall(url){
                    var t = top();
                     return 'translate(' + l + ',' + t + ')'
                   })
+                  .style('font-size', function(data){ return font_size() })
                   .attr('id', function(data) { return data_title(data); })
                   .on("click", function(){
                     var transform = d3.select(this).attr('transform');
@@ -724,7 +749,8 @@ function ajaxCall(url){
                     graph.createLink( graph.find_idea_by_id(id), newIdea );
                     d3.select(this).remove();
                   })
-                  .append('text').text(function(data) { return data_title(data); });
+                  .append('text')
+                  .text(function(data) { return data_title(data); });
 
       var dead_concept = new_concept
                   .transition().delay(delay).duration(duration).style({'opacity':'1'})

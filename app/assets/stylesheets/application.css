@@ -87,7 +87,6 @@ p{
   height: 100%;
   background-color: linen;
   position: absolute;
-  font-family: 'Quicksand', sans-serif;
 }
 #controls{
   position: fixed;
@@ -115,13 +114,14 @@ circle{
   opacity: 0;
 }
 */
-.concept{
+text{
+  font-family: 'Quicksand', sans-serif;
 
 }
 
 .random{
- font-size: 2em;
+  height: 1em;
   fill:grey;
   opacity: 0;
-  position:absolute;
+  position:relative;
 }
