@@ -48,7 +48,7 @@ g.selected:hover circle{
 
 path.link {
     fill: none;
-    stroke: #ccc;
+    stroke: #BEFFFF;
     stroke-width: 3px;
     cursor: default;
 }

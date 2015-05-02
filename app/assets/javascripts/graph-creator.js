@@ -432,6 +432,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
         }
       }
     }
+    thisGraph.selected = d3node;
     state.mouseDownNode = null;
     return;
 
@@ -683,6 +684,10 @@ function ajaxCall(url){
     return $.ajax({
       url: url,
       dataType: 'json',
+       error: function (request, error) {
+        console.log(arguments);
+        alert(" Can't do because: " + error);
+    },
     });
   }
 
@@ -697,7 +702,14 @@ function ajaxCall(url){
 
   function createIdeas(id, type){
     var title =  graph.find_idea_by_id(id)['title'];
-    getIdeas(type, title).done(function(data){
+    getIdeas(type, title).done(function(data, errors){
+
+      if(data_base(data) != undefined && data_base(data).length == 0){
+         d3.select('#alert').text('Term not found');
+      }
+
+      console.log('errors', errors);
+      console.log('data', data);
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
@@ -709,7 +721,7 @@ function ajaxCall(url){
       function top(){ return parseInt( parent_top + (Math.random() * bias) * sign() )}; // top parent + 100 + (0 to bias * sign)
       function left(){ return parent_left + (( Math.random() * bias) *  sign() ) }; // left parent + 100 + 0 to bias * sign
       function font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
-      console.log(font_size());
+      var duration_in = 2000;
       var duration = 6000;
       console.log('delay',delay() )
 
@@ -725,8 +737,7 @@ function ajaxCall(url){
           alert('not found');
         } };
 
-      var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
-      .data(function(){
+      function data_base(data) {
         switch(type) {
           case 'random':
             return data.query.random;
@@ -737,7 +748,10 @@ function ajaxCall(url){
           default:
           alert('not found');
         }
-      });
+      }
+
+      var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
+      .data(data_base(data));
 
       new_concept.enter().append('g')
                   .attr('class', 'concept random')
@@ -759,7 +773,7 @@ function ajaxCall(url){
                   .text(function(data) { return data_title(data); });
 
       var dead_concept = new_concept
-                  .transition().delay(delay).duration(duration).style({'opacity':'1'})
+                  .transition().delay(delay).duration(duration_in).style({'opacity':'1'})
                   .transition().duration(duration).style({'opacity':'0'})
                   .duration(duration).attr('data-status','dead')
                   .remove();
@@ -796,7 +810,7 @@ function ajaxCall(url){
   }
 
   function selected_id(){
-    var selected =  d3.select('.selected')[0][0]
+    var selected =  graph.selected[0][0]
     if (selected != null){
       clear_alert();
       return selected.id}
@@ -814,12 +828,13 @@ function ajaxCall(url){
   };
 
   function show_wiki(title){
-
     var url = 'http://es.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
     get_wiki(url).done(function(data){
       console.log(data);
-      if(data.error != null){d3.select('.wiki div').html('Not found')}
-      else{
+      if(data.error != null){
+        d3.select('#alert').html('Not found')
+        d3.select('.wiki div').html('Not found')
+      }else{
       d3.select('.wiki div').html(data.parse.text['*'])};
       d3.select('.wiki').classed("wiki-open", true);
     });
@@ -852,7 +867,6 @@ function ajaxCall(url){
 
   d3.select('#wikishow').on("click", function(){
     if (selected_id() != null){
-      var wiki = d3.select('.wiki');
       show_wiki( graph.find_title_by_id( '#' + selected_id() ));
     }
   });
