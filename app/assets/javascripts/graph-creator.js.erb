@@ -373,7 +373,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
             d3.select(this.parentElement).remove();
         d3.select(htmlEl).attr('id', 'id' + d.id);
         d3.select(htmlEl).attr('title', d.title);
-        save_idea(d);
+        create_idea(d);
+        console.log( <%= Idea.last.id %> );
           });
     return d3txt;
   };
@@ -631,7 +632,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
         d = {id: thisGraph.idct++, title: toWhiteSpace(title) , x: x , y: y};
     thisGraph.nodes.push(d);
     thisGraph.updateGraph();
-    save_idea(d);
+    console.log(create_idea(d));
     return d;
   }
 
@@ -846,26 +847,27 @@ function ajaxCall(url){
   }
 
   function create_idea(d){
-    console.log(d);
     $.ajax({
         type: "POST",
         url: '/ideas/' ,
-        data: { x: d.x , y: d.y, font_size: 20 },
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        data: {idea: { x: d.x , y: d.y, font_size: 20 }},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-           }},
+           }
+           console.log('idea', <%= Idea.last.id %>);
+        },
         error: function (xhr, ajaxOptions, thrownError) {
-          console.log({ x: d.x , y: d.y, font_size: 20 });
         }
       });
   }
 
   function save_idea(d){
-    console.log(d);
     $.ajax({
         type: "PUT",
         url: '/ideas/' + d.id ,
-        data: { x: d.x , y: d.y, font_size: 20 },
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        data: {idea: { x: d.x , y: d.y, font_size: 20 }},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            }
@@ -909,11 +911,13 @@ function ajaxCall(url){
    d3.select('#idea-minus').on("click", function(){
     change_size(-1)
   });
+
    function change_size(plus_minus){
     var selected = d3.select('.selected');
     var size = parsePx(selected.style('font-size'));
     selected.style('font-size', parseInt( size + 2 * plus_minus ) + 'px');
   }
+
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
