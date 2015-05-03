@@ -373,6 +373,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
             d3.select(this.parentElement).remove();
         d3.select(htmlEl).attr('id', 'id' + d.id);
         d3.select(htmlEl).attr('title', d.title);
+        save_idea(d);
           });
     return d3txt;
   };
@@ -630,6 +631,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
         d = {id: thisGraph.idct++, title: toWhiteSpace(title) , x: x , y: y};
     thisGraph.nodes.push(d);
     thisGraph.updateGraph();
+    save_idea(d);
     return d;
   }
 
@@ -826,13 +828,13 @@ function ajaxCall(url){
     var language = 'en'
     var url = 'http://' + language + '.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
     get_wiki(url).done(function(data){
-      if(data.error != null){
+      if(data.error != undefined){
         d3.select('#alert').html('Not found')
         d3.select('.wiki div').html('Not found')
       }else{
+      d3.select('.wiki').classed("wiki-open", true);
       var text = data.parse.text['*'];
       d3.select('.wiki div').html(text)};
-      d3.select('.wiki').classed("wiki-open", true);
     });
   }
 
@@ -841,6 +843,39 @@ function ajaxCall(url){
       url: url,
       dataType: 'json',
     });
+  }
+
+  function create_idea(d){
+    console.log(d);
+    $.ajax({
+        type: "POST",
+        url: '/ideas/' ,
+        data: { x: d.x , y: d.y, font_size: 20 },
+        success: function(result){
+           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           }},
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log({ x: d.x , y: d.y, font_size: 20 });
+        }
+      });
+  }
+
+  function save_idea(d){
+    console.log(d);
+    $.ajax({
+        type: "PUT",
+        url: '/ideas/' + d.id ,
+        data: { x: d.x , y: d.y, font_size: 20 },
+        success: function(result){
+           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        if (xhr.status == 422){
+          create_idea(d);
+        };
+      }
+      });
   }
 
   d3.select('#related-button-wt').on("click", function(){

@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  ideas_id: 
+  x: 1.5
+  'y': 1.5
+  font_size: 1
 
 two:
-  title: MyString
-  ideas_id: 
+  x: 1.5
+  'y': 1.5
+  font_size: 1
