@@ -855,9 +855,9 @@ function ajaxCall(url){
   function create_idea(d){
     $.ajax({
         type: "POST",
-        url: '/ideas/' ,
+        url: 'ideas/' ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { x: d.x , y: d.y, font_size: 20 }},
+        data: {concept: {title: d.title}, idea: { id: d.id, x: d.x , y: d.y, font_size: 20 }},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            }
@@ -911,12 +911,29 @@ function ajaxCall(url){
     d3.select('.wiki').classed('wiki-open', false);
   });
    d3.select('#idea-plus').on("click", function(){
-    change_size(1)
+    change_size(1);
   });
    d3.select('#idea-minus').on("click", function(){
-    change_size(-1)
+    change_size(-1);
+    load_data();
   });
 
+   function load_data(){
+    var graph_id = $('#window').attr('data-graph');
+     $.ajax({
+        type: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        url: '/graphs/'+ graph_id +'/ideas/',
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        success: function(result){
+          console.log(result);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+      }
+      });
+   }
    function change_size(plus_minus){
     var selected = d3.select('.selected');
     var size = parsePx(selected.style('font-size'));

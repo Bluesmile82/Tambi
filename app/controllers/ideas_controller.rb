@@ -3,7 +3,10 @@ class IdeasController < ApplicationController
   before_action :set_graph, only: [:index, :create, :edit, :update, :destroy]
 
   def index
-    @ideas = Idea.all
+    respond_to do |format|
+      format.html { @ideas = Idea.all }
+      format.json {@json = render json: @ideas }
+    end
   end
 
   def show
@@ -13,16 +16,11 @@ class IdeasController < ApplicationController
   end
 
   def create
-    @idea = Idea.new(idea_params)
-
-    respond_to do |format|
-      if @idea.save
-        format.html { redirect_to @idea, notice: 'Idea was successfully created.' }
-        format.json { render :show, status: :created, location: @idea }
-      else
-        format.html { render :new }
-        format.json { render json: @idea.errors, status: :unprocessable_entity }
-      end
+    concept = Concept.new(title: params[:concept][:title])
+    concept.save
+    @idea = Idea.new(graph_id: @graph.id, concept_id: concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size], )
+    if @idea.save
+      render nothing: true, status: 200
     end
   end
 
@@ -62,6 +60,6 @@ class IdeasController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def idea_params
-      params.require(:idea).permit(:x, :y, :font_size)
+      params.require(:idea).permit(:id, :x, :y, :font_size, :graph_id, :concept_id)
     end
 end
