@@ -145,6 +145,22 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     });
 
 
+    function initialize_ideas(jsonObj){
+            thisGraph.deleteGraph(true);
+            thisGraph.nodes = jsonObj.nodes;
+            thisGraph.setIdCt(jsonObj.nodes.length + 1);
+            var newEdges = jsonObj.edges;
+            newEdges.forEach(function(e, i){
+              newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
+                          target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0]};
+            });
+            thisGraph.edges = newEdges;
+            thisGraph.updateGraph();
+    }
+
+
+    // initialize_ideas(<%= @ideas %>);
+
     // handle uploaded data
     d3.select("#upload-input").on("click", function(){
       document.getElementById("hidden-file-upload").click();
@@ -159,16 +175,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           // TODO better error handling
           try{
             var jsonObj = JSON.parse(txtRes);
-            thisGraph.deleteGraph(true);
-            thisGraph.nodes = jsonObj.nodes;
-            thisGraph.setIdCt(jsonObj.nodes.length + 1);
-            var newEdges = jsonObj.edges;
-            newEdges.forEach(function(e, i){
-              newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
-                          target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0]};
-            });
-            thisGraph.edges = newEdges;
-            thisGraph.updateGraph();
+            initialize_ideas(jsonObj);
           }catch(err){
             window.alert("Error parsing uploaded file\nerror message: " + err.message);
             return;
@@ -374,7 +381,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
         d3.select(htmlEl).attr('id', 'id' + d.id);
         d3.select(htmlEl).attr('title', d.title);
         create_idea(d);
-        console.log( <%= Idea.last.id %> );
           });
     return d3txt;
   };
@@ -609,7 +615,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
   // warn the user when leaving
   window.onbeforeunload = function(){
-    return "Make sure to save your graph locally before leaving :-)";
+    // return "Make sure to save your graph locally before leaving :-)";
   };
 
   var docEl = document.documentElement,
@@ -855,7 +861,6 @@ function ajaxCall(url){
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            }
-           console.log('idea', <%= Idea.last.id %>);
         },
         error: function (xhr, ajaxOptions, thrownError) {
         }
@@ -915,7 +920,16 @@ function ajaxCall(url){
    function change_size(plus_minus){
     var selected = d3.select('.selected');
     var size = parsePx(selected.style('font-size'));
-    selected.style('font-size', parseInt( size + 2 * plus_minus ) + 'px');
+    var line_height = parsePx(selected.style('line-height'));
+    console.log(line_height);
+    if (size > 14 && plus_minus == -1 || size < 154 && plus_minus == 1){
+      selected.style('font-size', parseInt( size + 30 * plus_minus ) + 'px');
+      selected.style('line-height', parseInt( size + 30 * plus_minus ) + 'px');
+    }
+  }
+
+  function getEm(selected){
+    return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))
   }
 
   function parsePx(string){

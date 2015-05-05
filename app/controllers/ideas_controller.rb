@@ -1,28 +1,17 @@
 class IdeasController < ApplicationController
   before_action :set_idea, only: [:show, :edit, :update, :destroy]
+  before_action :set_graph, only: [:index, :create, :edit, :update, :destroy]
 
-  # GET /ideas
-  # GET /ideas.json
   def index
     @ideas = Idea.all
   end
 
-  # GET /ideas/1
-  # GET /ideas/1.json
   def show
   end
 
-  # GET /ideas/new
-  def new
-    @idea = Idea.new
-  end
-
-  # GET /ideas/1/edit
   def edit
   end
 
-  # POST /ideas
-  # POST /ideas.json
   def create
     @idea = Idea.new(idea_params)
 
@@ -65,6 +54,10 @@ class IdeasController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_idea
       @idea = Idea.find(params[:id])
+    end
+
+    def set_graph
+      @graph = Graph.find(params[:graph_id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

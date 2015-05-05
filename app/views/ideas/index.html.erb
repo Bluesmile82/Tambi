@@ -1,32 +1,33 @@
 <div id="window">
 </div>
 <div id="controls">
-
-  <p id='alert'></p>
-  <p>
-  <button id="random-button" class="btn btn-default">Create Random</button>
-  <button id="related-button" class="btn btn-default">Create Related</button>
-  <button id="related-button-wt" class="btn btn-default">Create Wikipedia Type</button>
-  </p>
   <p>Select an Idea clicking on it and create Random concepts from it</p>
   <p>Shift + click to create a new idea</p>
   <p>Shift + click in an idea to change the content</p>
   <p>Shift + drag to relate ideas,</p>
   <p>Backspace to delete </p>
 </div>
-
 <div class="wiki"><div></div><i class="fa fa-times fa-3x" id="close-wiki"></i></div>
 
     <div id="toolbox">
+      <p id='alert'></p>
+      <h2><%= link_to graphs_path do %>
+        <i class="fa fa-arrow-left"></i>
+      <% end %>
+        <%= @graph.title %></h2>
       <input type="file" id="hidden-file-upload">
-      <input id="upload-input" type="image" title="upload graph" src="upload-icon.png" alt="upload graph">
-      <input type="image" id="download-input" title="download graph" src="download-icon.png" alt="download graph">
-      <input type="image" id="delete-graph" title="delete graph" src="trash-icon.png" alt="delete graph">
+      </input>
+      <i class="fa fa-upload fa-2x" id="upload-input"></i>
+      <i class="fa fa-download fa-2x" id="download-input"></i>
+
+    </div>
     <div id="idea-toolbox">
       <i class="fa fa-question-circle fa-3x" id="wikishow"></i>
       <i class="fa fa-plus-circle fa-3x" id="idea-plus"></i>
       <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
-    </div>
+      <div><div id="random-button" class="btn btn-default">Create Random</div></div>
+      <div><div id="related-button" class="btn btn-default">Create Related</div></div>
+      <div><div id="related-button-wt" class="btn btn-default">Create Wikipedia Type</div></div>
     </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>
     <script src="//cdn.jsdelivr.net/filesaver.js/0.1/FileSaver.min.js"></script>
