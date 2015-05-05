@@ -18,7 +18,7 @@ class IdeasController < ApplicationController
   def create
     concept = Concept.new(title: params[:concept][:title])
     concept.save
-    @idea = Idea.new(graph_id: @graph.id, concept_id: concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size], )
+    @idea = Idea.new(graph_id: @graph.id, concept_id: concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size] )
     if @idea.save
       render nothing: true, status: 200
     end
@@ -42,10 +42,7 @@ class IdeasController < ApplicationController
   # DELETE /ideas/1.json
   def destroy
     @idea.destroy
-    respond_to do |format|
-      format.html { redirect_to ideas_url, notice: 'Idea was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    render nothing: true, status: 200
   end
 
   private

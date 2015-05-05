@@ -479,7 +479,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     }
     state.graphMouseDown = false;
   };
-
   // keydown on main svg
   GraphCreator.prototype.svgKeyDown = function() {
     var thisGraph = this,
@@ -497,10 +496,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     case consts.DELETE_KEY:
       d3.event.preventDefault();
       if (selectedNode){
-        thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-        thisGraph.spliceLinksForNode(selectedNode);
-        state.selectedNode = null;
-        thisGraph.updateGraph();
+        delete_idea(thisGraph, selectedNode, state);
       } else if (selectedEdge){
         thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
         state.selectedEdge = null;
@@ -628,10 +624,16 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       yLoc = height/2;
 
   // initial node data
-  var nodes = [{title: "Laura", id: 0, x: xLoc, y: yLoc}];
-               // {title: "new concept", id: 1, x: xLoc, y: yLoc + 200}
-   var edges = [];//[{source: nodes[1], target: nodes[0]}];
+  var nodes = [];
+  var edges = [];
 
+  /** MAIN SVG **/
+  var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+  var graph = new GraphCreator(svg, nodes, edges);
+      graph.setIdCt(2);
+  graph.updateGraph();
 
   GraphCreator.prototype.createIdea = function( title, x , y ) {
     var thisGraph = this,
@@ -641,14 +643,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     console.log(create_idea(d));
     return d;
   }
-
-  /** MAIN SVG **/
-  var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-  var graph = new GraphCreator(svg, nodes, edges);
-      graph.setIdCt(2);
-  graph.updateGraph();
+graph.createIdea('Laura',xLoc, yLoc);
 
  GraphCreator.prototype.createLink = function ( idea_one, idea_two){
         // we're in a different node: create new edge for mousedown edge and add to graph
@@ -685,9 +680,9 @@ function ajaxCall(url){
     case 'related_idol_wt':
       url = "https://api.idolondemand.com/1/api/sync/getparametricvalues/v1?index=wiki_es&field_name=wikipedia_type&text=" + title + "&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
         break;
-    case 'related':
-      parseRelated().done(function(data){console.log('parsed ', data)});
-      break;
+    case 'flickr_tags':
+      url = 'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=289e70286ee086652c2dba8b889bb5e3&tag=' + title + '&format=json&nojsoncallback=1'
+        break;
     }
 
     return $.ajax({
@@ -711,7 +706,6 @@ function ajaxCall(url){
   function createIdeas(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
     get_ideas(type, title, language).done(function(data, errors){
-
       if(data_base(data) != undefined && data_base(data).length == 0){
          d3.select('#alert').text('Term not found');
       }
@@ -738,6 +732,8 @@ function ajaxCall(url){
             return data.text;
           case 'related_idol_wt':
             return data;
+          case 'flickr_tags' :
+            return data._content;
           default:
           alert('not found');
         } };
@@ -750,6 +746,8 @@ function ajaxCall(url){
             return data.entities;
           case 'related_idol_wt':
             return d3.keys(data.wikipedia_type);
+          case 'flickr_tags':
+            return data.tags.tag
           default:
           alert('not found');
         }
@@ -867,6 +865,32 @@ function ajaxCall(url){
       });
   }
 
+function delete_idea(thisGraph, selectedNode, state){
+  thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+  thisGraph.spliceLinksForNode(selectedNode);
+  state.selectedNode = null;
+  thisGraph.updateGraph();
+  ajax_delete(selectedNode);
+}
+
+function ajax_delete(selected){
+  console.log(selected.id);
+    var graph_id = $('#window').attr('data-graph');
+   $.ajax({
+        type: "DELETE",
+        url: 'ideas/' + selected.id ,
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        success: function(result){
+          console.log('deleted');
+           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+      }
+      });
+
+}
   function save_idea(d){
     $.ajax({
         type: "PUT",
@@ -899,6 +923,12 @@ function ajaxCall(url){
  d3.select('#random-button').on("click", function(){
     if (selected_id() != null){
   createIdeas( '#' + selected_id() ,"random" , 'en')
+    }
+  });
+
+ d3.select('#flickr-button').on("click", function(){
+    if (selected_id() != null){
+  createIdeas( '#' + selected_id() ,"flickr_tags" , 'en')
     }
   });
 
