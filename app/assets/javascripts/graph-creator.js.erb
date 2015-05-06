@@ -145,21 +145,19 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     });
 
 
-    function initialize_ideas(jsonObj){
-            thisGraph.deleteGraph(true);
-            thisGraph.nodes = jsonObj.nodes;
-            thisGraph.setIdCt(jsonObj.nodes.length + 1);
-            var newEdges = jsonObj.edges;
-            newEdges.forEach(function(e, i){
-              newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
-                          target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0]};
-            });
-            thisGraph.edges = newEdges;
-            thisGraph.updateGraph();
+    GraphCreator.prototype.initialize_ideas = function(jsonObj){
+      var thisGraph = this;
+      thisGraph.deleteGraph(true);
+      thisGraph.nodes = jsonObj.nodes;
+      thisGraph.setIdCt(jsonObj.nodes.length + 1);
+      var newEdges = jsonObj.edges;
+      newEdges.forEach(function(e, i){
+        newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
+                    target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0]};
+      });
+      thisGraph.edges = newEdges;
+      thisGraph.updateGraph();
     }
-
-
-    // initialize_ideas(<%= @ideas %>);
 
     // handle uploaded data
     d3.select("#upload-input").on("click", function(){
@@ -175,7 +173,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           // TODO better error handling
           try{
             var jsonObj = JSON.parse(txtRes);
-            initialize_ideas(jsonObj);
+            thisGraph.initialize_ideas(jsonObj);
           }catch(err){
             window.alert("Error parsing uploaded file\nerror message: " + err.message);
             return;
@@ -949,7 +947,8 @@ function ajax_delete(selected){
         url: '/graphs/'+ graph_id +'/ideas/',
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
         success: function(result){
-          initialize_ideas(result);
+          console.log(JSON.stringify(result));
+          graph.initialize_ideas(result);
         },
         error: function (xhr, ajaxOptions, thrownError) {
           console.log(thrownError);
