@@ -681,7 +681,7 @@ function ajaxCall(url){
       url = "https://api.idolondemand.com/1/api/sync/getparametricvalues/v1?index=wiki_es&field_name=wikipedia_type&text=" + title + "&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
         break;
     case 'flickr_tags':
-      url = 'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=289e70286ee086652c2dba8b889bb5e3&tag=' + title + '&format=json&nojsoncallback=1'
+      url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=5481a47f5212044748f086d9164366fa&tag=' + title + '&format=json&nojsoncallback=1'
         break;
     }
 
@@ -752,7 +752,6 @@ function ajaxCall(url){
           alert('not found');
         }
       }
-
       var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
       .data(data_base(data));
 
@@ -881,7 +880,6 @@ function ajax_delete(selected){
         url: 'ideas/' + selected.id ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
         success: function(result){
-          console.log('deleted');
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            }
         },
@@ -909,46 +907,40 @@ function ajax_delete(selected){
       });
   }
 
-  d3.select('#related-button-wt').on("click", function(){
-    if (selected_id() != null){
-    createIdeas( '#' + selected_id() ,"related_idol_wt" , 'en')
-    }
-  });
-  d3.select('#related-button').on("click", function(){
-    if (selected_id() != null){
-    createIdeas( '#' + selected_id() ,"related_idol" , 'en')
-    }
-  });
+  function click_button(id, language){
+   d3.select('#' + id + '-button').on("click", function(){
+      if (selected_id() != null){
+    createIdeas( '#' + selected_id() , id , language)
+      }
+    });
+  }
 
- d3.select('#random-button').on("click", function(){
-    if (selected_id() != null){
-  createIdeas( '#' + selected_id() ,"random" , 'en')
-    }
-  });
-
- d3.select('#flickr-button').on("click", function(){
-    if (selected_id() != null){
-  createIdeas( '#' + selected_id() ,"flickr_tags" , 'en')
-    }
-  });
+  click_button('related_idol_wt', 'en');
+  click_button('random-button', 'en');
+  click_button('flickr_tags', 'en');
 
   d3.select('#wikishow').on("click", function(){
     if (selected_id() != null){
       show_wiki( graph.find_title_by_id( '#' + selected_id() ));
     }
   });
-   d3.select('#close-wiki').on("click", function(){
+
+  d3.select('#close-wiki').on("click", function(){
     d3.select('.wiki').classed('wiki-open', false);
   });
-   d3.select('#idea-plus').on("click", function(){
+
+  d3.select('#idea-plus').on("click", function(){
     change_size(1);
   });
-   d3.select('#idea-minus').on("click", function(){
+
+  d3.select('#idea-minus').on("click", function(){
     change_size(-1);
+  });
+  d3.select('#load-data').on("click", function(){
     load_data();
   });
 
-   function load_data(){
+  function load_data(){
     var graph_id = $('#window').attr('data-graph');
      $.ajax({
         type: "GET",
@@ -957,7 +949,7 @@ function ajax_delete(selected){
         url: '/graphs/'+ graph_id +'/ideas/',
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
         success: function(result){
-          console.log(result);
+          initialize_ideas(result);
         },
         error: function (xhr, ajaxOptions, thrownError) {
           console.log(thrownError);

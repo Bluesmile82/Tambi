@@ -1,3 +1,3 @@
 class Concept < ActiveRecord::Base
-  belongs_to :ideas, :inverse_of => :concept
+  has_many :ideas
 end

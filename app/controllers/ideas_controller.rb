@@ -3,11 +3,9 @@ class IdeasController < ApplicationController
   before_action :set_graph, only: [:index, :create, :edit, :update, :destroy]
 
   def index
-    respond_to do |format|
-      format.html { @ideas = Idea.all }
-      format.json {@json = render json: @ideas }
-    end
+     @ideas = Idea.all
   end
+
 
   def show
   end

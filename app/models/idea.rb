@@ -1,5 +1,5 @@
 class Idea < ActiveRecord::Base
-  has_one :concept
+  belongs_to :concept
   belongs_to :graph
   has_many :links, foreign_key: "idea_a_id", dependent: :destroy
 
