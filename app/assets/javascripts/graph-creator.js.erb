@@ -146,7 +146,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
 
     GraphCreator.prototype.initialize_ideas = function(jsonObj){
-      var thisGraph = this;
+      var thisGraph = this,
+          state = thisGraph.state;
       thisGraph.deleteGraph(true);
       thisGraph.nodes = jsonObj.nodes;
       thisGraph.setIdCt(jsonObj.nodes.length + 1);
@@ -157,6 +158,12 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       });
       thisGraph.edges = newEdges;
       thisGraph.updateGraph();
+      thisGraph.nodes.forEach(function(d){
+        if (d.font_size != 20){
+          d3.select('#id' + d.id ).style('font-size', d.font_size);
+        };
+      });
+
     }
 
     // handle uploaded data
@@ -378,7 +385,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
             d3.select(this.parentElement).remove();
         d3.select(htmlEl).attr('id', 'id' + d.id);
         d3.select(htmlEl).attr('title', d.title);
-        create_idea(d);
+        update_idea(d);
+
           });
     return d3txt;
   };
@@ -458,18 +466,18 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       state.justScaleTransGraph = false;
     } else if (state.graphMouseDown && d3.event.shiftKey){
       // clicked not dragged from svg
-      var xycoords = d3.mouse(thisGraph.svgG.node()),
-          d = {id: thisGraph.idct++, title: "new idea", x: xycoords[0], y: xycoords[1]};
-  // thisGraph.createIdea('New Concept', xycoords[0] , xycoords[1]);
-      thisGraph.nodes.push(d);
-      thisGraph.updateGraph();
-      // make title of text immediently editable
+      var xycoords = d3.mouse(thisGraph.svgG.node());
+      thisGraph.createIdea('new idea', xycoords[0] , xycoords[1]).done(function(data){
+      var d = data;
       var d3txt = thisGraph.changeTextOfNode(thisGraph.circles.filter(function(dval){
         return dval.id === d.id;
       }), d),
           txtNode = d3txt.node();
       thisGraph.selectElementContents(txtNode);
       txtNode.focus();
+      });
+
+      // make title of text immediently editable
     } else if (state.shiftNodeDrag){
       // dragged from node
       state.shiftNodeDrag = false;
@@ -548,7 +556,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
     // remove old links
     paths.exit().remove();
-
     // update existing nodes
     thisGraph.circles = thisGraph.circles.data(thisGraph.nodes, function(d){ return d.id;});
     thisGraph.circles.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
@@ -625,6 +632,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
   var nodes = [];
   var edges = [];
 
+  load_data();
+
   /** MAIN SVG **/
   var svg = d3.select("body").append("svg")
         .attr("width", width)
@@ -635,12 +644,16 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
   GraphCreator.prototype.createIdea = function( title, x , y ) {
     var thisGraph = this,
-        d = {id: thisGraph.idct++, title: toWhiteSpace(title) , x: x , y: y};
+    d = {title: toWhiteSpace(title) , x: x , y: y, font_size: 20 };
+    return save_idea(d).done(function(data, errors){
+      d = {id: data.id, title: toWhiteSpace(title) , x: data.x , y: data.y, font_size: data.font_size };
     thisGraph.nodes.push(d);
     thisGraph.updateGraph();
-    console.log(create_idea(d));
     return d;
+    });
   }
+
+
 graph.createIdea('Laura',xLoc, yLoc);
 
  GraphCreator.prototype.createLink = function ( idea_one, idea_two){
@@ -700,8 +713,7 @@ function ajaxCall(url){
     return text.replace(/_/g, ' ')
   };
 
-
-  function createIdeas(id, type, language){
+  function createSuggestions(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
     get_ideas(type, title, language).done(function(data, errors){
       if(data_base(data) != undefined && data_base(data).length == 0){
@@ -711,7 +723,6 @@ function ajaxCall(url){
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
-      // $.each(data.query.random, function( index, value ) {
       var bias = 300;
       function sign(){ return Math.random() < 0.5 ? -1 : 1};
       function delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
@@ -721,7 +732,6 @@ function ajaxCall(url){
       var duration_in = 2000;
       var duration = 6000;
       console.log('delay',delay() )
-
       function data_title(data) {
         switch(type) {
           case 'random':
@@ -765,12 +775,14 @@ function ajaxCall(url){
                   .on("click", function(){
                     var transform = d3.select(this).attr('transform');
                     var translate = d3.transform(transform).translate;
-                    var newIdea = graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] );
-                    graph.createLink( graph.find_idea_by_id(id), newIdea );
-                    d3.select(this).remove();
+                    graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] ).done(function(data){
+                      var newIdea = data;
+                      graph.createLink( graph.find_idea_by_id(id), newIdea );
+                    });
+                      d3.select(this).remove();
                   })
                   .append('text')
-                  .text(function(data) { return data_title(data); });
+                  .text(function(data) { return data_title(data) });
 
       var dead_concept = new_concept
                   .transition().delay(delay).duration(duration_in).style({'opacity':'1'})
@@ -847,20 +859,6 @@ function ajaxCall(url){
     });
   }
 
-  function create_idea(d){
-    $.ajax({
-        type: "POST",
-        url: 'ideas/' ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {concept: {title: d.title}, idea: { id: d.id, x: d.x , y: d.y, font_size: 20 }},
-        success: function(result){
-           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-           }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-        }
-      });
-  }
 
 function delete_idea(thisGraph, selectedNode, state){
   thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
@@ -887,19 +885,38 @@ function ajax_delete(selected){
       });
 
 }
+
   function save_idea(d){
-    $.ajax({
-        type: "PUT",
-        url: '/ideas/' + d.id ,
+    return $.ajax({
+        type: "POST",
+        url: 'ideas/' ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { x: d.x , y: d.y, font_size: 20 }},
+        data: {concept: {title: d.title}, idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size }},
+          dataType: 'json',
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+          return result;
+           }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+        }
+      });
+  }
+
+  function update_idea(d){
+    $.ajax({
+        type: "PUT",
+        url: 'ideas/' + d.id ,
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        data: {concept: {title: d.title}, idea: { id:d.id, x: d.x , y: d.y, font_size: d.font_size }},
+        success: function(result){
+           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           return result;
            }
         },
         error: function (xhr, ajaxOptions, thrownError) {
         if (xhr.status == 422){
-          create_idea(d);
+          console.log(thrownError);
         };
       }
       });
@@ -908,13 +925,14 @@ function ajax_delete(selected){
   function click_button(id, language){
    d3.select('#' + id + '-button').on("click", function(){
       if (selected_id() != null){
-    createIdeas( '#' + selected_id() , id , language)
+    createSuggestions( '#' + selected_id() , id , language)
       }
     });
   }
 
   click_button('related_idol_wt', 'en');
-  click_button('random-button', 'en');
+  click_button('random', 'en');
+  click_button('related_idol', 'en');
   click_button('flickr_tags', 'en');
 
   d3.select('#wikishow').on("click", function(){
@@ -928,14 +946,11 @@ function ajax_delete(selected){
   });
 
   d3.select('#idea-plus').on("click", function(){
-    change_size(1);
+    update_idea( change_size(1) );
   });
 
   d3.select('#idea-minus').on("click", function(){
-    change_size(-1);
-  });
-  d3.select('#load-data').on("click", function(){
-    load_data();
+    update_idea( change_size(-1) );
   });
 
   function load_data(){
@@ -947,7 +962,6 @@ function ajax_delete(selected){
         url: '/graphs/'+ graph_id +'/ideas/',
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
         success: function(result){
-          console.log(JSON.stringify(result));
           graph.initialize_ideas(result);
         },
         error: function (xhr, ajaxOptions, thrownError) {
@@ -955,14 +969,17 @@ function ajax_delete(selected){
       }
       });
    }
+
    function change_size(plus_minus){
     var selected = d3.select('.selected');
     var size = parsePx(selected.style('font-size'));
     var line_height = parsePx(selected.style('line-height'));
-    console.log(line_height);
     if (size > 14 && plus_minus == -1 || size < 154 && plus_minus == 1){
       selected.style('font-size', parseInt( size + 30 * plus_minus ) + 'px');
       selected.style('line-height', parseInt( size + 30 * plus_minus ) + 'px');
+    var idea = graph.find_idea_by_id( '#' + selected.node().id);
+    idea.font_size = parseInt( size + 30 * plus_minus );
+    return idea;
     }
   }
 
