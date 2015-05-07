@@ -95,6 +95,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           })
           .on("dragend", function() {
             // todo check if edge-mode is selected
+
           });
 
     // listen for key events
@@ -431,6 +432,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       // we're in the same node
       if (state.justDragged) {
         // dragged, not clicked
+        update_idea(d);
         state.justDragged = false;
       } else{
         // clicked, not dragged
