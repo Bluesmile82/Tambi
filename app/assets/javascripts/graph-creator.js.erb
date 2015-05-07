@@ -653,9 +653,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     });
   }
 
-
-graph.createIdea('Laura',xLoc, yLoc);
-
  GraphCreator.prototype.createLink = function ( idea_one, idea_two){
         // we're in a different node: create new edge for mousedown edge and add to graph
       var newEdge = {source: idea_one, target: idea_two};
@@ -891,7 +888,7 @@ function ajax_delete(selected){
         type: "POST",
         url: 'ideas/' ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {concept: {title: d.title}, idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size }},
+        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title}},
           dataType: 'json',
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
@@ -908,7 +905,7 @@ function ajax_delete(selected){
         type: "PUT",
         url: 'ideas/' + d.id ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {concept: {title: d.title}, idea: { id:d.id, x: d.x , y: d.y, font_size: d.font_size }},
+        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title}},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            return result;
