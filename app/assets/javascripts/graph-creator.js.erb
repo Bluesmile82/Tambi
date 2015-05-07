@@ -151,6 +151,13 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       thisGraph.deleteGraph(true);
       thisGraph.nodes = jsonObj.nodes;
       thisGraph.setIdCt(jsonObj.nodes.length + 1);
+      var first_idea = thisGraph.nodes[0]
+      if (first_idea.title == 'Idea'){
+       first_idea.x = xLoc;
+       first_idea.y = yLoc;
+       update_idea(first_idea);
+      };
+
       var newEdges = jsonObj.edges;
       newEdges.forEach(function(e, i){
         newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
@@ -163,6 +170,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           d3.select('#id' + d.id ).style('font-size', d.font_size);
         };
       });
+
 
     }
 
@@ -614,11 +622,6 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
   /**** MAIN ****/
 
-  // warn the user when leaving
-  window.onbeforeunload = function(){
-    // return "Make sure to save your graph locally before leaving :-)";
-  };
-
   var docEl = document.documentElement,
       bodyEl = document.getElementsByTagName('body')[0];
 
@@ -633,13 +636,13 @@ document.onload = (function(d3, saveAs, Blob, undefined){
   var edges = [];
 
   load_data();
-
   /** MAIN SVG **/
   var svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height);
   var graph = new GraphCreator(svg, nodes, edges);
-      graph.setIdCt(2);
+
+  graph.setIdCt(2);
   graph.updateGraph();
 
   GraphCreator.prototype.createIdea = function( title, x , y ) {
@@ -660,6 +663,19 @@ document.onload = (function(d3, saveAs, Blob, undefined){
         thisGraph.edges.push(newEdge);
         thisGraph.updateGraph();
  }
+
+  GraphCreator.prototype.find_idea_by_title = function(title){
+    var nodes = this.nodes;
+    var idea = null;
+    console.log('nodes', nodes);
+    $.each( nodes, function(index, value){
+      if (value['title'] == title){
+        return idea = value;
+      }
+    })
+    return idea;
+}
+
 // show.js
 
 
@@ -689,7 +705,7 @@ function ajaxCall(url){
       url = "https://api.idolondemand.com/1/api/sync/getparametricvalues/v1?index=wiki_es&field_name=wikipedia_type&text=" + title + "&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
         break;
     case 'flickr_tags':
-      url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=5481a47f5212044748f086d9164366fa&tag=' + title + '&format=json&nojsoncallback=1'
+      url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=46649a4365f1ea733e08c79954e4e55e&tag=' + title + '&format=json&nojsoncallback=1'
         break;
     }
 
@@ -752,7 +768,12 @@ function ajaxCall(url){
           case 'related_idol_wt':
             return d3.keys(data.wikipedia_type);
           case 'flickr_tags':
+          if (data.stat == 'fail'){
+            console.log(data.message);
+          }else{
             return data.tags.tag
+          }
+          break;
           default:
           alert('not found');
         }
@@ -801,17 +822,6 @@ function ajaxCall(url){
     return idea;
   }
 
-  GraphCreator.prototype.find_idea_by_title = function(id){
-    var nodes = this.nodes;
-    var idea = null;
-    id = toWhiteSpace(id.slice(1));
-    $.each( nodes, function(index, value){
-      if (value['title'] == id){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
 
   GraphCreator.prototype.find_title_by_id = function(id){
    return this.find_idea_by_id(id)['title']
@@ -896,6 +906,7 @@ function ajax_delete(selected){
            }
         },
         error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
         }
       });
   }

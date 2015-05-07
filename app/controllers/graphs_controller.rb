@@ -5,6 +5,10 @@ class GraphsController < ApplicationController
     @graphs= Graph.all
   end
 
+  def show
+      redirect_to graph_ideas_path(@graph)
+  end
+
   def create
     @graph = Graph.new(graph_params)
     if @graph.save
