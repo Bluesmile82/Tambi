@@ -357,7 +357,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
   /* place editable text on node in place of svg text */
   GraphCreator.prototype.changeTextOfNode = function(d3node, d){
-    var thisGraph= this,
+    var thisGraph = this,
         consts = thisGraph.consts,
         htmlEl = d3node.node();
     d3node.selectAll("text").remove();
@@ -389,16 +389,23 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           })
           .on("blur", function(d){
             d.title = this.textContent;
-            d3.select(this.parentElement).attr('id', d.title);
-            thisGraph.insertTitleLinebreaks(d3node, d.title);
-            d3.select(this.parentElement).remove();
-        d3.select(htmlEl).attr('id', 'id' + d.id);
-        d3.select(htmlEl).attr('title', d.title);
-        update_idea(d);
-
+            thisGraph.update_text_of_idea(d3node, d, this);
           });
     return d3txt;
   };
+
+  GraphCreator.prototype.update_text_of_idea = function(d3node, d, txt_tmp){
+    var thisGraph = this;
+    var htmlEl = d3node.node();
+    console.log(thisGraph);
+    var idea = thisGraph.find_idea_by_id_clean( d.id );
+    idea.title = d.title;
+    thisGraph.insertTitleLinebreaks(d3node, d.title);
+    d3.select(txt_tmp.parentElement).remove();
+    d3.select(htmlEl).attr('id', 'id' + d.id);
+    d3.select(htmlEl).attr('title', d.title);
+    update_idea(d);
+  }
 
   // mouseup on nodes
   GraphCreator.prototype.circleMouseUp = function(d3node, d){
@@ -432,6 +439,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       // we're in the same node
       if (state.justDragged) {
         // dragged, not clicked
+        console.log('d',d);
         update_idea(d);
         state.justDragged = false;
       } else{
@@ -823,6 +831,10 @@ function ajaxCall(url){
     })
     return idea;
   }
+  GraphCreator.prototype.find_idea_by_id_clean = function(id){
+    return this.find_idea_by_id('#id' + id )
+  }
+
 
 
   GraphCreator.prototype.find_title_by_id = function(id){
