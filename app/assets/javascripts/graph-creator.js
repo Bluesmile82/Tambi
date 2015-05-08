@@ -443,8 +443,16 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       // if (!filtRes[0].length){
       //   thisGraph.edges.push(newEdge);
       //   thisGraph.updateGraph();
-      // }
-      thisGraph.create_link(mouseDownNode, d, thisGraph.idLink++)
+      //  }
+      var existing_link = thisGraph.edges.map(function(link){
+        if ( link.target.id == newEdge.source.id && link.source.id == newEdge.target.id ||
+            link.target.id == newEdge.target.id && link.source.id == newEdge.source.id ){
+          return false;
+        }
+      });
+      if( existing_link.indexOf(false) == -1 ){
+        thisGraph.create_link(mouseDownNode, d, thisGraph.idLink++)
+      }
     } else{
       // we're in the same node
       if (state.justDragged) {
@@ -736,6 +744,9 @@ function ajaxCall(url){
     case 'flickr_tags':
       url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=46649a4365f1ea733e08c79954e4e55e&tag=' + title + '&format=json&nojsoncallback=1'
         break;
+    case 'wordnik':
+      url =  'http://api.wordnik.com:80/v4/word.json/' + title + '/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
+        break;
     }
 
     return $.ajax({
@@ -797,6 +808,9 @@ function ajaxCall(url){
         return data.tags.tag
       }
       break;
+      case 'wordnik':
+        console.log(data);
+      break;
       default:
       alert('not found');
     }
@@ -805,6 +819,7 @@ function ajaxCall(url){
   function createSuggestions(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
     get_ideas(type, title, language).done(function(data, errors){
+    console.log(data);
       var data_b = data_base(data, type);
       if(data_b != undefined && data_b.length == 0){
          d3.select('#alert').text('Term not found');
@@ -1022,6 +1037,7 @@ function ajax_delete(selected){
   click_button('random', 'en');
   click_button('related_idol', 'en');
   click_button('flickr_tags', 'en');
+  click_button('wordnik', 'en');
 
   d3.select('#wikishow').on("click", function(){
     if (selected_id() != null){
