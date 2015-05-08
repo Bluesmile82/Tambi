@@ -729,6 +729,7 @@ function ajaxCall(url){
     });
 }
 
+
   function get_ideas(type, title, language){
     var url = "";
     switch(type) {
@@ -740,6 +741,9 @@ function ajaxCall(url){
         break;
     case 'related_idol_wt':
       url = "https://api.idolondemand.com/1/api/sync/getparametricvalues/v1?index=wiki_es&field_name=wikipedia_type&text=" + title + "&apikey=a4d88be8-aee2-40c3-9a02-dce7f749f01a";
+        break;
+    case 'wiki_category':
+      url = 'http://' + language + '.wikipedia.org/w/api.php?action=query&prop=categories&redirects&titles=' + title + '&format=json&callback=?';
         break;
     case 'flickr_tags':
       url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=46649a4365f1ea733e08c79954e4e55e&tag=' + title + '&format=json&nojsoncallback=1'
@@ -782,7 +786,9 @@ function ajaxCall(url){
         return data.title;
       case 'related_idol':
         return data.text;
-      case 'related_idol_wt':
+      case 'wiki_category':
+        return data.title.replace(/Category:/,'');
+     case 'related_idol_wt':
         return data;
       case 'flickr_tags' :
         return data._content;
@@ -800,6 +806,9 @@ function ajaxCall(url){
         break;
       case 'related_idol_wt':
         return d3.keys(data.wikipedia_type);
+        break;
+      case 'wiki_category':
+        return d3.values(data.query.pages)[0].categories;
         break;
       case 'flickr_tags':
       if (data.stat == 'fail'){
@@ -819,9 +828,8 @@ function ajaxCall(url){
   function createSuggestions(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
     get_ideas(type, title, language).done(function(data, errors){
-    console.log(data);
       var data_b = data_base(data, type);
-      if(data_b != undefined && data_b.length == 0){
+      if( data_b == undefined || data_b.length == 0){
          d3.select('#alert').text('Term not found');
       }
 
@@ -1034,6 +1042,7 @@ function ajax_delete(selected){
   }
 
   click_button('related_idol_wt', 'en');
+  click_button('wiki_category', 'en');
   click_button('random', 'en');
   click_button('related_idol', 'en');
   click_button('flickr_tags', 'en');
