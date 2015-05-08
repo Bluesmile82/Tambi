@@ -6,6 +6,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
   var GraphCreator = function(svg, nodes, edges){
     var thisGraph = this;
         thisGraph.idct = 0;
+        thisGraph.idLink = 0;
 
     thisGraph.nodes = nodes || [];
     thisGraph.edges = edges || [];
@@ -145,6 +146,15 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       saveAs(blob, "mydag.json");
     });
 
+    GraphCreator.prototype.position_first_idea = function(){
+      var first_idea = this.nodes[0]
+      if (first_idea.title == 'Idea'){
+       first_idea.x = xLoc;
+       first_idea.y = yLoc;
+       update_idea(first_idea);
+      };
+    }
+
 
     GraphCreator.prototype.initialize_ideas = function(jsonObj){
       var thisGraph = this,
@@ -152,17 +162,13 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       thisGraph.deleteGraph(true);
       thisGraph.nodes = jsonObj.nodes;
       thisGraph.setIdCt(jsonObj.nodes.length + 1);
-      var first_idea = thisGraph.nodes[0]
-      if (first_idea.title == 'Idea'){
-       first_idea.x = xLoc;
-       first_idea.y = yLoc;
-       update_idea(first_idea);
-      };
-
+      thisGraph.position_first_idea();
       var newEdges = jsonObj.edges;
       newEdges.forEach(function(e, i){
         newEdges[i] = {source: thisGraph.nodes.filter(function(n){return n.id == e.source;})[0],
-                    target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0]};
+                       target: thisGraph.nodes.filter(function(n){return n.id == e.target;})[0],
+                       id: e.id
+        };
       });
       thisGraph.edges = newEdges;
       thisGraph.updateGraph();
@@ -211,6 +217,9 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
   GraphCreator.prototype.setIdCt = function(idct){
     this.idct = idct;
+  };
+  GraphCreator.prototype.setIdLink = function(idLink){
+    this.idLink = idLink;
   };
 
   GraphCreator.prototype.consts =  {
@@ -424,22 +433,22 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
     if (mouseDownNode !== d){
       // we're in a different node: create new edge for mousedown edge and add to graph
-      var newEdge = {source: mouseDownNode, target: d};
-      var filtRes = thisGraph.paths.filter(function(d){
-        if (d.source === newEdge.target && d.target === newEdge.source){
-          thisGraph.edges.splice(thisGraph.edges.indexOf(d), 1);
-        }
-        return d.source === newEdge.source && d.target === newEdge.target;
-      });
-      if (!filtRes[0].length){
-        thisGraph.edges.push(newEdge);
-        thisGraph.updateGraph();
-      }
+      var newEdge = {source: mouseDownNode, target: d, id: 0 };
+      // var filtRes = thisGraph.paths.filter(function(d){
+      //   if (d.source === newEdge.target && d.target === newEdge.source){
+      //     thisGraph.edges.splice(thisGraph.edges.indexOf(d), 1);
+      //   }
+      //   return d.source === newEdge.source && d.target === newEdge.target;
+      // });
+      // if (!filtRes[0].length){
+      //   thisGraph.edges.push(newEdge);
+      //   thisGraph.updateGraph();
+      // }
+      thisGraph.create_link(mouseDownNode, d, thisGraph.idLink++)
     } else{
       // we're in the same node
       if (state.justDragged) {
         // dragged, not clicked
-        console.log('d',d);
         update_idea(d);
         state.justDragged = false;
       } else{
@@ -486,11 +495,12 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node());
       thisGraph.createIdea('new idea', xycoords[0] , xycoords[1]).done(function(data){
-      var d = data;
-      var d3txt = thisGraph.changeTextOfNode(thisGraph.circles.filter(function(dval){
+        var d = data;
+        var d3txt = thisGraph.changeTextOfNode(thisGraph.circles.filter(function(dval){
         return dval.id === d.id;
       }), d),
-          txtNode = d3txt.node();
+
+      txtNode = d3txt.node();
       thisGraph.selectElementContents(txtNode);
       txtNode.focus();
       });
@@ -520,15 +530,22 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     case consts.DELETE_KEY:
       d3.event.preventDefault();
       if (selectedNode){
-        delete_idea(thisGraph, selectedNode, state);
+        thisGraph.delete_idea(selectedNode, state);
       } else if (selectedEdge){
-        thisGraph.edges.splice(thisGraph.edges.indexOf(selectedEdge), 1);
+        thisGraph.delete_link(selectedEdge);
         state.selectedEdge = null;
         thisGraph.updateGraph();
       }
       break;
     }
   };
+
+  GraphCreator.prototype.delete_link = function(selectedEdge){
+    var thisGraph = this;
+    var link_index = thisGraph.edges.indexOf(selectedEdge)
+    this.edges.splice( link_index , 1);
+    ajax_delete_link(selectedEdge)
+  }
 
   GraphCreator.prototype.svgKeyUp = function() {
     this.state.lastKeyDown = -1;
@@ -653,6 +670,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
   var graph = new GraphCreator(svg, nodes, edges);
 
   graph.setIdCt(2);
+  graph.setIdLink(2);
   graph.updateGraph();
 
   GraphCreator.prototype.createIdea = function( title, x , y ) {
@@ -666,12 +684,13 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     });
   }
 
- GraphCreator.prototype.createLink = function ( idea_one, idea_two){
-        // we're in a different node: create new edge for mousedown edge and add to graph
-      var newEdge = {source: idea_one, target: idea_two};
+ GraphCreator.prototype.create_link = function( idea_one, idea_two, id){
     var thisGraph = this;
-        thisGraph.edges.push(newEdge);
-        thisGraph.updateGraph();
+    save_link(idea_one, idea_two, id).done(function(data, errors){
+      var newEdge = {source: idea_one, target: idea_two, id: data.id};
+      thisGraph.edges.push(newEdge);
+      thisGraph.updateGraph();
+    });
  }
 
   GraphCreator.prototype.find_idea_by_title = function(title){
@@ -736,88 +755,100 @@ function ajaxCall(url){
     return text.replace(/_/g, ' ')
   };
 
+  function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
+
+  function random_delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
+
+  function random_top(parent_top, bias){ return parseInt( parent_top + (Math.random() * bias) * random_sign() )}; // top parent + 100 + (0 to bias * sign)
+
+  function random_left(parent_left, bias){ return parent_left + (( Math.random() * bias) *  random_sign() ) }; // left parent + 100 + 0 to bias * sign
+
+  function random_font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
+
+  function data_title(data, type) {
+    switch(type) {
+      case 'random':
+        return data.title;
+      case 'related_idol':
+        return data.text;
+      case 'related_idol_wt':
+        return data;
+      case 'flickr_tags' :
+        return data._content;
+      default:
+      alert('not found');
+    } };
+
+  function data_base(data, type) {
+    switch(type) {
+      case 'random':
+        return data.query.random;
+        break;
+      case 'related_idol':
+        return data.entities;
+        break;
+      case 'related_idol_wt':
+        return d3.keys(data.wikipedia_type);
+        break;
+      case 'flickr_tags':
+      if (data.stat == 'fail'){
+        console.log(data.message);
+      }else{
+        return data.tags.tag
+      }
+      break;
+      default:
+      alert('not found');
+    }
+  }
+
   function createSuggestions(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
     get_ideas(type, title, language).done(function(data, errors){
-      if(data_base(data) != undefined && data_base(data).length == 0){
+      var data_b = data_base(data, type);
+      if(data_b != undefined && data_b.length == 0){
          d3.select('#alert').text('Term not found');
       }
+
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
       var bias = 300;
-      function sign(){ return Math.random() < 0.5 ? -1 : 1};
-      function delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
-      function top(){ return parseInt( parent_top + (Math.random() * bias) * sign() )}; // top parent + 100 + (0 to bias * sign)
-      function left(){ return parent_left + (( Math.random() * bias) *  sign() ) }; // left parent + 100 + 0 to bias * sign
-      function font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
       var duration_in = 2000;
       var duration = 6000;
-      console.log('delay',delay() )
-      function data_title(data) {
-        switch(type) {
-          case 'random':
-            return data.title;
-          case 'related_idol':
-            return data.text;
-          case 'related_idol_wt':
-            return data;
-          case 'flickr_tags' :
-            return data._content;
-          default:
-          alert('not found');
-        } };
+      console.log('delay', random_delay() );
 
-      function data_base(data) {
-        switch(type) {
-          case 'random':
-            return data.query.random;
-          case 'related_idol':
-            return data.entities;
-          case 'related_idol_wt':
-            return d3.keys(data.wikipedia_type);
-          case 'flickr_tags':
-          if (data.stat == 'fail'){
-            console.log(data.message);
-          }else{
-            return data.tags.tag
-          }
-          break;
-          default:
-          alert('not found');
-        }
-      }
       var  new_concept = d3.select(".graph").selectAll('g.' + data.title)
-      .data(data_base(data));
+      .data(data_b);
 
       new_concept.enter().append('g')
                   .attr('class', 'concept random')
                   .attr('transform', function(data){
-                   var l = left();
-                   var t = top();
+                   var l = random_left(parent_left, bias);
+                   var t = random_top(parent_top, bias);
                     return 'translate(' + l + ',' + t + ')'
                   })
-                  .style('font-size', function(data){ return font_size() })
-                  .attr('id', function(data) { return data_title(data); })
+                  .style('font-size', function(data){ return random_font_size() })
+                  .attr('id', function(data) { return data_title(data, type); })
                   .on("click", function(){
                     var transform = d3.select(this).attr('transform');
                     var translate = d3.transform(transform).translate;
                     graph.createIdea( d3.select(this).attr('id') , translate[0] , translate[1] ).done(function(data){
-                      var newIdea = data;
-                      graph.createLink( graph.find_idea_by_id(id), newIdea );
+                      graph.create_link( graph.find_idea_by_id(id), graph.find_idea_by_id_clean(data.id) , graph.idLink++ );
                     });
-                      d3.select(this).remove();
+                    d3.select(this).remove();
                   })
                   .append('text')
-                  .text(function(data) { return data_title(data) });
+                  .text(function(data) { return data_title(data, type) });
 
-      var dead_concept = new_concept
-                  .transition().delay(delay).duration(duration_in).style({'opacity':'1'})
-                  .transition().duration(duration).style({'opacity':'0'})
+      var anim_concept = new_concept
+                  .transition().delay(random_delay).duration(duration_in).style({'opacity':'1'})
+                  .transition().duration(duration);
+
+      var dead_concept = anim_concept.style({'opacity':'0'})
                   .duration(duration).attr('data-status','dead')
                   .remove();
-       // });
     });
   }
   GraphCreator.prototype.find_idea_by_id = function(id){
@@ -881,7 +912,8 @@ function ajaxCall(url){
   }
 
 
-function delete_idea(thisGraph, selectedNode, state){
+GraphCreator.prototype.delete_idea = function(selectedNode, state){
+  var thisGraph = this;
   thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
   thisGraph.spliceLinksForNode(selectedNode);
   state.selectedNode = null;
@@ -889,9 +921,26 @@ function delete_idea(thisGraph, selectedNode, state){
   ajax_delete(selectedNode);
 }
 
+function ajax_delete_link(selected){
+  console.log('sel', selected);
+  console.log('graph', graph);
+   $.ajax({
+        type: "DELETE",
+        url: 'links/' + selected.id ,
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        success: function(result){
+           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           }
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+      }
+      });
+
+}
+
+
 function ajax_delete(selected){
-  console.log(selected.id);
-    var graph_id = $('#window').attr('data-graph');
    $.ajax({
         type: "DELETE",
         url: 'ideas/' + selected.id ,
@@ -924,6 +973,23 @@ function ajax_delete(selected){
         }
       });
   }
+
+  function save_link(idea_one, idea_two, id){
+    return $.ajax({
+        type: "POST",
+        url: 'links/' ,
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        data: {link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id }},
+          dataType: 'json',
+        success: function(result){
+          return result;
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+        }
+      });
+  }
+
 
   function update_idea(d){
     $.ajax({
@@ -965,6 +1031,24 @@ function ajax_delete(selected){
 
   d3.select('#close-wiki').on("click", function(){
     d3.select('.wiki').classed('wiki-open', false);
+  });
+
+  d3.select('#mode-switch').on("click", function(){
+    var thisButton = d3.select('#creative-structured');
+    if (thisButton.text() == 'Creative'){
+      thisButton.text('Structured');
+      d3.selectAll('circle').classed('visible', true);
+      d3.selectAll('path').attr('stroke-dasharray', '');
+      d3.selectAll('.link').style('stroke-width', '10px');
+
+    }
+    else {
+      thisButton.text('Creative');
+      d3.selectAll('circle').classed('visible', false);
+      d3.selectAll('path').attr('stroke-dasharray', '0.5, 20');
+      d3.selectAll('.link').style('stroke-width', '3px');
+    }
+
   });
 
   d3.select('#idea-plus').on("click", function(){

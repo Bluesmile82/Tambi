@@ -65,7 +65,11 @@ p{
 
 .fa:hover{
     color:black;
-  };
+}
+
+.btn{
+  margin-top: 2%;
+}
 
 svg{
 }
@@ -87,23 +91,31 @@ svg{
   height: 100%;
   position: absolute;
 }
+
 #controls{
-  top:0;
+  top:5%;
   right:0;
   position: absolute;
   width:15%;
+  border: 2px solid #EEEEEE;
+  border-radius: 5px;
+  padding: 1em;
+  z-index: 5;
+  background-color: white;
 }
+
 .wiki{
   position: fixed;
   bottom: 0;
   height: 0%;
-  width: 100%;
   background-color: white;
 }
 .wiki-open{
   overflow: scroll;
   height: 50%;
+  height: 38%;
   padding: 5%;
+  margin-left: 15%;
 }
 #close-wiki{
 position: absolute;
@@ -114,7 +126,9 @@ position: absolute;
 circle{
   opacity: 0;
 }
-
+.visible{
+  opacity: 1;
+}
 .selected text{
   fill: #6666ff;
 }

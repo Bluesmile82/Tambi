@@ -5,6 +5,7 @@ class IdeasController < ApplicationController
 
   def index
      @ideas = @graph.ideas
+     @links = @ideas.map{|idea| idea.links }.flatten
   end
 
   def create

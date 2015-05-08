@@ -4,4 +4,10 @@ json.nodes do
     json.title idea.concept.title
   end
 end
-json.edges []
+json.edges do
+  json.array!(@links) do |link|
+    json.id link.id
+    json.source link.idea_a_id
+    json.target link.idea_b_id
+    end
+end
