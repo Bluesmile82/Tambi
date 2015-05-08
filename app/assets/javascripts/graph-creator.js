@@ -1032,6 +1032,12 @@ function ajax_delete(selected){
   d3.select('#close-wiki').on("click", function(){
     d3.select('.wiki').classed('wiki-open', false);
   });
+  d3.select('#show-instructions').on("click", function(){
+    var instructions = d3.select('#instructions');
+    if (instructions.classed('hidden')){
+    instructions.classed('hidden', false);
+  } else{instructions.classed('hidden', true)}
+  });
 
   d3.select('#mode-switch').on("click", function(){
     var thisButton = d3.select('#creative-structured');
