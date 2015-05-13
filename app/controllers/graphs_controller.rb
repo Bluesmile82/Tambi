@@ -2,26 +2,26 @@ class GraphsController < ApplicationController
   before_action :set_graph, only: [:show, :update, :destroy]
 
   def index
-    @graphs= Graph.all
+    @graphs= current_user.graphs
   end
 
   def show
-      redirect_to graph_ideas_path(@graph)
+      redirect_to user_graph_ideas_path(graph_id: @graph)
   end
 
   def create
-    @graph = Graph.new(graph_params)
+    @graph = current_user.graphs.new(graph_params)
     if @graph.save
       create_first_idea
-      redirect_to graph_ideas_path(@graph)
+      redirect_to user_graph_ideas_path(graph_id: @graph)
     else
-      redirect_to graphs_path, alert: 'Something has gone wrong'
+      redirect_to user_graphs_path, alert: 'Something has gone wrong'
     end
   end
 
   def destroy
     @graph.destroy
-    redirect_to graphs_path , notice: 'Graph was successfully destroyed.'
+    redirect_to user_graphs_path , notice: 'Graph was successfully destroyed.'
   end
 
   private
@@ -37,6 +37,6 @@ class GraphsController < ApplicationController
   end
 
   def graph_params
-    params.require(:graph).permit(:title)
+    params.require(:graph).permit(:title, :user_id)
   end
 end

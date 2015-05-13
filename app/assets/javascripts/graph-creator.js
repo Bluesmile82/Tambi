@@ -1096,7 +1096,7 @@ function ajax_delete(selected){
         type: "GET",
         contentType: "application/json",
         dataType: "json",
-        url: '/graphs/'+ graph_id +'/ideas/',
+        url: 'ideas/',
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
         success: function(result){
           graph.initialize_ideas(result);
