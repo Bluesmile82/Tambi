@@ -12,34 +12,26 @@
 </div>
 <div class="wiki"><div></div><i class="fa fa-times fa-3x" id="close-wiki"></i></div>
 
-    <div id="toolbox">
-      <p id='alert'></p>
-      <h2><%= link_to user_graphs_path do %>
-        <i class="fa fa-arrow-left"></i>
-      <% end %>
-        <%= @graph.title %></h2>
-      <input type="file" id="hidden-file-upload">
-      </input>
-      <i class="fa fa-upload fa-2x" id="upload-input"></i>
-      <i class="fa fa-download fa-2x" id="download-input"></i>
-      <i class="fa fa-info-circle fa-3x" id='show-instructions'></i>
-      <div>
-      <h3><div id="creative-structured" class="label label-default">Creative</div></h3>
-      <div id="mode-switch" class="btn btn-default">Switch mode</div>
-      </div>
-
+  <input type="file" id="hidden-file-upload"></input>
+  <!-- <div id="toolbox"> -->
+  <!-- </div> -->
+  <div id="idea-toolbox">
+  <p id='alert'></p>
+    <div>
+      <i class="fa fa-wordpress fa-3x" id="wikishow"></i>
     </div>
-    <div id="idea-toolbox">
-      <i class="fa fa-question-circle fa-3x" id="wikishow"></i>
+    <div>
+      <i class="fa fa-play-circle fa-3x" id="play"></i>
+    </div>
+    <div>
       <i class="fa fa-plus-circle fa-3x" id="idea-plus"></i>
-      <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
-      <div><div id="random-button" class="btn btn-default">Create Random</div></div>
-      <div><div id="related_idol-button" class="btn btn-default">Create Related</div></div>
-      <div><div id="wiki_category-button" class="btn btn-default">Create Wikipedia Category</div></div>
-      <div><div id="flickr_tags-button" class="btn btn-default">Create Flickr related tags</div></div>
-      <!-- <div><div id="related_idol_wt-button" class="btn btn-default">Create Wikipedia Type</div></div> -->
-      <!-- <div><div id="wordnik-button" class="btn btn-default">Create Wordnik related tags</div></div> -->
     </div>
+    <div>
+      <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
+    </div>
+    <!-- <div><div id="related_idol_wt-button" class="btn btn-default">Create Wikipedia Type</div></div> -->
+    <!-- <div><div id="wordnik-button" class="btn btn-default">Create Wordnik related tags</div></div> -->
+  </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>
     <script src="//cdn.jsdelivr.net/filesaver.js/0.1/FileSaver.min.js"></script>
 

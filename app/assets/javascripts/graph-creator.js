@@ -78,7 +78,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     thisGraph.dragLine = svgG.append('svg:path')
           .attr('class', 'link dragline hidden')
           .attr('d', 'M0,0L0,0')
-          .attr("stroke-dasharray", '0.5,20')
+          // .attr("stroke-dasharray", '0.5,20')
           .attr("stroke-linecap", 'round')
           .style('marker-end', 'url(#mark-end-arrow)');
 
@@ -612,7 +612,7 @@ function tick() {
       .append("path")
       .style('marker-end','url(#end-arrow)')
       .classed("link", true)
-      .attr("stroke-dasharray", '0.5,20')
+      // .attr("stroke-dasharray", '0.5,20')
       .attr("stroke-linecap", 'round')
       .attr("d", function(d){
         return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
@@ -941,13 +941,12 @@ function ajaxCall(url){
     d3.select('#alert').text('');
   };
 
-  function show_wiki(title){
-    var language = 'en'
+  function show_wiki(title, language){
     var url = 'http://' + language + '.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
     get_wiki(url).done(function(data){
       if(data.error != undefined){
         d3.select('#alert').html('Not found')
-        d3.select('.wiki div').html('Not found')
+        d3.select('.wiki').classed("wiki-open", false);
       }else{
       d3.select('.wiki').classed("wiki-open", true);
       var text = data.parse.text['*'];
@@ -1078,7 +1077,7 @@ function ajax_delete(selected){
 
   d3.select('#wikishow').on("click", function(){
     if (selected_id() != null){
-      show_wiki( graph.find_title_by_id( '#' + selected_id() ));
+      show_wiki( graph.find_title_by_id( '#' + selected_id() ), 'en');
     }
   });
 
@@ -1094,18 +1093,18 @@ function ajax_delete(selected){
 
   d3.select('#mode-switch').on("click", function(){
     var thisButton = d3.select('#creative-structured');
-    if (thisButton.text() == 'Creative'){
-      thisButton.text('Structured');
-      d3.selectAll('circle').classed('visible', true);
-      d3.selectAll('path').attr('stroke-dasharray', '');
-      d3.selectAll('.link').style('stroke-width', '10px');
+    if (thisButton.text() == 'Structured'){
+      thisButton.text('Creative');
+      d3.selectAll('circle').classed('transparent', true);
+      d3.selectAll('path').attr('stroke-dasharray', '0.5, 20');
+      d3.selectAll('.link').style('stroke-width', '3px');
 
     }
     else {
-      thisButton.text('Creative');
-      d3.selectAll('circle').classed('visible', false);
-      d3.selectAll('path').attr('stroke-dasharray', '0.5, 20');
-      d3.selectAll('.link').style('stroke-width', '3px');
+      thisButton.text('Structured');
+      d3.selectAll('circle').classed('transparent', false);
+      d3.selectAll('path').attr('stroke-dasharray', '');
+      d3.selectAll('.link').style('stroke-width', '10px');
     }
 
   });
@@ -1136,14 +1135,17 @@ function ajax_delete(selected){
    }
 
    function change_size(plus_minus){
+    var min_size = 14;
+    var max_size = 154;
+    var change = 30;
     var selected = d3.select('.selected');
     var size = parsePx(selected.style('font-size'));
     var line_height = parsePx(selected.style('line-height'));
-    if (size > 14 && plus_minus == -1 || size < 154 && plus_minus == 1){
-      selected.style('font-size', parseInt( size + 30 * plus_minus ) + 'px');
-      selected.style('line-height', parseInt( size + 30 * plus_minus ) + 'px');
+    if (size > min_size && plus_minus == -1 || size < max_size && plus_minus == 1){
+      selected.style('font-size', parseInt( size + change * plus_minus ) + 'px');
+      selected.style('line-height', parseInt( size + change * plus_minus ) + 'px');
     var idea = graph.find_idea_by_id( '#' + selected.node().id);
-    idea.font_size = parseInt( size + 30 * plus_minus );
+    idea.font_size = parseInt( size + change * plus_minus );
     return idea;
     }
   }
