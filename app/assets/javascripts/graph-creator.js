@@ -99,15 +99,43 @@ document.onload = (function(d3, saveAs, Blob, undefined){
 
           });
 
-    // listen for key events
-    d3.select(window).on("keydown", function(){
-      thisGraph.svgKeyDown.call(thisGraph);
-    })
-    .on("keyup", function(){
-      thisGraph.svgKeyUp.call(thisGraph);
-    });
-    svg.on("mousedown", function(d){thisGraph.svgMouseDown.call(thisGraph, d);});
-    svg.on("mouseup", function(d){thisGraph.svgMouseUp.call(thisGraph, d);});
+    var force = d3.layout.force()
+        .nodes(thisGraph.nodes)
+        .links(thisGraph.edges)
+        .linkDistance(150)
+        .charge(-500)
+        .on('tick', tick)
+
+function tick() {
+  // draw directed edges with proper padding from node centers
+  path.attr('d', function(d) {
+    var deltaX = d.target.x - d.source.x,
+        deltaY = d.target.y - d.source.y,
+        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+        normX = deltaX / dist,
+        normY = deltaY / dist,
+        sourcePadding = d.left ? 17 : 12,
+        targetPadding = d.right ? 17 : 12,
+        sourceX = d.source.x + (sourcePadding * normX),
+        sourceY = d.source.y + (sourcePadding * normY),
+        targetX = d.target.x - (targetPadding * normX),
+        targetY = d.target.y - (targetPadding * normY);
+    return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+  });
+
+  circle.attr('transform', function(d) {
+    return 'translate(' + d.x + ',' + d.y + ')';
+  });
+}
+        // listen for key events
+        d3.select(window).on("keydown", function(){
+          thisGraph.svgKeyDown.call(thisGraph);
+        })
+        .on("keyup", function(){
+          thisGraph.svgKeyUp.call(thisGraph);
+        });
+        svg.on("mousedown", function(d){thisGraph.svgMouseDown.call(thisGraph, d);});
+        svg.on("mouseup", function(d){thisGraph.svgMouseUp.call(thisGraph, d);});
 
     // listen for dragging
     var dragSvg = d3.behavior.zoom()
