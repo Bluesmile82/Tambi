@@ -7,7 +7,7 @@ class Concept < ActiveRecord::Base
               class_name: "Match", dependent: :destroy
   has_many :concept_as, through: :reverse_links, source: :concept_a
 
-  def match!(concept_b)
-    self.matches.create(concept_a_id: id, concept_b_id: concept_b.id)
+  def match!(concept_b, user)
+    self.matches.create(concept_a_id: id, concept_b_id: concept_b.id, user_id: user.id)
   end
 end
