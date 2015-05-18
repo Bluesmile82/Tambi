@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150513131743) do
+ActiveRecord::Schema.define(version: 20150518215134) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,6 +54,18 @@ ActiveRecord::Schema.define(version: 20150513131743) do
   add_index "links", ["idea_a_id", "idea_b_id"], name: "index_links_on_idea_a_id_and_idea_b_id", unique: true, using: :btree
   add_index "links", ["idea_a_id"], name: "index_links_on_idea_a_id", using: :btree
   add_index "links", ["idea_b_id"], name: "index_links_on_idea_b_id", using: :btree
+
+  create_table "matches", force: :cascade do |t|
+    t.integer  "concept_a_id"
+    t.integer  "concept_b_id"
+    t.string   "api"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "matches", ["concept_a_id", "concept_b_id"], name: "index_matches_on_concept_a_id_and_concept_b_id", unique: true, using: :btree
+  add_index "matches", ["concept_a_id"], name: "index_matches_on_concept_a_id", using: :btree
+  add_index "matches", ["concept_b_id"], name: "index_matches_on_concept_b_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
