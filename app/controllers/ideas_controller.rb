@@ -9,11 +9,11 @@ class IdeasController < ApplicationController
   end
 
   def create
-    @idea = Idea.create( graph_id: @graph.id, concept_id: @concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size] )
+    @idea = Idea.create( graph_id: @graph.id, concept_id: @concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size], concept_type: idea_params[:concept_type] )
   end
 
   def update
-    @idea.update( graph_id: @graph.id, concept_id: @concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size] )
+    @idea.update( graph_id: @graph.id, concept_id: @concept.id, id: idea_params[:id], x: idea_params[:x], y: idea_params[:y], font_size: idea_params[:font_size], concept_type: idea_params[:concept_type] )
     @idea.save
     head 200
   end
@@ -43,6 +43,6 @@ class IdeasController < ApplicationController
     end
 
     def idea_params
-      params.require(:idea).permit(:id, :x, :y, :font_size, :graph_id, :concept_id)
+      params.require(:idea).permit(:id, :x, :y, :font_size, :graph_id, :concept_id, :concept_type, :concept_title)
     end
 end

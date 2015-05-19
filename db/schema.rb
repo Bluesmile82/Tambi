@@ -37,9 +37,9 @@ ActiveRecord::Schema.define(version: 20150519081409) do
     t.integer  "font_size"
     t.integer  "concept_id"
     t.integer  "graph_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
-    t.string   "type"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.string   "concept_type"
     t.text     "description"
     t.string   "url"
     t.string   "picture"
