@@ -1,8 +1,6 @@
-document.onload = (function(d3, saveAs, Blob, undefined){
-  "use strict";
+document.onload = start();
+function start(){
 
-
-  // define graphcreator object
   var GraphCreator = function(svg, nodes, edges){
     var thisGraph = this;
         thisGraph.idct = 0;
@@ -96,37 +94,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           })
           .on("dragend", function() {
             // todo check if edge-mode is selected
-
           });
 
-    var force = d3.layout.force()
-        .nodes(thisGraph.nodes)
-        .links(thisGraph.edges)
-        .linkDistance(150)
-        .charge(-500)
-        .on('tick', tick)
-
-function tick() {
-  // draw directed edges with proper padding from node centers
-  path.attr('d', function(d) {
-    var deltaX = d.target.x - d.source.x,
-        deltaY = d.target.y - d.source.y,
-        dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-        normX = deltaX / dist,
-        normY = deltaY / dist,
-        sourcePadding = d.left ? 17 : 12,
-        targetPadding = d.right ? 17 : 12,
-        sourceX = d.source.x + (sourcePadding * normX),
-        sourceY = d.source.y + (sourcePadding * normY),
-        targetX = d.target.x - (targetPadding * normX),
-        targetY = d.target.y - (targetPadding * normY);
-    return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
-  });
-
-  circle.attr('transform', function(d) {
-    return 'translate(' + d.x + ',' + d.y + ')';
-  });
-}
         // listen for key events
         d3.select(window).on("keydown", function(){
           thisGraph.svgKeyDown.call(thisGraph);
@@ -164,16 +133,6 @@ function tick() {
     // listen for resize
     window.onresize = function(){thisGraph.updateWindow(svg);};
 
-    // handle download data
-    d3.select("#download-input").on("click", function(){
-      var saveEdges = [];
-      thisGraph.edges.forEach(function(val, i){
-        saveEdges.push({source: val.source.id, target: val.target.id});
-      });
-      var blob = new Blob([window.JSON.stringify({"nodes": thisGraph.nodes, "edges": saveEdges})], {type: "text/plain;charset=utf-8"});
-      saveAs(blob, "mydag.json");
-    });
-
     GraphCreator.prototype.position_first_idea = function(){
       var first_idea = this.nodes[0]
       if (first_idea.title == 'Idea'){
@@ -205,50 +164,9 @@ function tick() {
           d3.select('#id' + d.id ).style('font-size', d.font_size);
         };
       });
-
-
     }
-
-    // handle uploaded data
-    d3.select("#upload-input").on("click", function(){
-      document.getElementById("hidden-file-upload").click();
-    });
-    d3.select("#hidden-file-upload").on("change", function(){
-      if (window.File && window.FileReader && window.FileList && window.Blob) {
-        var uploadFile = this.files[0];
-        var filereader = new window.FileReader();
-
-        filereader.onload = function(){
-          var txtRes = filereader.result;
-          // TODO better error handling
-          try{
-            var jsonObj = JSON.parse(txtRes);
-            thisGraph.initialize_ideas(jsonObj);
-          }catch(err){
-            window.alert("Error parsing uploaded file\nerror message: " + err.message);
-            return;
-          }
-        };
-        filereader.readAsText(uploadFile);
-
-      } else {
-        alert("Your browser won't let you save this graph -- try upgrading your browser to IE 10+ or Chrome or Firefox.");
-      }
-
-    });
-
-    // handle delete graph
-    d3.select("#delete-graph").on("click", function(){
-      thisGraph.deleteGraph(false);
-    });
   };
 
-  GraphCreator.prototype.setIdCt = function(idct){
-    this.idct = idct;
-  };
-  GraphCreator.prototype.setIdLink = function(idLink){
-    this.idLink = idLink;
-  };
 
   GraphCreator.prototype.consts =  {
     selectedClass: "selected",
@@ -263,6 +181,13 @@ function tick() {
   };
 
   /* PROTOTYPE FUNCTIONS */
+
+  GraphCreator.prototype.setIdCt = function(idct){
+    this.idct = idct;
+  };
+  GraphCreator.prototype.setIdLink = function(idLink){
+    this.idLink = idLink;
+  };
 
   GraphCreator.prototype.dragmove = function(d) {
     var thisGraph = this;
@@ -512,7 +437,6 @@ function tick() {
     thisGraph.selected = d3node;
     state.mouseDownNode = null;
     return;
-
   }; // end of circles mouseup
 
   // mousedown on main svg
@@ -549,6 +473,7 @@ function tick() {
     }
     state.graphMouseDown = false;
   };
+
   // keydown on main svg
   GraphCreator.prototype.svgKeyDown = function() {
     var thisGraph = this,
@@ -589,7 +514,6 @@ function tick() {
 
   // call to propagate changes to graph
   GraphCreator.prototype.updateGraph = function(){
-
     var thisGraph = this,
         consts = thisGraph.consts,
         state = thisGraph.state;
@@ -655,16 +579,14 @@ function tick() {
 
     newGs.append("circle")
       .attr("r", String(consts.nodeRadius));
+
     // title and  id into ideas
     newGs.each(function(d){
         thisGraph.insertTitleLinebreaks(d3.select(this), d.title);})
         .attr("id",function(d){return 'id' + d.id});
 
-
-
     // remove old nodes
     thisGraph.circles.exit().remove();
-
   };
 
   GraphCreator.prototype.zoomed = function(){
@@ -681,7 +603,95 @@ function tick() {
     svg.attr("width", x).attr("height", y);
   };
 
+  GraphCreator.prototype.createIdea = function( title, x , y ) {
+    var thisGraph = this,
+    d = {title: toWhiteSpace(title) , x: x , y: y, font_size: 20 };
+    return save_idea(d).done(function(data, errors){
+      d = {id: data.id, title: toWhiteSpace(title) , x: data.x , y: data.y, font_size: data.font_size };
+    thisGraph.nodes.push(d);
+    thisGraph.updateGraph();
+    return d;
+    });
+  }
 
+  GraphCreator.prototype.create_link = function( idea_one, idea_two, id){
+    var thisGraph = this;
+    save_link(idea_one, idea_two, id).done(function(data, errors){
+      var newEdge = {source: idea_one, target: idea_two, id: data.id};
+      thisGraph.edges.push(newEdge);
+      thisGraph.updateGraph();
+    });
+  }
+
+  GraphCreator.prototype.find_idea_by_title = function(title){
+    var nodes = this.nodes;
+    var idea = null;
+    console.log('nodes', nodes);
+    $.each( nodes, function(index, value){
+      if (value['title'] == title){
+        return idea = value;
+      }
+    })
+    return idea;
+  }
+
+  GraphCreator.prototype.find_idea_by_id = function(id){
+    var nodes = this.nodes;
+    var idea = null;
+    id = id.slice(3);
+    $.each( nodes, function(index, value){
+      if (value['id'] == id){
+        return idea = value;
+      }
+    })
+    return idea;
+  }
+
+  GraphCreator.prototype.find_idea_by_id_clean = function(id){
+    return this.find_idea_by_id('#id' + id )
+  }
+
+  GraphCreator.prototype.find_title_by_id = function(id){
+   return this.find_idea_by_id(id)['title']
+  }
+
+  GraphCreator.prototype.delete_idea = function(selectedNode, state){
+    var thisGraph = this;
+    thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
+    thisGraph.spliceLinksForNode(selectedNode);
+    state.selectedNode = null;
+    thisGraph.updateGraph();
+    ajax_delete(selectedNode);
+  }
+
+  GraphCreator.prototype.load_data = function(){
+    var thisGraph = this;
+    var graph_id = $('#window').attr('data-graph');
+     $.ajax({
+        type: "GET",
+        contentType: "application/json",
+        dataType: "json",
+        url: 'ideas/',
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        success: function(result){
+          thisGraph.initialize_ideas(result);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+      }
+      });
+   }
+
+  GraphCreator.prototype.selected_id = function(){
+    var thisGraph = this;
+    var selected =  thisGraph.selected.node()
+    if (selected != null){
+      clear_alert();
+      return selected.id}
+    else{
+      no_selection();
+      }
+  }
 
   /**** MAIN ****/
 
@@ -698,65 +708,23 @@ function tick() {
   var nodes = [];
   var edges = [];
 
-  load_data();
   /** MAIN SVG **/
   var svg = d3.select("body").append("svg")
         .attr("width", width)
         .attr("height", height);
   var graph = new GraphCreator(svg, nodes, edges);
 
+  graph.load_data();
   graph.setIdCt(2);
   graph.setIdLink(2);
   graph.updateGraph();
 
-  GraphCreator.prototype.createIdea = function( title, x , y ) {
-    var thisGraph = this,
-    d = {title: toWhiteSpace(title) , x: x , y: y, font_size: 20 };
-    return save_idea(d).done(function(data, errors){
-      d = {id: data.id, title: toWhiteSpace(title) , x: data.x , y: data.y, font_size: data.font_size };
-    thisGraph.nodes.push(d);
-    thisGraph.updateGraph();
-    return d;
-    });
+  function ajaxCall(url){
+    return $.ajax({
+        url: url,
+        dataType: 'json',
+      });
   }
-
- GraphCreator.prototype.create_link = function( idea_one, idea_two, id){
-    var thisGraph = this;
-    save_link(idea_one, idea_two, id).done(function(data, errors){
-      var newEdge = {source: idea_one, target: idea_two, id: data.id};
-      thisGraph.edges.push(newEdge);
-      thisGraph.updateGraph();
-    });
- }
-
-  GraphCreator.prototype.find_idea_by_title = function(title){
-    var nodes = this.nodes;
-    var idea = null;
-    console.log('nodes', nodes);
-    $.each( nodes, function(index, value){
-      if (value['title'] == title){
-        return idea = value;
-      }
-    })
-    return idea;
-}
-
-// show.js
-
-
-
-function parseRelated(){
-  var url_related = 'http://es.wikipedia.org/w/api.php?action=query&prop=categories&format=json&titles=Albert%20Einstein&rnlimit=10&format=json&callback=?';
-  return ajaxCall(url_related)
-}
-
-function ajaxCall(url){
-  return $.ajax({
-      url: url,
-      dataType: 'json',
-    });
-}
-
 
   function get_ideas(type, title, language){
     var url = "";
@@ -902,36 +870,8 @@ function ajaxCall(url){
                   .remove();
     });
   }
-  GraphCreator.prototype.find_idea_by_id = function(id){
-    var nodes = this.nodes;
-    var idea = null;
-    id = id.slice(3);
-    $.each( nodes, function(index, value){
-      if (value['id'] == id){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
-  GraphCreator.prototype.find_idea_by_id_clean = function(id){
-    return this.find_idea_by_id('#id' + id )
-  }
 
 
-
-  GraphCreator.prototype.find_title_by_id = function(id){
-   return this.find_idea_by_id(id)['title']
-  }
-
-  function selected_id(){
-    var selected =  graph.selected.node()
-    if (selected != null){
-      clear_alert();
-      return selected.id}
-    else{
-      no_selection();
-      }
-  }
 
   function no_selection(){
     d3.select('#alert').text('Please select an Idea first');
@@ -961,37 +901,25 @@ function ajaxCall(url){
     });
   }
 
+  function ajax_delete_link(selected){
+    console.log('sel', selected);
+    console.log('graph', graph);
+     $.ajax({
+          type: "DELETE",
+          url: 'links/' + selected.id ,
+          beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+          success: function(result){
+             if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+             }
+          },
+          error: function (xhr, ajaxOptions, thrownError) {
+            console.log(thrownError);
+          }
+        });
+  }
 
-GraphCreator.prototype.delete_idea = function(selectedNode, state){
-  var thisGraph = this;
-  thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-  thisGraph.spliceLinksForNode(selectedNode);
-  state.selectedNode = null;
-  thisGraph.updateGraph();
-  ajax_delete(selectedNode);
-}
-
-function ajax_delete_link(selected){
-  console.log('sel', selected);
-  console.log('graph', graph);
-   $.ajax({
-        type: "DELETE",
-        url: 'links/' + selected.id ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        success: function(result){
-           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-           }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-      }
-      });
-
-}
-
-
-function ajax_delete(selected){
-   $.ajax({
+  function ajax_delete(selected){
+    $.ajax({
         type: "DELETE",
         url: 'ideas/' + selected.id ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
@@ -1002,9 +930,8 @@ function ajax_delete(selected){
         error: function (xhr, ajaxOptions, thrownError) {
           console.log(thrownError);
       }
-      });
-
-}
+    });
+  }
 
   function save_idea(d){
     return $.ajax({
@@ -1023,23 +950,6 @@ function ajax_delete(selected){
         }
       });
   }
-
-  function save_link(idea_one, idea_two, id){
-    return $.ajax({
-        type: "POST",
-        url: 'links/' ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id }},
-          dataType: 'json',
-        success: function(result){
-          return result;
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-        }
-      });
-  }
-
 
   function update_idea(d){
     $.ajax({
@@ -1060,13 +970,22 @@ function ajax_delete(selected){
       });
   }
 
-  function click_button(id, language){
-   d3.select('#' + id + '-button').on("click", function(){
-      if (selected_id() != null){
-    createSuggestions( '#' + selected_id() , id , language)
-      }
-    });
+  function save_link(idea_one, idea_two, id){
+    return $.ajax({
+        type: "POST",
+        url: 'links/' ,
+        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+        data: {link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id }},
+          dataType: 'json',
+        success: function(result){
+          return result;
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+          console.log(thrownError);
+        }
+      });
   }
+
 
   click_button('related_idol_wt', 'en');
   click_button('wiki_category', 'en');
@@ -1076,14 +995,15 @@ function ajax_delete(selected){
   click_button('wordnik', 'en');
 
   d3.select('#wikishow').on("click", function(){
-    if (selected_id() != null){
-      show_wiki( graph.find_title_by_id( '#' + selected_id() ), 'en');
+    if (graph.selected_id() != null){
+      show_wiki( graph.find_title_by_id( '#' + graph.selected_id() ), 'en');
     }
   });
 
   d3.select('#close-wiki').on("click", function(){
     d3.select('.wiki').classed('wiki-open', false);
   });
+
   d3.select('#show-instructions').on("click", function(){
     var instructions = d3.select('#instructions');
     if (instructions.classed('hidden')){
@@ -1106,7 +1026,6 @@ function ajax_delete(selected){
       d3.selectAll('path').attr('stroke-dasharray', '');
       d3.selectAll('.link').style('stroke-width', '10px');
     }
-
   });
 
   d3.select('#idea-plus').on("click", function(){
@@ -1117,22 +1036,6 @@ function ajax_delete(selected){
     update_idea( change_size(-1) );
   });
 
-  function load_data(){
-    var graph_id = $('#window').attr('data-graph');
-     $.ajax({
-        type: "GET",
-        contentType: "application/json",
-        dataType: "json",
-        url: 'ideas/',
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        success: function(result){
-          graph.initialize_ideas(result);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-      }
-      });
-   }
 
    function change_size(plus_minus){
     var min_size = 14;
@@ -1157,5 +1060,14 @@ function ajax_delete(selected){
   function parsePx(string){
     return parseInt(string.replace('px',''));
   }
+  function click_button(id, language){
+   d3.select('#' + id + '-button').on("click", function(){
+      if (graph.selected_id() != null){
+    createSuggestions( '#' + graph.selected_id() , id , language)
+      }
+    });
+  }
 
-})(window.d3, window.saveAs, window.Blob);
+};
+
+
