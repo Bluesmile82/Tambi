@@ -54,7 +54,12 @@ $navbar-profile-border-width: 2px;
     line-height: $navbar-height;
     padding-top: $navbar-vertical-padding;
     padding-bottom: $navbar-vertical-padding;
-    background-color: transparent;
+  }
+  .navbar-nav li {
+    line-height: $navbar-height;
+    padding-top: $navbar-vertical-padding;
+    padding-bottom: $navbar-vertical-padding;
+    padding-right: $navbar-horizontal-padding;
   }
 
   .navbar-nav > li > a:hover,

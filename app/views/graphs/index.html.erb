@@ -1,11 +1,11 @@
 <div class="container">
-  <h1>All your Graphs</h1>
+  <h1>All your Canvases</h1>
   <ul>
     <% @graphs.each do |graph| %>
       <%= link_to user_graph_path(user_id: current_user, id: graph) do %>
         <li>
           <%= graph.title %>
-          <%= link_to user_graph_path(user_id: current_user, id: graph), :confirm => "Are you sure you want to delete this graph?", :method => :delete do %>
+          <%= link_to user_graph_path(user_id: current_user, id: graph), :confirm => "Are you sure you want to delete this canvas?", :method => :delete do %>
             <i class="fa fa-times"></i>
           <% end %>
         </li>
@@ -14,7 +14,7 @@
   </ul>
 
 
-  <h2>Create a new graph</h2>
+  <h2>Create a new canvas</h2>
 
   <%= render 'form' %>
 
