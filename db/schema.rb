@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150518224247) do
+ActiveRecord::Schema.define(version: 20150519081409) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,8 +37,12 @@ ActiveRecord::Schema.define(version: 20150518224247) do
     t.integer  "font_size"
     t.integer  "concept_id"
     t.integer  "graph_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "type"
+    t.text     "description"
+    t.string   "url"
+    t.string   "picture"
   end
 
   add_index "ideas", ["concept_id"], name: "index_ideas_on_concept_id", using: :btree
@@ -69,6 +73,18 @@ ActiveRecord::Schema.define(version: 20150518224247) do
   add_index "matches", ["concept_b_id"], name: "index_matches_on_concept_b_id", using: :btree
   add_index "matches", ["user_id"], name: "index_matches_on_user_id", using: :btree
 
+  create_table "tags", force: :cascade do |t|
+    t.integer  "concept_id"
+    t.integer  "idea_id"
+    t.integer  "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "tags", ["concept_id"], name: "index_tags_on_concept_id", using: :btree
+  add_index "tags", ["idea_id"], name: "index_tags_on_idea_id", using: :btree
+  add_index "tags", ["user_id"], name: "index_tags_on_user_id", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false
     t.string   "encrypted_password",     default: "", null: false
@@ -91,4 +107,7 @@ ActiveRecord::Schema.define(version: 20150518224247) do
   add_foreign_key "ideas", "concepts"
   add_foreign_key "ideas", "graphs"
   add_foreign_key "matches", "users"
+  add_foreign_key "tags", "concepts"
+  add_foreign_key "tags", "ideas"
+  add_foreign_key "tags", "users"
 end

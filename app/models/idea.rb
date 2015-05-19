@@ -1,6 +1,7 @@
 class Idea < ActiveRecord::Base
   belongs_to :concept
   belongs_to :graph
+  has_many :tags
   has_many :links, foreign_key: "idea_a_id", dependent: :destroy
 
   has_many :idea_bs, through: :links, source: :idea_b
