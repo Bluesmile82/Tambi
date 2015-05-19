@@ -21,9 +21,7 @@
       <% if @graph.id %>
         <li><%= link_to user_graphs_path do %><i class="fa fa-arrow-left"></i><% end %></li>
         <li> <%= @graph.title %>  </li>
-        <li><div id="creative-structured" class="label label-default">Structured </div>
-        <div id="mode-switch" class="btn btn-default">Switch mode</div></li>
-        <li>
+        <li><div id="creative-structured" class="label label-default">Structured </div></li>
         <li class="dropdown">
         <a class="dropdown-toggle" data-toggle='dropdown' role='button' 'aria-expanded'='false' >API <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
@@ -41,6 +39,7 @@
               Settings <span class="caret"></span>
             <% end %>
             <ul class="dropdown-menu" role="menu">
+              <li><div id="mode-switch" class="btn btn-default">Switch mode</div></li>
               <li><a id='show-instructions'><i class="fa fa-info-circle" ></i> Help</a></li>
               <li>
                 <%= link_to "#" do %>
