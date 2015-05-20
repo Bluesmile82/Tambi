@@ -2,6 +2,8 @@ Rails.application.routes.draw do
 
   devise_for :users
 
+  get 'matches/:title' => 'matches#index'
+
   resources :users do
     resources :graphs do
       resources :ideas

@@ -364,8 +364,9 @@ function start(){
 
   function findTypeOfIdea(title){
     console.log('title', title)
-    var regexp_web = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/
-    if (title.search(regexp_web) == 0){
+    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+    console.log(title.search(regexp_web));
+    if (title.search(regexp_web) > -1){
       return 'url';
     }else{
       return 'concept';
@@ -794,6 +795,9 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
     case 'wordnik':
       url =  'http://api.wordnik.com:80/v4/word.json/' + title + '/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
         break;
+    case 'user':
+      return getUserIdeas(title);
+    break;
     }
 
     return $.ajax({
@@ -835,8 +839,11 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
         return data;
       case 'flickr_tags' :
         return data._content;
+      case 'user':
+        return data.title;
+      break;
       default:
-      alert('not found');
+      console.log('title not found');
     } };
 
   function data_base(data, type) {
@@ -863,18 +870,36 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
       case 'wordnik':
         console.log(data);
       break;
+      case 'user':
+        return data;
+      break;
       default:
-      alert('not found');
+      console.log('base not found');
     }
+  }
+
+  function getUserIdeas(title){
+   return $.ajax({
+      type: "GET",
+      contentType: "application/json",
+      dataType: "json",
+      url: '/matches/' + title,
+      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      success: function(result){
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        console.log(thrownError);
+      }
+    });
   }
 
   function createSuggestions(id, type, language){
     var title =  graph.find_idea_by_id(id)['title'];
-    get_ideas(type, title, language).done(function(data, errors){
-      var data_b = data_base(data, type);
-      if( data_b == undefined || data_b.length == 0){
-         d3.select('#alert').text('Term not found');
-      }
+      get_ideas(type, title, language).done(function(data, errors){
+        var data_b = data_base(data, type);
+        if( data_b == undefined || data_b.length == 0){
+          d3.select('#alert').text('Term not found');
+        }
 
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
@@ -905,9 +930,15 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
                     });
                     d3.select(this).remove();
                   })
-                  .append('text')
+                  .append('text').append('tspan')
                   .text(function(data) { return data_title(data, type) });
-
+                  if (type == 'user'){
+                  new_concept.selectAll('text').style('fill','lightblue');
+                  new_concept.selectAll('text').append('tspan')
+                                               .style({'fill':'white', 'font-size':'0.5em'})
+                                               .attr('dy', '1em').attr('x', '0')
+                                               .text(function(data) { return data.user });
+                  }
       var anim_concept = new_concept
                   .transition().delay(random_delay).duration(duration_in).style({'opacity':'1'})
                   .transition().duration(duration);
@@ -1032,9 +1063,12 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
   click_button('related_idol', 'en');
   click_button('flickr_tags', 'en');
   click_button('wordnik', 'en');
+  click_button('user', 'en');
 
   function clearIframeTab(){
-    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false)
+    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
+    d3.select('.url-title').remove();
+    d3.select('.wiki iframe').remove();
     d3.select('.wiki div').html('');
   }
 
@@ -1080,17 +1114,14 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
   }
 
   function open_url(url){
+    console.log('reg', url.search(/(^https*:\/\/)/));
+    if (url.search(/(^https*:\/\/)/) == -1){
     var url = 'http://' + url;
-    // get_wiki(url).done(function(data){
-      // if(data.error != undefined){
-      //   d3.select('#alert').html('Not found')
-      //   d3.select('.wiki').classed("wiki-open", false);
-      // }else{
+    }
+    console.log('url', url);
       d3.select('.wiki').classed("url-open", true);
-      // var text = data.parse.text['*'];
-      d3.select('.wiki').append('div').append('iframe').attr('src', url);
-    // };
-    // });
+      d3.select('.wiki').append('div').classed('url-title', true).html(url);
+      d3.select('.wiki').append('iframe').attr('src', url);
   }
 
   d3.select('#idea-plus').on("click", function(){
@@ -1129,6 +1160,7 @@ GraphCreator.prototype.insertUrl = function (gEl, title) {
   }
 
   function click_button(id, language){
+    console.log(id);
    d3.select('#' + id + '-button').on("click", function(){
       if (graph.selected_id() != null){
     createSuggestions( '#' + graph.selected_id() , id , language)
