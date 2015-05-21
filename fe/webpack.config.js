@@ -1,7 +1,7 @@
 module.exports = {
     context: __dirname,
     entry: {
-        graph_creator:  "./javascripts/graph-creator.js"
+        index:  "./javascripts/index.js"
     },
     output: {
         path: "../app/assets/javascripts/",
