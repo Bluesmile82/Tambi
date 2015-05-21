@@ -2,6 +2,6 @@ document.onload = start();
 
 function start(){
 
-require("./functions.js")
+require("./view.js")
 
 }

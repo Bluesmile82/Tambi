@@ -1,8 +1,9 @@
-define(function(require) {
+define( function(require) {
 
 var GraphCreator = require("./graph-creator.js");
-var graph = require("./main.js");
-var parsePx = require("./utils.js");
+var graph = require("./initialize.js");
+var parsePx = require("./utils.js").parsePx;
+var getUrl = require("./utils.js").getUrl;
 
   click_button('related_idol_wt', 'en');
   click_button('wiki_category', 'en');
@@ -12,7 +13,6 @@ var parsePx = require("./utils.js");
   click_button('wordnik', 'en');
   click_button('user', 'en');
 
-
   function click_button(id, language){
    d3.select('#' + id + '-button').on("click", function(){
       if (graph.selected_id() != null){
@@ -21,15 +21,8 @@ var parsePx = require("./utils.js");
     });
   }
 
-
-  function ajaxCall(url){
-    return $.ajax({
-        url: url,
-        dataType: 'json',
-      });
-  }
-
   function get_ideas(type, title, language){
+
     var url = "";
     switch(type) {
     case 'random':
@@ -55,13 +48,7 @@ var parsePx = require("./utils.js");
     break;
     }
 
-    return $.ajax({
-      url: url,
-      dataType: 'json',
-       error: function (request, error) {
-        alert(" Can't do because: " + error);
-    },
-    });
+    return getUrl(url);
   }
 
   function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
@@ -200,17 +187,6 @@ var parsePx = require("./utils.js");
     d3.select('#alert').text('Please select an Idea first');
   };
 
-
-  function get_wiki(url){
-    return $.ajax({
-      url: url,
-      dataType: 'json',
-    });
-  }
-
-
-
-
   function clearIframeTab(){
     d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
     d3.select('.url-title').remove();
@@ -248,7 +224,7 @@ var parsePx = require("./utils.js");
 
   function show_wiki(title, language){
     var url = 'http://' + language + '.wikipedia.org/w/api.php?action=parse&redirects&prop=text&page=' + title + '&format=json&callback=?';
-    get_wiki(url).done(function(data){
+    getUrl(url).done(function(data){
       if(data.error != undefined){
         d3.select('#alert').html('Not found')
         d3.select('.wiki').classed("wiki-open", false);
@@ -296,10 +272,5 @@ var parsePx = require("./utils.js");
       }
     }
   });
-
-  // function getEm(selected){
-  //   return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))
-  // }
-
 
 });
