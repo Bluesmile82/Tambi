@@ -696,7 +696,7 @@
 	          return dval.id === d.id;
 	        }), d);
 	        var txtNode = d3txt.node();
-	        thisGraph.selectElementContents(txtNode);
+	        selectElementContents(txtNode);
 	        txtNode.focus();
 	      });
 

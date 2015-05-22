@@ -424,7 +424,7 @@ var GraphCreator = function(svg, nodes, edges){
       var tempIdea = new Idea(thisGraph);
         var d3txt = tempIdea.changeText(thisGraph.circles.filter(function(dval){ return dval.id === d.id; }), d);
         var txtNode = d3txt.node();
-      thisGraph.selectElementContents(txtNode);
+      selectElementContents(txtNode);
       txtNode.focus();
       });
 
