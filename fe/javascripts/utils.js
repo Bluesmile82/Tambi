@@ -14,21 +14,6 @@ define(function(require) {
                 return text.replace(/_/g, ' ')
               },
 
-    ajax_delete_link: function( selected ){
-                         $.ajax({
-                              type: "DELETE",
-                              url: 'links/' + selected.id ,
-                              beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-                              success: function(result){
-                                 if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-                                 }
-                              },
-                              error: function (xhr, ajaxOptions, thrownError) {
-                                console.log(thrownError);
-                              }
-                            });
-                      },
-
     ajax: function(url, type, data){
                     $.ajax({
                         type: type,
@@ -64,6 +49,13 @@ define(function(require) {
 
                   return { width: width, height:height }
                 },
+  selectElementContents: function(el) {
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
 
   //   getEm: function(selected){
   //            return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))

@@ -1,10 +1,10 @@
 module.exports = {
     context: __dirname,
     entry: {
-        index:  "./javascripts/index.js"
+        index:  "./fe/javascripts/index.js"
     },
     output: {
-        path: "../app/assets/javascripts/",
+        path: "./app/assets/javascripts/",
         filename: "app-bundle.js",
     },
   module: {

@@ -1,12 +1,13 @@
-define( function(require) {
+define(['./utils.js', './idea_controller.js', './links_controller.js'], function(utils, Idea, Link) {
 
-var parsePx = require("./utils.js").parsePx;
-var ajax = require("./utils.js").ajax;
-var toWhiteSpace = require("./utils.js").toWhiteSpace;
-var toSnakeCase = require("./utils.js").toSnakeCase;
-var windowSize = require("./utils.js").windowSize;
+var parsePx = utils.parsePx;
+var ajax = utils.ajax;
+var toWhiteSpace = utils.toWhiteSpace;
+var toSnakeCase = utils.toSnakeCase;
+var windowSize = utils.windowSize;
+var selectElementContents = utils.selectElementContents;
 
-  var GraphCreator = function(svg, nodes, edges){
+var GraphCreator = function(svg, nodes, edges){
     var thisGraph = this;
         thisGraph.idct = 0;
         thisGraph.idLink = 0;
@@ -138,33 +139,52 @@ var windowSize = require("./utils.js").windowSize;
 
     // listen for resize
     window.onresize = function(){thisGraph.updateWindow(svg);};
+};
 
-    GraphCreator.prototype.update_idea = function(d){
-    $.ajax({
-        type: "PUT",
-        url: 'ideas/' + d.id ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.type}},
-        success: function(result){
-           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-           return result;
-           }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-        if (xhr.status == 422){
-          console.log(thrownError);
-        };
+  GraphCreator.prototype.position_first_idea = function(){
+    var thisGraph = this;
+    var first_idea = this.nodes[0]
+    if (first_idea.title == 'Idea'){
+     first_idea.x = windowSize().width/2;
+     first_idea.y = windowSize().height/2;
+     var idea = new Idea(thisGraph);
+     idea.update(first_idea);
+    };
+  }
+
+
+  GraphCreator.prototype.find_idea_by_title = function(title){
+    var nodes = this.nodes;
+    var idea = null;
+    $.each( nodes, function(index, value){
+      if (value['title'] == title){
+        return idea = value;
       }
-      });
-    }
-  };
+    })
+    return idea;
+  }
+
+  GraphCreator.prototype.find_idea_by_id = function(id){
+    var nodes = this.nodes;
+    var idea = null;
+    $.each( nodes, function(index, value){
+      if (value['id'] == id){
+        return idea = value;
+      }
+    })
+    return idea;
+  }
+
+  GraphCreator.prototype.find_title_by_id = function(id){
+   return this.find_idea_by_id(id)['title']
+  }
 
   GraphCreator.prototype.consts =  {
     selectedClass: "selected",
     connectClass: "connect-node",
     circleGClass: "conceptG",
     graphClass: "graph",
-    activeEditId: "active-editing",
+    activeEditId: "editing",
     BACKSPACE_KEY: 8,
     DELETE_KEY: 46,
     ENTER_KEY: 13,
@@ -200,6 +220,7 @@ var windowSize = require("./utils.js").windowSize;
       });
    }
 
+
   GraphCreator.prototype.initialize_ideas = function(jsonObj){
     var thisGraph = this,
         state = thisGraph.state;
@@ -222,211 +243,7 @@ var windowSize = require("./utils.js").windowSize;
       };
     });
   }
-  GraphCreator.prototype.update_idea_size = function(selected, idea_font_size){
-    var thisGraph = this;
-    var idea = thisGraph.find_idea_by_id( '#' + selected.node().id);
-    idea.font_size = idea_font_size;
-    return idea;
-  }
 
-  GraphCreator.prototype.save_idea = function(d){
-    return $.ajax({
-        type: "POST",
-        url: 'ideas/' ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title}},
-          dataType: 'json',
-        success: function(result){
-           if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
-          return result;
-           }
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-        }
-      });
-  }
-
-  GraphCreator.prototype.position_first_idea = function(){
-    var thisGraph = this;
-    var first_idea = this.nodes[0]
-    if (first_idea.title == 'Idea'){
-     first_idea.x = windowSize().width/2;
-     first_idea.y = windowSize().height/2;
-     thisGraph.update_idea(first_idea);
-    };
-  }
-
-  GraphCreator.prototype.update_text_of_idea = function(d3node, d, txt_tmp){
-    var thisGraph = this;
-    var htmlEl = d3node.node();
-    var idea = thisGraph.find_idea_by_id_clean( d.id );
-    idea.title = d.title;
-    idea.concept_type = d.type;
-    if (d.type == 'url'){
-    thisGraph.insertUrl(d3node, d.title);
-    }else{
-    thisGraph.insertTitleLinebreaks(d3node, d.title);
-    }
-
-    d3.select(txt_tmp.parentElement).remove();
-
-    d3.select(htmlEl).attr('id', 'id' + d.id);
-    d3.select(htmlEl).attr('title', d.title);
-    console.log(d3node);
-    thisGraph.update_idea(d);
-  }
-
-  GraphCreator.prototype.createIdea = function( title, x , y , type ){
-    var thisGraph = this,
-    d = {title: toWhiteSpace(title) , x: x , y: y, font_size: 20 , type: type};
-    return thisGraph.save_idea(d).done(function(data, errors){
-      d = {id: data.id, title: toWhiteSpace(title) , x: data.x , y: data.y, font_size: data.font_size , type: type };
-    thisGraph.nodes.push(d);
-    thisGraph.updateGraph();
-    return d;
-    });
-  }
-
-
-  GraphCreator.prototype.find_idea_by_title = function(title){
-    var nodes = this.nodes;
-    var idea = null;
-    console.log('nodes', nodes);
-    $.each( nodes, function(index, value){
-      if (value['title'] == title){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
-
-  GraphCreator.prototype.find_idea_by_id = function(id){
-    var nodes = this.nodes;
-    var idea = null;
-    id = id.slice(3);
-    $.each( nodes, function(index, value){
-      if (value['id'] == id){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
-
-  GraphCreator.prototype.find_idea_by_id_clean = function(id){
-    return this.find_idea_by_id('#id' + id )
-  }
-
-  GraphCreator.prototype.find_title_by_id = function(id){
-   return this.find_idea_by_id(id)['title']
-  }
-
-  GraphCreator.prototype.delete_idea = function(selectedNode, state){
-    var thisGraph = this;
-    thisGraph.nodes.splice(thisGraph.nodes.indexOf(selectedNode), 1);
-    thisGraph.spliceLinksForNode(selectedNode);
-    state.selectedNode = null;
-    thisGraph.updateGraph();
-    ajax('ideas/' + selectedNode.id , 'DELETE');
-  }
-
-  /* place editable text on node in place of svg text */
-  GraphCreator.prototype.changeTextOfNode = function(d3node, d){
-    var thisGraph = this,
-        consts = thisGraph.consts,
-        htmlEl = d3node.node();
-    d3node.selectAll("text").remove();
-    var nodeBCR = htmlEl.getBoundingClientRect(),
-        curScale = nodeBCR.width/consts.nodeRadius,
-        placePad  =  5*curScale,
-        useHW = curScale > 1 ? nodeBCR.width*0.71 : consts.nodeRadius*1.42;
-    // replace with editableconent text
-    var d3txt = thisGraph.svg.selectAll("foreignObject")
-          .data([d])
-          .enter()
-          .append("foreignObject")
-          .attr("x", nodeBCR.left + placePad )
-          .attr("y", nodeBCR.top + placePad)
-          .attr("height", 2*useHW)
-          .attr("width", useHW)
-          .append("xhtml:p")
-          .attr("id", consts.activeEditId)
-          .attr("contentEditable", "true")
-          .text(d.title)
-          .on("mousedown", function(d){
-            d3.event.stopPropagation();
-          })
-          .on("keydown", function(d){
-            d3.event.stopPropagation();
-            if (d3.event.keyCode == consts.ENTER_KEY && !d3.event.shiftKey){
-              this.blur();
-            }
-          })
-          .on("blur", function(d){
-            d.title = this.textContent;
-            d.type = findTypeOfIdea(this.textContent);
-            thisGraph.update_text_of_idea(d3node, d, this);
-          });
-    return d3txt;
-  };
-
-   GraphCreator.prototype.change_size = function(plus_minus){
-    var thisGraph = this,
-        consts = thisGraph.consts
-    var selected = d3.select('.selected');
-    var size = parsePx(selected.style('font-size'));
-    var idea_font_size = parseInt( size + consts.change * plus_minus );
-    if (size > consts.min_size && plus_minus == -1 || size < consts.max_size && plus_minus == 1){
-      selected.style('font-size', idea_font_size + 'px');
-      selected.style('line-height', idea_font_size + 'px');
-      idea = thisGraph.update_idea_size(selected, idea_font_size);
-      return idea;
-    }
-  };
-
-
-  function findTypeOfIdea(title){
-    console.log('title', title)
-    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
-    console.log(title.search(regexp_web));
-    if (title.search(regexp_web) > -1){
-      return 'url';
-    }else{
-      return 'concept';
-    }
-  }
-
-  GraphCreator.prototype.save_link = function(idea_one, idea_two, id){
-    return $.ajax({
-        type: "POST",
-        url: 'links/' ,
-        beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id }},
-          dataType: 'json',
-        success: function(result){
-          return result;
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-          console.log(thrownError);
-        }
-      });
-  }
-
-  GraphCreator.prototype.delete_link = function(selectedEdge){
-    var thisGraph = this;
-    var link_index = thisGraph.edges.indexOf(selectedEdge)
-    this.edges.splice( link_index , 1);
-    ajax('links/' + selectedEdge.id, 'DELETE');
-  }
-
-  GraphCreator.prototype.create_link = function( idea_one, idea_two, id ){
-    var thisGraph = this;
-    thisGraph.save_link(idea_one, idea_two, id).done(function(data, errors){
-      var newEdge = {source: idea_one, target: idea_two, id: data.id};
-      thisGraph.edges.push(newEdge);
-      thisGraph.updateGraph();
-    });
-  }
 
   GraphCreator.prototype.dragmove = function(d) {
     var thisGraph = this;
@@ -453,13 +270,6 @@ var windowSize = require("./utils.js").windowSize;
   };
 
   /* select all text in element: taken from http://stackoverflow.com/questions/6139107/programatically-select-text-in-a-contenteditable-html-element */
-  GraphCreator.prototype.selectElementContents = function(el) {
-    var range = document.createRange();
-    range.selectNodeContents(el);
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-  };
 
 
   /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
@@ -556,18 +366,6 @@ var windowSize = require("./utils.js").windowSize;
     }
   };
 
-
-  GraphCreator.prototype.insertUrl = function (gEl, title) {
-    var el = gEl.append("a")
-          .attr("href", title)
-          .attr("text-anchor","middle");
-
-      var name = el.append('text').text(title);
-        name.attr('x', 0).attr('dy', '15');
-  };
-
-
-
   // mouseup on nodes
   GraphCreator.prototype.circleMouseUp = function(d3node, d){
     var thisGraph = this,
@@ -593,19 +391,21 @@ var windowSize = require("./utils.js").windowSize;
         }
       });
       if( existing_link.indexOf(false) == -1 ){
-        thisGraph.create_link(mouseDownNode, d, thisGraph.idLink++)
+        new Link(thisGraph).create(mouseDownNode, d, thisGraph.idLink++)
       }
     } else{
       // we're in the same node
       if (state.justDragged) {
         // dragged, not clicked
-        thisGraph.update_idea(d);
+        var idea = new Idea(thisGraph);
+        idea.update(d);
         state.justDragged = false;
       } else{
         // clicked, not dragged
         if (d3.event.shiftKey){
           // shift-clicked node: edit text content
-          var d3txt = thisGraph.changeTextOfNode(d3node, d);
+          var idea = new Idea(thisGraph);
+          var d3txt = idea.changeText(d3node, d);
           var txtNode = d3txt.node();
           thisGraph.selectElementContents(txtNode);
           txtNode.focus();
@@ -643,12 +443,13 @@ var windowSize = require("./utils.js").windowSize;
     } else if (state.graphMouseDown && d3.event.shiftKey){
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node());
-      thisGraph.createIdea('new idea', xycoords[0] , xycoords[1], 'concept').done(function(data){
+      var idea = new Idea(thisGraph);
+      var d = {title: 'new_idea' , x: xycoords[0] , y: xycoords[1], font_size: 20 , type: 'concept'};
+        idea.create(d).done(function(data){
         var d = data;
-        var d3txt = thisGraph.changeTextOfNode(thisGraph.circles.filter(function(dval){
-        return dval.id === d.id;
-      }), d),
-            txtNode = d3txt.node();
+      var tempIdea = new Idea(thisGraph);
+        var d3txt = tempIdea.changeText(thisGraph.circles.filter(function(dval){ return dval.id === d.id; }), d);
+        var txtNode = d3txt.node();
       thisGraph.selectElementContents(txtNode);
       txtNode.focus();
       });
@@ -679,9 +480,9 @@ var windowSize = require("./utils.js").windowSize;
     case consts.DELETE_KEY:
       d3.event.preventDefault();
       if (selectedNode){
-        thisGraph.delete_idea(selectedNode, state);
+        new Idea(thisGraph).delete(selectedNode, state);
       } else if (selectedEdge){
-        thisGraph.delete_link(selectedEdge);
+        new Link(thisGraph).delete(selectedEdge);
         state.selectedEdge = null;
         thisGraph.updateGraph();
       }
@@ -717,7 +518,6 @@ var windowSize = require("./utils.js").windowSize;
       .append("path")
       .style('marker-end','url(#end-arrow)')
       .classed("link", true)
-      // .attr("stroke-dasharray", '0.5,20')
       .attr("stroke-linecap", 'round')
       .attr("d", function(d){
         return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
@@ -758,8 +558,12 @@ var windowSize = require("./utils.js").windowSize;
       })
       .call(thisGraph.drag);
 
-    newGs.append("circle")
-      .attr("r", String(consts.nodeRadius));
+     newGs.append("circle")
+       .attr("r", String(consts.nodeRadius));
+
+    // newGs.append("rect")
+    //   .attr("width", String(consts.nodeRadius))
+    //   .attr("height", String(consts.nodeRadius));
 
     // title and  id into ideas
     newGs.each(function(d){
@@ -782,21 +586,6 @@ var windowSize = require("./utils.js").windowSize;
     var x = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth;
     var y = window.innerHeight|| docEl.clientHeight|| bodyEl.clientHeight;
     svg.attr("width", x).attr("height", y);
-  };
-
-  GraphCreator.prototype.selected_id = function(){
-    var thisGraph = this;
-    var selected =  thisGraph.selected.node()
-    if (selected != null){
-      clear_alert();
-      return selected.id}
-    else{
-      no_selection();
-      }
-  }
-
-  var clear_alert = function(){
-    d3.select('#alert').text('');
   };
 
   return GraphCreator;

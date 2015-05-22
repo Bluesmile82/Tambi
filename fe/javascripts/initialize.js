@@ -1,7 +1,6 @@
-define(function(require) {
+define(["./canvas_controller", "./utils.js"], function( GraphCreator, utils) {
 
-var GraphCreator = require("./graph-creator.js");
-var windowSize = require("./utils.js").windowSize;
+var windowSize = utils.windowSize;
 
   var nodes = [];
   var edges = [];
@@ -16,6 +15,16 @@ var windowSize = require("./utils.js").windowSize;
   graph.setIdCt(2);
   graph.setIdLink(2);
   graph.updateGraph();
+
+  // var force = d3.layout.force()
+  //   .size([windowSize().width, windowSize().height])
+  //   .linkDistance(150)
+  //   .charge(-500)
+  //   .nodes(graph.nodes)
+  //   .start()
+  //   .on('tick',function(){
+  //     graph.updateGraph();
+  //   });
 
 return graph ;
 

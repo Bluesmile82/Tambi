@@ -29,7 +29,7 @@ class GraphsController < ApplicationController
   def create_first_idea
       first_title = 'Idea'
       concept = Concept.find_by_title( first_title ) || Concept.create(title: first_title )
-      Idea.create(graph_id: @graph.id, x: 600 , y: 400 , font_size: 20 , concept_id: concept.id)
+      Idea.create(graph_id: @graph.id, x: 600 , y: 400 , font_size: 20 , concept_id: concept.id, concept_type: 'concept')
   end
 
   def set_graph

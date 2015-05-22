@@ -19,6 +19,7 @@
         <% if user_signed_in? %>
 
       <% if @graph.id %>
+        <li><p id='alert'></p><li>
         <li><%= link_to user_graphs_path do %><i class="fa fa-arrow-left"></i><% end %></li>
         <li> <%= @graph.title %>  </li>
         <li><div id="creative-structured" class="label label-default">Structured </div></li>

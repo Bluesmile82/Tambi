@@ -4,6 +4,7 @@ body{
     overflow:hidden;
 }
 
+
 p{
      text-align: center;
      overflow: overlay;
@@ -68,4 +69,8 @@ path.link.hidden{
 
 path.link.selected {
     stroke: rgb(50, 232, 250);
+}
+
+rect{
+  fill: white;
 }
