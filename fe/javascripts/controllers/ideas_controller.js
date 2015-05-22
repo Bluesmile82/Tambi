@@ -1,4 +1,4 @@
-define(["./utils.js", "./view.js" ], function(utils, View) {
+define(["../utils.js", "../views/view.js" ], function(utils, View) {
 
 var toWhiteSpace = utils.toWhiteSpace;
 var ajax = utils.ajax;
@@ -86,7 +86,7 @@ var parsePx = utils.parsePx;
     var graph = this.graph,
         thisIdea = this;
     var htmlEl = d3node.node();
-    var idea = graph.find_idea_by_id( d.id );
+    var idea = thisIdea.find_by_id( d.id );
     idea.title = d.title;
     idea.concept_type = d.type;
     if (d.type == 'url'){
@@ -99,7 +99,6 @@ var parsePx = utils.parsePx;
 
     d3.select(htmlEl).attr('id', 'id' + d.id);
     d3.select(htmlEl).attr('title', d.title);
-    console.log(d3node);
     thisIdea.update(d);
   }
 
@@ -186,10 +185,39 @@ var parsePx = utils.parsePx;
   Idea.prototype.update_idea_size = function(selected, idea_font_size){
     var graph = this.graph;
     var selectedId = selected.node().id.replace( /id/, '');
-    var idea = graph.find_idea_by_id ( selectedId );
+    var idea = this.find_by_id ( selectedId );
     idea.font_size = idea_font_size;
     return idea;
   }
+
+  Idea.prototype.find_by_title = function(title){
+    var graph = this.graph;
+    var nodes = graph.nodes;
+    var idea = null;
+    $.each( nodes, function(index, value){
+      if (value['title'] == title){
+        return idea = value;
+      }
+    })
+    return idea;
+  }
+
+  Idea.prototype.find_by_id = function(id){
+    var graph = this.graph;
+    var nodes = graph.nodes;
+    var idea = null;
+    $.each( nodes, function(index, value){
+      if (value['id'] == id){
+        return idea = value;
+      }
+    })
+    return idea;
+  }
+
+  Idea.prototype.find_title_by_id = function(id){
+   return this.find_by_id(id)['title']
+  }
+
 
 
 return Idea;

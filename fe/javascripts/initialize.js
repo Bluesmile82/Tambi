@@ -1,4 +1,4 @@
-define(["./canvas_controller", "./utils.js"], function( GraphCreator, utils) {
+define(["./controllers/canvas_controller", "./utils.js"], function( GraphCreator, utils) {
 
 var windowSize = utils.windowSize;
 

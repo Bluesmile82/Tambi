@@ -1,11 +1,11 @@
-define(['./utils.js', './idea_controller.js', './links_controller.js'], function(utils, Idea, Link) {
+define(['../utils.js', './ideas_controller.js', './links_controller.js'], function(utils, Idea, Link) {
 
-var parsePx = utils.parsePx;
-var ajax = utils.ajax;
-var toWhiteSpace = utils.toWhiteSpace;
-var toSnakeCase = utils.toSnakeCase;
-var windowSize = utils.windowSize;
-var selectElementContents = utils.selectElementContents;
+  var parsePx = utils.parsePx;
+  var ajax = utils.ajax;
+  var toWhiteSpace = utils.toWhiteSpace;
+  var toSnakeCase = utils.toSnakeCase;
+  var windowSize = utils.windowSize;
+  var selectElementContents = utils.selectElementContents;
 
 var GraphCreator = function(svg, nodes, edges){
     var thisGraph = this;
@@ -141,43 +141,6 @@ var GraphCreator = function(svg, nodes, edges){
     window.onresize = function(){thisGraph.updateWindow(svg);};
 };
 
-  GraphCreator.prototype.position_first_idea = function(){
-    var thisGraph = this;
-    var first_idea = this.nodes[0]
-    if (first_idea.title == 'Idea'){
-     first_idea.x = windowSize().width/2;
-     first_idea.y = windowSize().height/2;
-     var idea = new Idea(thisGraph);
-     idea.update(first_idea);
-    };
-  }
-
-
-  GraphCreator.prototype.find_idea_by_title = function(title){
-    var nodes = this.nodes;
-    var idea = null;
-    $.each( nodes, function(index, value){
-      if (value['title'] == title){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
-
-  GraphCreator.prototype.find_idea_by_id = function(id){
-    var nodes = this.nodes;
-    var idea = null;
-    $.each( nodes, function(index, value){
-      if (value['id'] == id){
-        return idea = value;
-      }
-    })
-    return idea;
-  }
-
-  GraphCreator.prototype.find_title_by_id = function(id){
-   return this.find_idea_by_id(id)['title']
-  }
 
   GraphCreator.prototype.consts =  {
     selectedClass: "selected",
@@ -201,6 +164,17 @@ var GraphCreator = function(svg, nodes, edges){
   GraphCreator.prototype.setIdLink = function(idLink){
     this.idLink = idLink;
   };
+
+  GraphCreator.prototype.position_first_idea = function(){
+    var thisGraph = this;
+    var first_idea = this.nodes[0]
+    if (first_idea.title == 'Idea'){
+     first_idea.x = windowSize().width/2;
+     first_idea.y = windowSize().height/2;
+     var idea = new Idea(thisGraph);
+     idea.update(first_idea);
+    };
+  }
 
   GraphCreator.prototype.load_data = function(){
     var thisGraph = this;
@@ -407,7 +381,7 @@ var GraphCreator = function(svg, nodes, edges){
           var idea = new Idea(thisGraph);
           var d3txt = idea.changeText(d3node, d);
           var txtNode = d3txt.node();
-          thisGraph.selectElementContents(txtNode);
+          selectElementContents(txtNode);
           txtNode.focus();
         } else{
           if (state.selectedEdge){

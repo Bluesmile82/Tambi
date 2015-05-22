@@ -2,6 +2,6 @@ document.onload = start();
 
 function start(){
 
-require("./interaction.js")
+require("./views/index.js")
 
 }

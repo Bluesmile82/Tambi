@@ -1,4 +1,4 @@
-define( ["./canvas_controller.js", "./initialize.js", "./utils.js", "./idea_controller.js","./suggestions_controller.js", "./view.js" ], function(GraphCreator, graph, utils, Idea, Suggestions, View) {
+define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js", "../controllers/ideas_controller.js","../controllers/suggestions_controller.js", "../views/view.js" ], function(GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 var parsePx = utils.parsePx;
 var getUrl = utils.getUrl;
@@ -100,7 +100,7 @@ var toWhiteSpace = utils.toWhiteSpace;
     if (id == null ) { return new View().noSelection();}
 
     new View().clearAlert();
-    var d = graph.find_idea_by_id(id);
+    var d = new Idea(graph).find_by_id(id);
     var type = d.concept_type;
 
     switch(type) {

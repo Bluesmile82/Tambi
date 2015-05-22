@@ -1,4 +1,4 @@
-define(["./utils.js", "./view.js" ], function(utils, View) {
+define(["../utils.js", "../views/view.js" ], function(utils, View) {
 
 var toWhiteSpace = utils.toWhiteSpace;
 var ajax = utils.ajax;
@@ -6,7 +6,6 @@ var ajax = utils.ajax;
   var Link = function( graph ){
     this.graph = graph;
   }
-
 
   Link.prototype.create = function( idea_one, idea_two, id ){
     var graph = this.graph;

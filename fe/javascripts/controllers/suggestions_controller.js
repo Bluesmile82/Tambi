@@ -1,4 +1,4 @@
-define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function(Utils, Idea, Link) {
+define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], function(Utils, Idea, Link) {
 
   var getUrl = Utils.getUrl;
   var toWhiteSpace = Utils.toWhiteSpace;
@@ -11,7 +11,7 @@ define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function
     var graph = this.graph;
     var clean_id = id.replace(/#/, '');
     var id = '#id' + clean_id;
-    var selectedIdea = graph.find_idea_by_id(clean_id);
+    var selectedIdea = new Idea(graph).find_by_id(clean_id);
     var title =  selectedIdea.title;
       fetch_suggestions(type, title, language).done(function(data, errors){
         var data_b = data_base(data, type);
@@ -46,7 +46,7 @@ define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function
                     var idea = new Idea(graph);
                     var d = {title: toWhiteSpace(d3.select(this).attr('id')) , x: translate[0] , y: translate[1], font_size: 20 , type: 'concept'};
                     idea.create( d ).done(function(data){
-                      new Link(graph).create( selectedIdea, graph.find_idea_by_id(data.id) , graph.idLink++ );
+                      new Link(graph).create( selectedIdea, new Idea(graph).find_by_id(data.id) , graph.idLink++ );
                     });
                     d3.select(this).remove();
                   })
@@ -69,6 +69,30 @@ define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function
     });
   }
 
+  function getMatches(title){
+   return $.ajax({
+      type: "GET",
+      contentType: "application/json",
+      dataType: "json",
+      url: '/matches/' + title,
+      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      success: function(result){
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        console.log(thrownError);
+      }
+    });
+  }
+
+  function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
+
+  function random_delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
+
+  function random_top(parent_top, bias){ return parseInt( parent_top + (Math.random() * bias) * random_sign() )}; // top parent + 100 + (0 to bias * sign)
+
+  function random_left(parent_left, bias){ return parent_left + (( Math.random() * bias) *  random_sign() ) }; // left parent + 100 + 0 to bias * sign
+
+  function random_font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
 
   function fetch_suggestions(type, title, language){
 
@@ -99,16 +123,6 @@ define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function
 
     return getUrl(url);
   }
-
-  function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
-
-  function random_delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
-
-  function random_top(parent_top, bias){ return parseInt( parent_top + (Math.random() * bias) * random_sign() )}; // top parent + 100 + (0 to bias * sign)
-
-  function random_left(parent_left, bias){ return parent_left + (( Math.random() * bias) *  random_sign() ) }; // left parent + 100 + 0 to bias * sign
-
-  function random_font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
 
   function data_title(data, type) {
     switch(type) {
@@ -159,21 +173,6 @@ define(["./utils.js", "./idea_controller.js", "./links_controller.js"], function
       default:
       console.log('base not found');
     }
-  }
-
-  function getMatches(title){
-   return $.ajax({
-      type: "GET",
-      contentType: "application/json",
-      dataType: "json",
-      url: '/matches/' + title,
-      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-      success: function(result){
-      },
-      error: function (xhr, ajaxOptions, thrownError) {
-        console.log(thrownError);
-      }
-    });
   }
 
   return Suggestions;
