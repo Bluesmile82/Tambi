@@ -3,10 +3,12 @@ Rails.application.routes.draw do
   devise_for :users
 
   get 'matches/:title' => 'matches#index'
+  get 'links/:title' => 'links#index'
 
   resources :users do
     resources :graphs do
       resources :ideas
+    get 'redirect_to/:idea_id' => 'graphs#redirect'
       resources :links
     end
   end

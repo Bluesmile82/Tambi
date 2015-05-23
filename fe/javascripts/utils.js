@@ -14,10 +14,11 @@ define(function(require) {
                 return text.replace(/_/g, ' ')
               },
 
-    ajax: function(url, type, data){
-                    $.ajax({
+    ajax: function(url, type, datatype, data){
+                    return $.ajax({
                         type: type,
                         url: url ,
+                        dataType: datatype,
                         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
                         data: data,
                         success: function(result){

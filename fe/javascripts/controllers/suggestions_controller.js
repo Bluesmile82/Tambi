@@ -40,13 +40,16 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
                   })
                   .style('font-size', function(data){ return random_font_size() })
                   .attr('id', function(data) { return data_title(data, type); })
+                  .attr('parent_id', function(data) { return parent_id(data, type); })
                   .on("click", function(){
                     var transform = d3.select(this).attr('transform');
                     var translate = d3.transform(transform).translate;
                     var idea = new Idea(graph);
-                    var d = {title: toWhiteSpace(d3.select(this).attr('id')) , x: translate[0] , y: translate[1], font_size: 20 , type: 'concept'};
+                    var d = {title: toWhiteSpace(d3.select(this).attr('id')) , x: translate[0] , y: translate[1], font_size: 20 , concept_type: 'concept', parent_id: d3.select(this).attr('parent_id') };
                     idea.create( d ).done(function(data){
-                      new Link(graph).create( selectedIdea, new Idea(graph).find_by_id(data.id) , graph.idLink++ );
+                      new Link(graph).create( selectedIdea,
+                                              new Idea(graph).find_by_id(data.id),
+                                              graph.idLink++ );
                     });
                     d3.select(this).remove();
                   })
@@ -69,12 +72,31 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
     });
   }
 
+  function parent_id(data, type){
+    return type == 'user' ? data.id : null ;
+  }
+
   function getMatches(title){
    return $.ajax({
       type: "GET",
       contentType: "application/json",
       dataType: "json",
       url: '/matches/' + title,
+      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      success: function(result){
+      },
+      error: function (xhr, ajaxOptions, thrownError) {
+        console.log(thrownError);
+      }
+    });
+  }
+
+  function getLinks(title){
+   return $.ajax({
+      type: "GET",
+      contentType: "application/json",
+      dataType: "json",
+      url: '/links/' + title,
       beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
       success: function(result){
       },
@@ -117,7 +139,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       url =  'http://api.wordnik.com:80/v4/word.json/' + title + '/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
         break;
     case 'user':
-      return getMatches(title);
+      return getLinks(title);
     break;
     }
 

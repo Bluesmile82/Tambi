@@ -10,12 +10,27 @@
     <li>Backspace to delete </li>
   </ul>
 </div>
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Other canvas</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="wiki"><div></div><i class="fa fa-times fa-3x" id="close-wiki"></i></div>
 
   <input type="file" id="hidden-file-upload"></input>
-  <!-- <div id="toolbox"> -->
-  <!-- </div> -->
+
   <div id="idea-toolbox">
+
+    <div>
+      <i class="fa fa-link fa-3x" id="open-canvas" data-toggle="modal" data-target="#myModal" ></i>
+    </div>
     <div>
       <i class="fa fa-eye fa-3x" id="open-url"></i>
     </div>

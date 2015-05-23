@@ -50,137 +50,24 @@
 
 	function start() {
 
-	  __webpack_require__(9);
+	  __webpack_require__(1);
 	}
 
 /***/ },
-/* 1 */,
-/* 2 */,
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-
-	  var Utils = {
-
-	    parsePx: function parsePx(string) {
-	      return parseInt(string.replace('px', ''));
-	    },
-
-	    toSnakeCase: function toSnakeCase(text) {
-	      return text.replace(/\s/g, '_');
-	    },
-
-	    toWhiteSpace: function toWhiteSpace(text) {
-	      return text.replace(/_/g, ' ');
-	    },
-
-	    ajax: function ajax(url, type, data) {
-	      $.ajax({
-	        type: type,
-	        url: url,
-	        beforeSend: function beforeSend(xhr) {
-	          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
-	        },
-	        data: data,
-	        success: function success(result) {
-	          if (result.error == 'true') {
-	            alert('An error occurred: ' & result.errorMessage);
-	          }
-	        },
-	        error: function error(xhr, ajaxOptions, thrownError) {
-	          console.log(thrownError);
-	        }
-	      });
-	    },
-
-	    getUrl: function getUrl(url) {
-	      return $.ajax({
-	        url: url,
-	        dataType: 'json',
-	        error: function error(request, _error) {
-	          console.log(' Can\'t do because: ' + _error);
-	        }
-	      });
-	    },
-
-	    windowSize: function windowSize() {
-	      var docEl = document.documentElement,
-	          bodyEl = document.getElementsByTagName('body')[0];
-
-	      var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth,
-	          height = window.innerHeight || docEl.clientHeight || bodyEl.clientHeight;
-
-	      return { width: width, height: height };
-	    },
-	    selectElementContents: function selectElementContents(el) {
-	      var range = document.createRange();
-	      range.selectNodeContents(el);
-	      var sel = window.getSelection();
-	      sel.removeAllRanges();
-	      sel.addRange(range);
-	    }
-
-	    //   getEm: function(selected){
-	    //            return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))
-	    //           }
-	  };
-
-	  return Utils;
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 4 */,
-/* 5 */,
-/* 6 */,
-/* 7 */
+/* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(10), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
-
-	  var windowSize = utils.windowSize;
-
-	  var nodes = [];
-	  var edges = [];
-
-	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
-
-	  var graph = new GraphCreator(svg, nodes, edges);
-
-	  graph.load_data();
-	  graph.setIdCt(2);
-	  graph.setIdLink(2);
-	  graph.updateGraph();
-
-	  // var force = d3.layout.force()
-	  //   .size([windowSize().width, windowSize().height])
-	  //   .linkDistance(150)
-	  //   .charge(-500)
-	  //   .nodes(graph.nodes)
-	  //   .start()
-	  //   .on('tick',function(){
-	  //     graph.updateGraph();
-	  //   });
-
-	  return graph;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 8 */,
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(10), __webpack_require__(7), __webpack_require__(3), __webpack_require__(13), __webpack_require__(14), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 	  var parsePx = utils.parsePx;
 	  var getUrl = utils.getUrl;
 	  var toWhiteSpace = utils.toWhiteSpace;
+	  var ajax = utils.ajax;
+	  var windowSize = utils.windowSize;
+
+	  // $('#myModal').modal({ show: false})
 
 	  click_button("related_idol_wt", "en");
 	  click_button("wiki_category", "en");
@@ -199,6 +86,34 @@
 	      new Suggestions(graph).create("#" + selectedId, id, language);
 	    });
 	  }
+
+	  function selectId() {
+	    var idea = new Idea(graph);
+	    var selectedId = idea.selectedId();
+	    if (selectedId == null) {
+	      return new View().noSelection();
+	    }
+	    return selectedId;
+	  }
+
+	  d3.select(".modal-header .close").on("click", function () {
+	    d3.select(".modal-content iframe").remove();
+	    d3.select(".modal-title").html("Without parent");
+	  });
+
+	  d3.select("#open-canvas").on("click", function () {
+	    var parent_id = new Idea(graph).find_by_id(selectId()).parent_id;
+	    ajax("redirect_to/" + parent_id, "GET", "json").done(function (data) {
+	      d3.select(".modal-content").append("iframe").attr("src", data.path);
+	      d3.select(".modal-title").html(data.graph.title + " by " + data.user);
+	    });
+
+	    // .attr("width", windowSize().width/2)
+	    // .attr("height", windowSize().height/2);
+	    // var nodes = []
+	    // var edges = []
+	    // var Extgraph = new GraphCreator(svg, nodes, edges);
+	  });
 
 	  d3.select("#idea-plus").on("click", function () {
 	    var idea = new Idea(graph);
@@ -305,12 +220,12 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 10 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(13), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
 
 	  var parsePx = utils.parsePx;
 	  var ajax = utils.ajax;
@@ -470,6 +385,7 @@
 	  };
 
 	  GraphCreator.prototype.initialize_ideas = function (jsonObj) {
+	    console.log(jsonObj);
 	    var thisGraph = this,
 	        state = thisGraph.state;
 	    thisGraph.deleteGraph(true);
@@ -688,7 +604,7 @@
 	      // clicked not dragged from svg
 	      var xycoords = d3.mouse(thisGraph.svgG.node());
 	      var idea = new Idea(thisGraph);
-	      var d = { title: 'new_idea', x: xycoords[0], y: xycoords[1], font_size: 20, type: 'concept' };
+	      var d = { title: 'new_idea', x: xycoords[0], y: xycoords[1], font_size: 20, concept_type: 'concept', parent_id: null };
 	      idea.create(d).done(function (data) {
 	        var d = data;
 	        var tempIdea = new Idea(thisGraph);
@@ -829,92 +745,89 @@
 	// todo check if edge-mode is selected
 
 /***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
-
-	  var toWhiteSpace = utils.toWhiteSpace;
-	  var ajax = utils.ajax;
-
-	  var Link = function Link(graph) {
-	    this.graph = graph;
-	  };
-
-	  Link.prototype.create = function (idea_one, idea_two, id) {
-	    var graph = this.graph;
-	    this.save(idea_one, idea_two, id).done(function (data, errors) {
-	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
-	      graph.edges.push(newEdge);
-	      graph.updateGraph();
-	    });
-	  };
-
-	  Link.prototype.save = function (idea_one, idea_two, id) {
-	    return $.ajax({
-	      type: "POST",
-	      url: "links/",
-	      beforeSend: function beforeSend(xhr) {
-	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
-	      },
-	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
-	      dataType: "json",
-	      success: function success(result) {
-	        return result;
-	      },
-	      error: function error(xhr, ajaxOptions, thrownError) {
-	        console.log(thrownError);
-	      }
-	    });
-	  };
-
-	  Link.prototype["delete"] = function (selectedEdge) {
-	    var graph = this.graph;
-	    var link_index = graph.edges.indexOf(selectedEdge);
-	    graph.edges.splice(link_index, 1);
-	    ajax("links/" + selectedEdge.id, "DELETE");
-	  };
-
-	  return Link;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 12 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 
-	  var View = function View() {};
+	  var Utils = {
 
-	  View.prototype.clearAlert = function () {
-	    d3.select('#alert').text('');
+	    parsePx: function parsePx(string) {
+	      return parseInt(string.replace('px', ''));
+	    },
+
+	    toSnakeCase: function toSnakeCase(text) {
+	      return text.replace(/\s/g, '_');
+	    },
+
+	    toWhiteSpace: function toWhiteSpace(text) {
+	      return text.replace(/_/g, ' ');
+	    },
+
+	    ajax: function ajax(url, type, datatype, data) {
+	      return $.ajax({
+	        type: type,
+	        url: url,
+	        dataType: datatype,
+	        beforeSend: function beforeSend(xhr) {
+	          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+	        },
+	        data: data,
+	        success: function success(result) {
+	          if (result.error == 'true') {
+	            alert('An error occurred: ' & result.errorMessage);
+	          }
+	        },
+	        error: function error(xhr, ajaxOptions, thrownError) {
+	          console.log(thrownError);
+	        }
+	      });
+	    },
+
+	    getUrl: function getUrl(url) {
+	      return $.ajax({
+	        url: url,
+	        dataType: 'json',
+	        error: function error(request, _error) {
+	          console.log(' Can\'t do because: ' + _error);
+	        }
+	      });
+	    },
+
+	    windowSize: function windowSize() {
+	      var docEl = document.documentElement,
+	          bodyEl = document.getElementsByTagName('body')[0];
+
+	      var width = window.innerWidth || docEl.clientWidth || bodyEl.clientWidth,
+	          height = window.innerHeight || docEl.clientHeight || bodyEl.clientHeight;
+
+	      return { width: width, height: height };
+	    },
+	    selectElementContents: function selectElementContents(el) {
+	      var range = document.createRange();
+	      range.selectNodeContents(el);
+	      var sel = window.getSelection();
+	      sel.removeAllRanges();
+	      sel.addRange(range);
+	    }
+
+	    //   getEm: function(selected){
+	    //            return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))
+	    //           }
 	  };
 
-	  View.prototype.noSelection = function () {
-	    d3.select('#alert').text('Please select an Idea first');
-	  };
-
-	  View.prototype.clearIframeTab = function () {
-	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
-	    d3.select('.url-title').remove();
-	    d3.select('.wiki iframe').remove();
-	    d3.select('.wiki div').html('');
-	  };
-
-	  return View;
+	  return Utils;
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 13 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(12)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -933,7 +846,8 @@
 	        x: data.x,
 	        y: data.y,
 	        font_size: data.font_size,
-	        type: d.type
+	        concept_type: d.concept_type,
+	        parent_id: d.parent_id
 	      };
 	      graph.nodes.push(d);
 	      graph.updateGraph();
@@ -948,7 +862,7 @@
 	      beforeSend: function beforeSend(xhr) {
 	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
 	      },
-	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title } },
+	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title, concept_type: d.concept_type, parent_id: d.parent_id } },
 	      dataType: "json",
 	      success: function success(result) {
 	        if (result.error == "true") {
@@ -1067,7 +981,6 @@
 	    var graph = this.graph,
 	        constants = graph.consts;
 	    var selected = d3.select(".selected");
-	    console.log(selected);
 	    var size = parsePx(selected.style("font-size"));
 	    var idea_font_size = parseInt(size + constants.change * plus_minus);
 	    var circle = selected.select("circle");
@@ -1124,12 +1037,127 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 14 */
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
+
+	  var View = function View() {};
+
+	  View.prototype.clearAlert = function () {
+	    d3.select('#alert').text('');
+	  };
+
+	  View.prototype.noSelection = function () {
+	    d3.select('#alert').text('Please select an Idea first');
+	  };
+
+	  View.prototype.clearIframeTab = function () {
+	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
+	    d3.select('.url-title').remove();
+	    d3.select('.wiki iframe').remove();
+	    d3.select('.wiki div').html('');
+	  };
+
+	  return View;
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(13), __webpack_require__(11)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+
+	  var toWhiteSpace = utils.toWhiteSpace;
+	  var ajax = utils.ajax;
+
+	  var Link = function Link(graph) {
+	    this.graph = graph;
+	  };
+
+	  Link.prototype.create = function (idea_one, idea_two, id) {
+	    var graph = this.graph;
+	    this.save(idea_one, idea_two, id).done(function (data, errors) {
+	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
+	      graph.edges.push(newEdge);
+	      graph.updateGraph();
+	    });
+	  };
+
+	  Link.prototype.save = function (idea_one, idea_two, id) {
+	    return $.ajax({
+	      type: "POST",
+	      url: "links/",
+	      beforeSend: function beforeSend(xhr) {
+	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
+	      },
+	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
+	      dataType: "json",
+	      success: function success(result) {
+	        return result;
+	      },
+	      error: function error(xhr, ajaxOptions, thrownError) {
+	        console.log(thrownError);
+	      }
+	    });
+	  };
+
+	  Link.prototype["delete"] = function (selectedEdge) {
+	    var graph = this.graph;
+	    var link_index = graph.edges.indexOf(selectedEdge);
+	    graph.edges.splice(link_index, 1);
+	    ajax("links/" + selectedEdge.id, "DELETE");
+	  };
+
+	  return Link;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
+
+	  var windowSize = utils.windowSize;
+
+	  var nodes = [];
+	  var edges = [];
+
+	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
+
+	  var graph = new GraphCreator(svg, nodes, edges);
+
+	  graph.load_data();
+	  graph.setIdCt(2);
+	  graph.setIdLink(2);
+	  graph.updateGraph();
+
+	  // var force = d3.layout.force()
+	  //   .size([windowSize().width, windowSize().height])
+	  //   .linkDistance(150)
+	  //   .charge(-500)
+	  //   .nodes(graph.nodes)
+	  //   .start()
+	  //   .on('tick',function(){
+	  //     graph.updateGraph();
+	  //   });
+
+	  return graph;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
 
 	  var getUrl = Utils.getUrl;
 	  var toWhiteSpace = Utils.toWhiteSpace;
@@ -1169,11 +1197,13 @@
 	        return random_font_size();
 	      }).attr("id", function (data) {
 	        return data_title(data, type);
+	      }).attr("parent_id", function (data) {
+	        return parent_id(data, type);
 	      }).on("click", function () {
 	        var transform = d3.select(this).attr("transform");
 	        var translate = d3.transform(transform).translate;
 	        var idea = new Idea(graph);
-	        var d = { title: toWhiteSpace(d3.select(this).attr("id")), x: translate[0], y: translate[1], font_size: 20, type: "concept" };
+	        var d = { title: toWhiteSpace(d3.select(this).attr("id")), x: translate[0], y: translate[1], font_size: 20, concept_type: "concept", parent_id: d3.select(this).attr("parent_id") };
 	        idea.create(d).done(function (data) {
 	          new Link(graph).create(selectedIdea, new Idea(graph).find_by_id(data.id), graph.idLink++);
 	        });
@@ -1193,12 +1223,32 @@
 	    });
 	  };
 
+	  function parent_id(data, type) {
+	    return type == "user" ? data.id : null;
+	  }
+
 	  function getMatches(title) {
 	    return $.ajax({
 	      type: "GET",
 	      contentType: "application/json",
 	      dataType: "json",
 	      url: "/matches/" + title,
+	      beforeSend: function beforeSend(xhr) {
+	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
+	      },
+	      success: function success(result) {},
+	      error: function error(xhr, ajaxOptions, thrownError) {
+	        console.log(thrownError);
+	      }
+	    });
+	  }
+
+	  function getLinks(title) {
+	    return $.ajax({
+	      type: "GET",
+	      contentType: "application/json",
+	      dataType: "json",
+	      url: "/links/" + title,
 	      beforeSend: function beforeSend(xhr) {
 	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
 	      },
@@ -1252,7 +1302,7 @@
 	        url = "http://api.wordnik.com:80/v4/word.json/" + title + "/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5";
 	        break;
 	      case "user":
-	        return getMatches(title);
+	        return getLinks(title);
 	        break;
 	    }
 

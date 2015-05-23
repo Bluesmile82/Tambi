@@ -196,6 +196,7 @@ var GraphCreator = function(svg, nodes, edges){
 
 
   GraphCreator.prototype.initialize_ideas = function(jsonObj){
+    console.log(jsonObj)
     var thisGraph = this,
         state = thisGraph.state;
     thisGraph.deleteGraph(true);
@@ -418,14 +419,14 @@ var GraphCreator = function(svg, nodes, edges){
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node());
       var idea = new Idea(thisGraph);
-      var d = {title: 'new_idea' , x: xycoords[0] , y: xycoords[1], font_size: 20 , type: 'concept'};
-        idea.create(d).done(function(data){
+      var d = {title: 'new_idea' , x: xycoords[0] , y: xycoords[1], font_size: 20 , concept_type: 'concept', parent_id: null };
+      idea.create(d).done(function(data){
         var d = data;
-      var tempIdea = new Idea(thisGraph);
+        var tempIdea = new Idea(thisGraph);
         var d3txt = tempIdea.changeText(thisGraph.circles.filter(function(dval){ return dval.id === d.id; }), d);
         var txtNode = d3txt.node();
-      selectElementContents(txtNode);
-      txtNode.focus();
+        selectElementContents(txtNode);
+        txtNode.focus();
       });
 
       // make title of text immediently editable

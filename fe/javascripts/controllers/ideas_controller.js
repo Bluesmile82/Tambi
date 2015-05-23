@@ -18,7 +18,8 @@ var parsePx = utils.parsePx;
                       x: data.x ,
                       y: data.y,
                       font_size: data.font_size ,
-                      type: d.type
+                      concept_type: d.concept_type,
+                      parent_id: d.parent_id
                     };
                 graph.nodes.push(d);
                 graph.updateGraph();
@@ -31,7 +32,7 @@ var parsePx = utils.parsePx;
         type: "POST",
         url: 'ideas/' ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title}},
+        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.concept_type , parent_id: d.parent_id}},
           dataType: 'json',
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
@@ -163,9 +164,8 @@ var parsePx = utils.parsePx;
 
   Idea.prototype.change_size = function(plus_minus){
     var graph = this.graph,
-        constants = graph.consts
+        constants = graph.consts;
     var selected = d3.select('.selected');
-    console.log(selected);
     var size = parsePx(selected.style('font-size'));
     var idea_font_size = parseInt( size + constants.change * plus_minus );
     var circle = selected.select('circle');

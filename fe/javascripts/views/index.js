@@ -1,8 +1,12 @@
 define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js", "../controllers/ideas_controller.js","../controllers/suggestions_controller.js", "../views/view.js" ], function(GraphCreator, graph, utils, Idea, Suggestions, View) {
 
-var parsePx = utils.parsePx;
-var getUrl = utils.getUrl;
-var toWhiteSpace = utils.toWhiteSpace;
+  var parsePx = utils.parsePx;
+  var getUrl = utils.getUrl;
+  var toWhiteSpace = utils.toWhiteSpace;
+  var ajax = utils.ajax;
+  var windowSize = utils.windowSize;
+
+// $('#myModal').modal({ show: false})
 
   click_button('related_idol_wt', 'en');
   click_button('wiki_category', 'en');
@@ -19,6 +23,33 @@ var toWhiteSpace = utils.toWhiteSpace;
     new Suggestions(graph).create( '#' + selectedId , id , language)
     });
   }
+
+  function selectId(){
+    var idea = new Idea(graph)
+    var selectedId = idea.selectedId();
+    if (selectedId == null ) { return new View().noSelection();}
+    return selectedId;
+  }
+
+  d3.select('.modal-header .close').on("click", function(){
+    d3.select('.modal-content iframe').remove();
+    d3.select('.modal-title').html('Without parent');
+  });
+
+  d3.select('#open-canvas').on("click", function(){
+    var parent_id = new Idea(graph).find_by_id(selectId()).parent_id;
+    ajax( 'redirect_to/' + parent_id , 'GET', 'json' ).done(function(data) {
+      d3.select('.modal-content').append('iframe').attr('src', data.path );
+      d3.select('.modal-title').html( data.graph.title + ' by ' + data.user );
+    });
+
+        // .attr("width", windowSize().width/2)
+        // .attr("height", windowSize().height/2);
+  // var nodes = []
+  // var edges = []
+  // var Extgraph = new GraphCreator(svg, nodes, edges);
+
+  });
 
   d3.select('#idea-plus').on("click", function(){
     var idea = new Idea(graph)

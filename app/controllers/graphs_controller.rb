@@ -1,12 +1,17 @@
 class GraphsController < ApplicationController
-  before_action :set_graph, only: [:show, :update, :destroy]
+  before_action :set_graph, only: [:show, :redirect, :update, :destroy]
 
   def index
+    @all_graphs = Graph.all
     @graphs= current_user.graphs
   end
 
   def show
-      redirect_to user_graph_ideas_path(graph_id: @graph)
+    redirect_to user_graph_ideas_path(graph_id: @graph)
+  end
+
+  def redirect
+    @path = user_graph_ideas_path(graph_id: @graph)
   end
 
   def create
@@ -29,11 +34,16 @@ class GraphsController < ApplicationController
   def create_first_idea
       first_title = 'Idea'
       concept = Concept.find_by_title( first_title ) || Concept.create(title: first_title )
-      Idea.create(graph_id: @graph.id, x: 600 , y: 400 , font_size: 20 , concept_id: concept.id, concept_type: 'concept')
+      Idea.create(  graph_id: @graph.id,
+                    x: 600,
+                    y: 400,
+                    font_size: 20,
+                    concept_id: concept.id,
+                    concept_type: 'concept')
   end
 
   def set_graph
-    @graph = Graph.find(params[:id])
+    @graph = params[:idea_id] ? Graph.find(Idea.find(params[:idea_id]).graph.id) : Graph.find(params[:id])
   end
 
   def graph_params
