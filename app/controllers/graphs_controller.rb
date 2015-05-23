@@ -7,7 +7,7 @@ class GraphsController < ApplicationController
   end
 
   def show
-    redirect_to user_graph_ideas_path(graph_id: @graph)
+    redirect_to user_graph_ideas_path(graph_id: @graph.id)
   end
 
   def redirect
