@@ -43,12 +43,6 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
       d3.select('.modal-title').html( data.graph.title + ' by ' + data.user );
     });
 
-        // .attr("width", windowSize().width/2)
-        // .attr("height", windowSize().height/2);
-  // var nodes = []
-  // var edges = []
-  // var Extgraph = new GraphCreator(svg, nodes, edges);
-
   });
 
   d3.select('#idea-plus').on("click", function(){
@@ -135,11 +129,14 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
     var type = d.concept_type;
 
     switch(type) {
+      case 'concept':
+        show_wiki( d.title , 'en');
+        break;
       case 'url':
         open_url( d.title );
         break;
-      case 'concept':
-        show_wiki( d.title , 'en');
+      case 'image':
+        open_url( d.title );
         break;
       default:
         console.log('concept_type', d.concept_type );

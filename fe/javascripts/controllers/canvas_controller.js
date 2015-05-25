@@ -465,10 +465,10 @@ var GraphCreator = function(svg, nodes, edges){
 
   // call to propagate changes to graph
   GraphCreator.prototype.updateGraph = function(){
-    console.log('updateGraph')
     var thisGraph = this,
         consts = thisGraph.consts,
         state = thisGraph.state;
+    console.log('updateGraph')
 
     thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function(d){
       return String(d.source.id) + "+" + String(d.target.id);
@@ -502,12 +502,12 @@ var GraphCreator = function(svg, nodes, edges){
 
     // remove old links
     paths.exit().remove();
-    // update existing nodes
+
+    // update existing Ideas
     thisGraph.ideas = thisGraph.ideas.data(thisGraph.nodes, function(d){ return d.id;});
     thisGraph.ideas.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
     thisGraph.reloadIdeas();
-
-    thisGraph.addIdeas();
+    thisGraph.addNewIdeas();
 
     // remove old nodes
     thisGraph.ideas.exit().remove();
@@ -521,8 +521,9 @@ var GraphCreator = function(svg, nodes, edges){
   }
 
   GraphCreator.prototype.deleteIdeasShape = function (Ideas){
-    Ideas.select('rect').remove();
-    Ideas.select('circle').remove();
+    Ideas.selectAll('rect').remove();
+    Ideas.selectAll('circle').remove();
+    Ideas.selectAll('image').remove();
   }
 
   GraphCreator.prototype.reloadIdeasShape = function(Ideas){
@@ -535,7 +536,7 @@ var GraphCreator = function(svg, nodes, edges){
                 })
   }
 
-  GraphCreator.prototype.addIdeas = function (){
+  GraphCreator.prototype.addNewIdeas = function (){
     var thisGraph = this,
         consts = thisGraph.consts,
         state = thisGraph.state;
@@ -571,6 +572,7 @@ var GraphCreator = function(svg, nodes, edges){
         switch(d.concept_type){
           case 'concept':
             newIdea.append( 'circle' ).attr("r", String(consts.nodeRadius));
+            newIdea.classed('text-hidden', false);
             break;
           case 'url':
             newIdea.append( 'rect' )
@@ -578,6 +580,25 @@ var GraphCreator = function(svg, nodes, edges){
                    .attr("height", String(consts.nodeRadius)* 2)
                    .attr("y", String( -consts.nodeRadius))
                    .attr("x", String( -consts.nodeRadius));
+            newIdea.classed('text-hidden', false);
+            break;
+          case 'image':
+            newIdea.append( 'rect' )
+                   .attr("width", String(consts.nodeRadius)* 2)
+                   .attr("height", String(consts.nodeRadius)* 2)
+                   .attr("x", String( -consts.nodeRadius))
+                   .attr("y", String( -consts.nodeRadius))
+                   .attr("rx", '25' )
+                   .attr("ry", '25' );
+            newIdea.append('image')
+                   .attr('xlink:href', d.title )
+                   .attr("width", String(consts.nodeRadius)* 2)
+                   .attr("height", String(consts.nodeRadius)* 2)
+                   .attr("x", String( -consts.nodeRadius))
+                   .attr("y", String( -consts.nodeRadius))
+                   ;
+            newIdea.classed('text-hidden', true);
+
             break;
           default:
             console.log(d.concept_type);

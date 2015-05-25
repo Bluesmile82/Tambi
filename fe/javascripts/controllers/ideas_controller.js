@@ -91,9 +91,7 @@ var parsePx = utils.parsePx;
     var idea = thisIdea.find_by_id( d.id );
     idea.title = d.title;
     idea.concept_type = d.concept_type;
-    if (d.type == 'url'){
-      insertUrl(d3node, d.title);
-    }else{
+    if (d.type == 'concept'){
       graph.insertTitleLinebreaks(d3node, d.title);
     }
 
@@ -115,8 +113,10 @@ var parsePx = utils.parsePx;
 
   function findType(title){
     var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+    var regexp_pic = /(.+\.)(jpg|gif|png)$/
     if (title.search(regexp_web) > -1){
-      return 'url';
+      if(title.search(regexp_pic) > -1){ return 'image' }
+      else{ return 'url'; }
     }else{
       return 'concept';
     }

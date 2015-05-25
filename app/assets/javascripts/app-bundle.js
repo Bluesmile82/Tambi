@@ -59,7 +59,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(3), __webpack_require__(4), __webpack_require__(5), __webpack_require__(7), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 	  var parsePx = utils.parsePx;
 	  var getUrl = utils.getUrl;
@@ -107,12 +107,6 @@
 	      d3.select(".modal-content").append("iframe").attr("src", data.path);
 	      d3.select(".modal-title").html(data.graph.title + " by " + data.user);
 	    });
-
-	    // .attr("width", windowSize().width/2)
-	    // .attr("height", windowSize().height/2);
-	    // var nodes = []
-	    // var edges = []
-	    // var Extgraph = new GraphCreator(svg, nodes, edges);
 	  });
 
 	  d3.select("#idea-plus").on("click", function () {
@@ -207,11 +201,14 @@
 	    var type = d.concept_type;
 
 	    switch (type) {
+	      case "concept":
+	        show_wiki(d.title, "en");
+	        break;
 	      case "url":
 	        open_url(d.title);
 	        break;
-	      case "concept":
-	        show_wiki(d.title, "en");
+	      case "image":
+	        open_url(d.title);
 	        break;
 	      default:
 	        console.log("concept_type", d.concept_type);
@@ -225,7 +222,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(5), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
 
 	  var parsePx = utils.parsePx;
 	  var ajax = utils.ajax;
@@ -653,10 +650,10 @@
 
 	  // call to propagate changes to graph
 	  GraphCreator.prototype.updateGraph = function () {
-	    console.log('updateGraph');
 	    var thisGraph = this,
 	        consts = thisGraph.consts,
 	        state = thisGraph.state;
+	    console.log('updateGraph');
 
 	    thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function (d) {
 	      return String(d.source.id) + '+' + String(d.target.id);
@@ -680,7 +677,8 @@
 
 	    // remove old links
 	    paths.exit().remove();
-	    // update existing nodes
+
+	    // update existing Ideas
 	    thisGraph.ideas = thisGraph.ideas.data(thisGraph.nodes, function (d) {
 	      return d.id;
 	    });
@@ -688,8 +686,7 @@
 	      return 'translate(' + d.x + ',' + d.y + ')';
 	    });
 	    thisGraph.reloadIdeas();
-
-	    thisGraph.addIdeas();
+	    thisGraph.addNewIdeas();
 
 	    // remove old nodes
 	    thisGraph.ideas.exit().remove();
@@ -703,8 +700,9 @@
 	  };
 
 	  GraphCreator.prototype.deleteIdeasShape = function (Ideas) {
-	    Ideas.select('rect').remove();
-	    Ideas.select('circle').remove();
+	    Ideas.selectAll('rect').remove();
+	    Ideas.selectAll('circle').remove();
+	    Ideas.selectAll('image').remove();
 	  };
 
 	  GraphCreator.prototype.reloadIdeasShape = function (Ideas) {
@@ -719,7 +717,7 @@
 	    });
 	  };
 
-	  GraphCreator.prototype.addIdeas = function () {
+	  GraphCreator.prototype.addNewIdeas = function () {
 	    var thisGraph = this,
 	        consts = thisGraph.consts,
 	        state = thisGraph.state;
@@ -749,9 +747,17 @@
 	    switch (d.concept_type) {
 	      case 'concept':
 	        newIdea.append('circle').attr('r', String(consts.nodeRadius));
+	        newIdea.classed('text-hidden', false);
 	        break;
 	      case 'url':
 	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('y', String(-consts.nodeRadius)).attr('x', String(-consts.nodeRadius));
+	        newIdea.classed('text-hidden', false);
+	        break;
+	      case 'image':
+	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('x', String(-consts.nodeRadius)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
+	        newIdea.append('image').attr('xlink:href', d.title).attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('x', String(-consts.nodeRadius)).attr('y', String(-consts.nodeRadius));
+	        newIdea.classed('text-hidden', true);
+
 	        break;
 	      default:
 	        console.log(d.concept_type);
@@ -790,6 +796,41 @@
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
+
+	  var windowSize = utils.windowSize;
+
+	  var nodes = [];
+	  var edges = [];
+
+	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
+
+	  var graph = new GraphCreator(svg, nodes, edges);
+
+	  graph.load_data();
+	  graph.setIdCt(2);
+	  graph.setIdLink(2);
+	  graph.updateGraph();
+
+	  // var force = d3.layout.force()
+	  //   .size([windowSize().width, windowSize().height])
+	  //   .linkDistance(150)
+	  //   .charge(-500)
+	  //   .nodes(graph.nodes)
+	  //   .start()
+	  //   .on('tick',function(){
+	  //     graph.updateGraph();
+	  //   });
+
+	  return graph;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -866,12 +907,12 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -953,9 +994,7 @@
 	    var idea = thisIdea.find_by_id(d.id);
 	    idea.title = d.title;
 	    idea.concept_type = d.concept_type;
-	    if (d.type == "url") {
-	      insertUrl(d3node, d.title);
-	    } else {
+	    if (d.type == "concept") {
 	      graph.insertTitleLinebreaks(d3node, d.title);
 	    }
 
@@ -975,8 +1014,13 @@
 
 	  function findType(title) {
 	    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
+	    var regexp_pic = /(.+\.)(jpg|gif|png)$/;
 	    if (title.search(regexp_web) > -1) {
-	      return "url";
+	      if (title.search(regexp_pic) > -1) {
+	        return "image";
+	      } else {
+	        return "url";
+	      }
 	    } else {
 	      return "concept";
 	    }
@@ -1083,7 +1127,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -1111,99 +1155,12 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
-
-	  var toWhiteSpace = utils.toWhiteSpace;
-	  var ajax = utils.ajax;
-
-	  var Link = function Link(graph) {
-	    this.graph = graph;
-	  };
-
-	  Link.prototype.create = function (idea_one, idea_two, id) {
-	    var graph = this.graph;
-	    this.save(idea_one, idea_two, id).done(function (data, errors) {
-	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
-	      graph.edges.push(newEdge);
-	      graph.updateGraph();
-	    });
-	  };
-
-	  Link.prototype.save = function (idea_one, idea_two, id) {
-	    return $.ajax({
-	      type: "POST",
-	      url: "links/",
-	      beforeSend: function beforeSend(xhr) {
-	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
-	      },
-	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
-	      dataType: "json",
-	      success: function success(result) {
-	        return result;
-	      },
-	      error: function error(xhr, ajaxOptions, thrownError) {
-	        console.log(thrownError);
-	      }
-	    });
-	  };
-
-	  Link.prototype["delete"] = function (selectedEdge) {
-	    var graph = this.graph;
-	    var link_index = graph.edges.indexOf(selectedEdge);
-	    graph.edges.splice(link_index, 1);
-	    ajax("links/" + selectedEdge.id, "DELETE");
-	  };
-
-	  return Link;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
-
-	  var windowSize = utils.windowSize;
-
-	  var nodes = [];
-	  var edges = [];
-
-	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
-
-	  var graph = new GraphCreator(svg, nodes, edges);
-
-	  graph.load_data();
-	  graph.setIdCt(2);
-	  graph.setIdLink(2);
-	  graph.updateGraph();
-
-	  // var force = d3.layout.force()
-	  //   .size([windowSize().width, windowSize().height])
-	  //   .linkDistance(150)
-	  //   .charge(-500)
-	  //   .nodes(graph.nodes)
-	  //   .start()
-	  //   .on('tick',function(){
-	  //     graph.updateGraph();
-	  //   });
-
-	  return graph;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(5), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
 
 	  var getUrl = Utils.getUrl;
 	  var toWhiteSpace = Utils.toWhiteSpace;
@@ -1408,6 +1365,58 @@
 	  }
 
 	  return Suggestions;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+
+	  var toWhiteSpace = utils.toWhiteSpace;
+	  var ajax = utils.ajax;
+
+	  var Link = function Link(graph) {
+	    this.graph = graph;
+	  };
+
+	  Link.prototype.create = function (idea_one, idea_two, id) {
+	    var graph = this.graph;
+	    this.save(idea_one, idea_two, id).done(function (data, errors) {
+	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
+	      graph.edges.push(newEdge);
+	      graph.updateGraph();
+	    });
+	  };
+
+	  Link.prototype.save = function (idea_one, idea_two, id) {
+	    return $.ajax({
+	      type: "POST",
+	      url: "links/",
+	      beforeSend: function beforeSend(xhr) {
+	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
+	      },
+	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
+	      dataType: "json",
+	      success: function success(result) {
+	        return result;
+	      },
+	      error: function error(xhr, ajaxOptions, thrownError) {
+	        console.log(thrownError);
+	      }
+	    });
+	  };
+
+	  Link.prototype["delete"] = function (selectedEdge) {
+	    var graph = this.graph;
+	    var link_index = graph.edges.indexOf(selectedEdge);
+	    graph.edges.splice(link_index, 1);
+	    ajax("links/" + selectedEdge.id, "DELETE");
+	  };
+
+	  return Link;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }
