@@ -50,6 +50,7 @@ var parsePx = utils.parsePx;
         idea = this,
         constants = graph.consts,
         htmlEl = d3node.node();
+
     d3node.selectAll("text").remove();
     var nodeBCR = htmlEl.getBoundingClientRect(),
         curScale = nodeBCR.width/constants.nodeRadius,
@@ -63,6 +64,7 @@ var parsePx = utils.parsePx;
           .attr("height", 2*useHW)
           .attr("width", useHW)
           .append("xhtml:p")
+          .style('overflow', 'hidden')
           .attr("id", constants.activeEditId)
           .attr("contentEditable", "true")
           .text(d.title)
@@ -76,8 +78,8 @@ var parsePx = utils.parsePx;
             }
           })
           .on("blur", function(d){
-            d.title = this.textContent;
             d.concept_type = findType(this.textContent);
+            d.title = this.textContent;
             idea.update_text(d3node, d, this);
             graph.updateGraph()
           });
@@ -114,10 +116,13 @@ var parsePx = utils.parsePx;
   function findType(title){
     var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
     var regexp_pic = /(.+\.)(jpg|gif|png)$/
+    var regexp_text = /^(\s*\S+\s+){5,}/
+
     if (title.search(regexp_web) > -1){
       if(title.search(regexp_pic) > -1){ return 'image' }
       else{ return 'url'; }
     }else{
+      if(title.search(regexp_text) > -1){ return 'text' }
       return 'concept';
     }
   }

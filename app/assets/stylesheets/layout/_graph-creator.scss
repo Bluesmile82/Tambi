@@ -8,6 +8,7 @@ body{
   visibility: hidden
 }
 
+
 p{
      text-align: center;
      overflow: overlay;
@@ -42,12 +43,25 @@ g.conceptG circle{
 g.conceptG:hover circle{
     fill: rgb(200, 238, 241);
 }
+g.conceptG:hover rect{
+    fill: rgb(200, 238, 241);
+}
 
-g.selected circle{
+g.selected circle, g.selected rect {
     fill: rgb(125, 232, 255);
 }
+
+
 g.selected:hover circle{
     fill: rgb(140, 255, 255);
+}
+
+g.selected image{
+    opacity: 0.5;
+}
+
+g.conceptG:hover image{
+    opacity: 0.7;
 }
 
 path.link {

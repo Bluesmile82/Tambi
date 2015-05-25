@@ -574,6 +574,16 @@ var GraphCreator = function(svg, nodes, edges){
             newIdea.append( 'circle' ).attr("r", String(consts.nodeRadius));
             newIdea.classed('text-hidden', false);
             break;
+          case 'text':
+             newIdea.append( 'rect' )
+             .attr("width", String(consts.nodeRadius)* 5)
+             .attr("height", String(consts.nodeRadius)* 5)
+             .attr("x", String( -consts.nodeRadius))
+             .attr("y", String( -consts.nodeRadius*2.5))
+             .attr("rx", '25' )
+             .attr("ry", '25' );
+            newIdea.classed('text-hidden', false);
+            break;
           case 'url':
             newIdea.append( 'rect' )
                    .attr("width", String(consts.nodeRadius)* 2)
