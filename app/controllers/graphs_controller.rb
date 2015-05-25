@@ -18,7 +18,7 @@ class GraphsController < ApplicationController
     @graph = current_user.graphs.new(graph_params)
     if @graph.save
       create_first_idea
-      redirect_to user_graph_ideas_path(graph_id: @graph)
+      redirect_to user_graph_ideas_path(graph_id: @graph.id)
     else
       redirect_to user_graphs_path, alert: 'Something has gone wrong'
     end

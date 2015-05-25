@@ -214,7 +214,7 @@
 	        show_wiki(d.title, "en");
 	        break;
 	      default:
-	        console.log("undefined");
+	        console.log("concept_type", d.concept_type);
 	    }
 	  });
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -281,7 +281,7 @@
 
 	    // svg nodes and edges
 	    thisGraph.paths = svgG.append('g').selectAll('g');
-	    thisGraph.circles = svgG.append('g').selectAll('g');
+	    thisGraph.ideas = svgG.append('g').selectAll('g');
 
 	    thisGraph.drag = d3.behavior.drag().origin(function (d) {
 	      return { x: d.x, y: d.y };
@@ -385,7 +385,6 @@
 	  };
 
 	  GraphCreator.prototype.initialize_ideas = function (jsonObj) {
-	    console.log(jsonObj);
 	    var thisGraph = this,
 	        state = thisGraph.state;
 	    thisGraph.deleteGraph(true);
@@ -438,18 +437,6 @@
 
 	  /* select all text in element: taken from http://stackoverflow.com/questions/6139107/programatically-select-text-in-a-contenteditable-html-element */
 
-	  /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
-	  GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
-	    var words = title.split(/\s+/g),
-	        nwords = words.length;
-	    var el = gEl.append('text').attr('text-anchor', 'middle').attr('dy', '-' + (nwords - 1) * 7.5);
-
-	    for (var i = 0; i < words.length; i++) {
-	      var tspan = el.append('tspan').text(words[i]);
-	      if (i > 0) tspan.attr('x', 0).attr('dy', '15');
-	    }
-	  };
-
 	  // remove edges associated with a node
 	  GraphCreator.prototype.spliceLinksForNode = function (node) {
 	    var thisGraph = this,
@@ -481,7 +468,7 @@
 
 	  GraphCreator.prototype.removeSelectFromNode = function () {
 	    var thisGraph = this;
-	    thisGraph.circles.filter(function (cd) {
+	    thisGraph.ideas.filter(function (cd) {
 	      return cd.id === thisGraph.state.selectedNode.id;
 	    }).classed(thisGraph.consts.selectedClass, false);
 	    thisGraph.state.selectedNode = null;
@@ -564,11 +551,7 @@
 	        // clicked, not dragged
 	        if (d3.event.shiftKey) {
 	          // shift-clicked node: edit text content
-	          var idea = new Idea(thisGraph);
-	          var d3txt = idea.changeText(d3node, d);
-	          var txtNode = d3txt.node();
-	          selectElementContents(txtNode);
-	          txtNode.focus();
+	          thisGraph.interactionEditTextContent(d3node, d);
 	        } else {
 	          if (state.selectedEdge) {
 	            thisGraph.removeSelectFromEdge();
@@ -586,11 +569,36 @@
 	    thisGraph.selected = d3node;
 	    state.mouseDownNode = null;
 	    return;
-	  }; // end of circles mouseup
+	  }; // end of ideas mouseup
 
 	  // mousedown on main svg
 	  GraphCreator.prototype.svgMouseDown = function () {
 	    this.state.graphMouseDown = true;
+	  };
+
+	  GraphCreator.prototype.interactionEditTextContent = function (d3node, d) {
+	    var thisGraph = this;
+	    var d3txt = new Idea(thisGraph).changeText(d3node, d);
+	    var txtNode = d3txt.node();
+	    selectElementContents(txtNode);
+	    txtNode.focus();
+	  };
+
+	  GraphCreator.prototype.interactionCreateIdea = function () {
+	    var thisGraph = this;
+	    var xycoords = d3.mouse(thisGraph.svgG.node());
+	    var idea = new Idea(thisGraph);
+	    var d = { title: 'new_idea', x: xycoords[0], y: xycoords[1], font_size: 20, concept_type: 'concept', parent_id: null };
+	    idea.create(d).done(function (data) {
+	      var d = data;
+	      var d3txt = idea.changeText(thisGraph.ideas.filter(function (dval) {
+	        return dval.id === d.id;
+	      }), d);
+	      var txtNode = d3txt.node();
+	      selectElementContents(txtNode);
+	      txtNode.focus();
+	      // return d
+	    });
 	  };
 
 	  // mouseup on main svg
@@ -602,20 +610,7 @@
 	      state.justScaleTransGraph = false;
 	    } else if (state.graphMouseDown && d3.event.shiftKey) {
 	      // clicked not dragged from svg
-	      var xycoords = d3.mouse(thisGraph.svgG.node());
-	      var idea = new Idea(thisGraph);
-	      var d = { title: 'new_idea', x: xycoords[0], y: xycoords[1], font_size: 20, concept_type: 'concept', parent_id: null };
-	      idea.create(d).done(function (data) {
-	        var d = data;
-	        var tempIdea = new Idea(thisGraph);
-	        var d3txt = tempIdea.changeText(thisGraph.circles.filter(function (dval) {
-	          return dval.id === d.id;
-	        }), d);
-	        var txtNode = d3txt.node();
-	        selectElementContents(txtNode);
-	        txtNode.focus();
-	      });
-
+	      thisGraph.interactionCreateIdea();
 	      // make title of text immediently editable
 	    } else if (state.shiftNodeDrag) {
 	      // dragged from node
@@ -658,6 +653,7 @@
 
 	  // call to propagate changes to graph
 	  GraphCreator.prototype.updateGraph = function () {
+	    console.log('updateGraph');
 	    var thisGraph = this,
 	        consts = thisGraph.consts,
 	        state = thisGraph.state;
@@ -685,17 +681,52 @@
 	    // remove old links
 	    paths.exit().remove();
 	    // update existing nodes
-	    thisGraph.circles = thisGraph.circles.data(thisGraph.nodes, function (d) {
+	    thisGraph.ideas = thisGraph.ideas.data(thisGraph.nodes, function (d) {
 	      return d.id;
 	    });
-	    thisGraph.circles.attr('transform', function (d) {
+	    thisGraph.ideas.attr('transform', function (d) {
 	      return 'translate(' + d.x + ',' + d.y + ')';
 	    });
+	    thisGraph.reloadIdeas();
 
-	    // add new nodes
-	    var newGs = thisGraph.circles.enter().append('g');
+	    thisGraph.addIdeas();
 
-	    newGs.classed(consts.circleGClass, true).attr('transform', function (d) {
+	    // remove old nodes
+	    thisGraph.ideas.exit().remove();
+	  };
+
+	  GraphCreator.prototype.reloadIdeas = function () {
+	    var thisGraph = this;
+	    var Ideas = thisGraph.ideas;
+	    thisGraph.deleteIdeasShape(Ideas);
+	    thisGraph.reloadIdeasShape(Ideas);
+	  };
+
+	  GraphCreator.prototype.deleteIdeasShape = function (Ideas) {
+	    Ideas.select('rect').remove();
+	    Ideas.select('circle').remove();
+	  };
+
+	  GraphCreator.prototype.reloadIdeasShape = function (Ideas) {
+	    var thisGraph = this;
+	    Ideas.each(function (d) {
+	      var Idea = d3.select(this);
+	      thisGraph.createIdeaShape(Idea, d);
+	      thisGraph.insertTitleLinebreaks(Idea, d.title);
+	      Idea.attr('id', function (d) {
+	        return 'id' + d.id;
+	      });
+	    });
+	  };
+
+	  GraphCreator.prototype.addIdeas = function () {
+	    var thisGraph = this,
+	        consts = thisGraph.consts,
+	        state = thisGraph.state;
+
+	    var newIdeas = thisGraph.ideas.enter().append('g');
+
+	    newIdeas.classed(consts.circleGClass, true).attr('transform', function (d) {
 	      return 'translate(' + d.x + ',' + d.y + ')';
 	    }).on('mouseover', function (d) {
 	      if (state.shiftNodeDrag) {
@@ -709,21 +740,34 @@
 	      thisGraph.circleMouseUp.call(thisGraph, d3.select(this), d);
 	    }).call(thisGraph.drag);
 
-	    newGs.append('circle').attr('r', String(consts.nodeRadius));
+	    thisGraph.reloadIdeasShape(newIdeas);
+	  };
 
-	    // newGs.append("rect")
-	    //   .attr("width", String(consts.nodeRadius))
-	    //   .attr("height", String(consts.nodeRadius));
+	  GraphCreator.prototype.createIdeaShape = function (newIdea, d) {
+	    var consts = this.consts;
 
-	    // title and  id into ideas
-	    newGs.each(function (d) {
-	      thisGraph.insertTitleLinebreaks(d3.select(this), d.title);
-	    }).attr('id', function (d) {
-	      return 'id' + d.id;
-	    });
+	    switch (d.concept_type) {
+	      case 'concept':
+	        newIdea.append('circle').attr('r', String(consts.nodeRadius));
+	        break;
+	      case 'url':
+	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('y', String(-consts.nodeRadius)).attr('x', String(-consts.nodeRadius));
+	        break;
+	      default:
+	        console.log(d.concept_type);
+	    }
+	  };
 
-	    // remove old nodes
-	    thisGraph.circles.exit().remove();
+	  /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
+	  GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
+	    var words = title.split(/\s+/g),
+	        nwords = words.length;
+	    var el = gEl.append('text').attr('text-anchor', 'middle').attr('dy', '-' + (nwords - 1) * 7.5);
+
+	    for (var i = 0; i < words.length; i++) {
+	      var tspan = el.append('tspan').text(words[i]);
+	      if (i > 0) tspan.attr('x', 0).attr('dy', '15');
+	    }
 	  };
 
 	  GraphCreator.prototype.zoomed = function () {
@@ -895,8 +939,9 @@
 	      }
 	    }).on("blur", function (d) {
 	      d.title = this.textContent;
-	      d.type = findType(this.textContent);
+	      d.concept_type = findType(this.textContent);
 	      idea.update_text(d3node, d, this);
+	      graph.updateGraph();
 	    });
 	    return d3txt;
 	  };
@@ -907,7 +952,7 @@
 	    var htmlEl = d3node.node();
 	    var idea = thisIdea.find_by_id(d.id);
 	    idea.title = d.title;
-	    idea.concept_type = d.type;
+	    idea.concept_type = d.concept_type;
 	    if (d.type == "url") {
 	      insertUrl(d3node, d.title);
 	    } else {
@@ -944,10 +989,11 @@
 	      beforeSend: function beforeSend(xhr) {
 	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
 	      },
-	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title, concept_type: d.type } },
+	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title, concept_type: d.concept_type } },
 	      success: function success(result) {
 	        if (result.error == "true") {
 	          alert("An error occurred: " & result.errorMessage);
+	          graph.updateGraph();
 	          return result;
 	        }
 	      },

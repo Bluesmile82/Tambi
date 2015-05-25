@@ -142,7 +142,7 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
         show_wiki( d.title , 'en');
         break;
       default:
-        console.log('undefined');
+        console.log('concept_type', d.concept_type );
     }
   });
 

@@ -77,8 +77,9 @@ var parsePx = utils.parsePx;
           })
           .on("blur", function(d){
             d.title = this.textContent;
-            d.type = findType(this.textContent);
+            d.concept_type = findType(this.textContent);
             idea.update_text(d3node, d, this);
+            graph.updateGraph()
           });
     return d3txt;
   };
@@ -89,7 +90,7 @@ var parsePx = utils.parsePx;
     var htmlEl = d3node.node();
     var idea = thisIdea.find_by_id( d.id );
     idea.title = d.title;
-    idea.concept_type = d.type;
+    idea.concept_type = d.concept_type;
     if (d.type == 'url'){
       insertUrl(d3node, d.title);
     }else{
@@ -127,9 +128,10 @@ var parsePx = utils.parsePx;
         type: "PUT",
         url: 'ideas/' + d.id ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.type}},
+        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.concept_type }},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
+           graph.updateGraph()
            return result;
            }
         },
