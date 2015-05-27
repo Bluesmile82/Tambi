@@ -133,6 +133,11 @@ svg{
   background-color: white;
   border-radius: 5px;
   overflow: scroll;
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 .wiki-open{
   padding: 5%;
@@ -160,6 +165,18 @@ position: absolute;
 circle{
   opacity: 1;
 }
+text{
+  text-anchor:middle;
+}
+
+rect{
+  text-anchor:middle;
+}
+
+.text-left text{
+text-anchor: start;
+}
+
 .transparent{
   opacity: 0;
 }
@@ -172,6 +189,9 @@ circle{
   fill:#ddd;
   opacity: 0;
   position:relative;
+}
+.parent_id{
+  fill:red;
 }
 
 .conceptG text{

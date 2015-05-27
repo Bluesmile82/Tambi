@@ -703,6 +703,7 @@
 	    Ideas.selectAll('rect').remove();
 	    Ideas.selectAll('circle').remove();
 	    Ideas.selectAll('image').remove();
+	    Ideas.selectAll('text').remove();
 	  };
 
 	  GraphCreator.prototype.reloadIdeasShape = function (Ideas) {
@@ -743,39 +744,59 @@
 
 	  GraphCreator.prototype.createIdeaShape = function (newIdea, d) {
 	    var consts = this.consts;
-
 	    switch (d.concept_type) {
 	      case 'concept':
 	        newIdea.append('circle').attr('r', String(consts.nodeRadius));
-	        newIdea.classed('text-hidden', false);
+	        newIdea.classed('text-hidden', false).classed('text-left', false);
 	        break;
 	      case 'text':
-	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 5).attr('height', String(consts.nodeRadius) * 5).attr('x', String(-consts.nodeRadius)).attr('y', String(-consts.nodeRadius * 2.5)).attr('rx', '25').attr('ry', '25');
-	        newIdea.classed('text-hidden', false);
+	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 7).attr('height', String(consts.nodeRadius) * 1.5).attr('x', String(-consts.nodeRadius + 30)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
+	        newIdea.classed('text-hidden', false).classed('text-left', true);
 	        break;
 	      case 'url':
 	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('y', String(-consts.nodeRadius)).attr('x', String(-consts.nodeRadius));
-	        newIdea.classed('text-hidden', false);
+	        newIdea.classed('text-hidden', false).classed('text-left', false);
 	        break;
 	      case 'image':
 	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('x', String(-consts.nodeRadius)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
 	        newIdea.append('image').attr('xlink:href', d.title).attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('x', String(-consts.nodeRadius)).attr('y', String(-consts.nodeRadius));
-	        newIdea.classed('text-hidden', true);
-
+	        newIdea.classed('text-hidden', true).classed('text-left', false);
 	        break;
 	      default:
 	        console.log(d.concept_type);
 	    }
+
+	    if (d.parent_id != null) {
+	      newIdea.classed('parent_id', true);
+	    } else {
+	      newIdea.classed('parent_id', false);
+	    }
 	  };
 
 	  /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
+	  // GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
+	  //   // var words = title.split(/\s+/g),
+	  //   //     nwords = words.length;
+	  //   var el = gEl.append("text")
+	  //         .attr("text-anchor","middle")
+	  //         // .text(title);
+	  //         .attr("dy", "-" + (nwords-1)*7.5);
+
+	  //   // for (var i = 0; i < words.length; i++) {
+	  //   //   var tspan = el.append('tspan').text(words[i]);
+	  //   //   if (i > 0)
+	  //   //     tspan.attr('x', 0).attr('dy', '15');
+	  //   // }
+	  // };
+
 	  GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
 	    var words = title.split(/\s+/g),
 	        nwords = words.length;
-	    var el = gEl.append('text').attr('text-anchor', 'middle').attr('dy', '-' + (nwords - 1) * 7.5);
+	    var words_in_line = 5;
+	    var el = gEl.append('text').attr('dy', '-' + (nwords - 1) * 7.5 / words_in_line);
 
-	    for (var i = 0; i < words.length; i++) {
-	      var tspan = el.append('tspan').text(words[i]);
+	    for (var i = 0; i < words.length; i += words_in_line) {
+	      var tspan = el.append('tspan').text(words.slice(i, i + words_in_line).join().replace(/\,/g, ' '));
 	      if (i > 0) tspan.attr('x', 0).attr('dy', '15');
 	    }
 	  };
