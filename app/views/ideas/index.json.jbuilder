@@ -11,3 +11,5 @@ json.edges do
     json.target link.idea_b_id
     end
 end
+
+json.other_user @other_user
