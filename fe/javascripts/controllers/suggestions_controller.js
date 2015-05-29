@@ -24,8 +24,8 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
       var bias = 300;
-      var duration_in = 0;
-      var duration = 12000;
+      var duration_in = 1000;
+      var duration = 6000;
       console.log('delay', random_delay() );
 
       var new_concept = d3.select(".graph").selectAll('g.' + data.title)
@@ -108,13 +108,13 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
 
   function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
 
-  function random_delay(){ return (Math.random() * 2000) }; // delay 0 to 2000
+  function random_delay(){ return (Math.random() * 5000) }; // delay 0 to 2000
 
   function random_top(parent_top, bias){ return parseInt( parent_top + (Math.random() * bias) * random_sign() )}; // top parent + 100 + (0 to bias * sign)
 
   function random_left(parent_left, bias){ return parent_left + (( Math.random() * bias) *  random_sign() ) }; // left parent + 100 + 0 to bias * sign
 
-  function random_font_size(){ return  parseInt( Math.random() * 3 + 0.3 ) + 'em' }; // 0.1 to 3 em
+  function random_font_size(){ return  parseInt( ( Math.random() * 3 + 1 ) * 10 ) / 10  + 'em' }; // 0.1 to 3 em
 
   function fetch_suggestions(type, title, language){
 

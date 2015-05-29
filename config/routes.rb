@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get 'matches/:title' => 'matches#index'
   get 'links/:title' => 'links#index'
 
+    get 'users/graphs' => 'graphs#all'
   resources :users do
     resources :graphs do
       resources :ideas

@@ -1269,7 +1269,7 @@
 	      var parent_left = parseInt(parent[1]);
 	      var parent_top = parseInt(parent[2]);
 	      var bias = 300;
-	      var duration_in = 2000;
+	      var duration_in = 1000;
 	      var duration = 6000;
 	      console.log("delay", random_delay());
 
@@ -1350,7 +1350,7 @@
 	  };
 
 	  function random_delay() {
-	    return Math.random() * 2000;
+	    return Math.random() * 5000;
 	  }; // delay 0 to 2000
 
 	  function random_top(parent_top, bias) {
@@ -1362,7 +1362,7 @@
 	  }; // left parent + 100 + 0 to bias * sign
 
 	  function random_font_size() {
-	    return parseInt(Math.random() * 3 + 0.3) + "em";
+	    return parseInt((Math.random() * 3 + 1) * 10) / 10 + "em";
 	  }; // 0.1 to 3 em
 
 	  function fetch_suggestions(type, title, language) {

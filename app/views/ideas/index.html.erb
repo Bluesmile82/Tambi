@@ -43,14 +43,18 @@
     <!-- <div>
       <i class="fa fa-play-circle fa-3x" id="play"></i>
     </div> -->
-    <div>
-      <i class="fa fa-plus-circle fa-3x" id="idea-plus"></i>
-    </div>
-    <div>
-      <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
-    </div>
-    <!-- <div><div id="related_idol_wt-button" class="btn btn-default">Create Wikipedia Type</div></div> -->
-    <!-- <div><div id="wordnik-button" class="btn btn-default">Create Wordnik related tags</div></div> -->
+    <% if @same_user %>
+      <div>
+        <i class="fa fa-plus-circle fa-3x" id="idea-plus"></i>
+      </div>
+      <div>
+        <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
+      </div>
+    <% end %>
   </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>
-<%= javascript_include_tag "app-bundle.js" %>
+    <% if @same_user %>
+    <%= javascript_include_tag "app-bundle.js" %>
+    <% else %>
+    <%= javascript_include_tag "app-bundle.js" %>
+    <% end %>

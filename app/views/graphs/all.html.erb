@@ -1,0 +1,14 @@
+<div class="container">
+  <h1>All the Canvases</h1>
+  <ul>
+    <% @graphs.each do |graph| %>
+      <%= link_to user_graph_path(user_id: graph.user, id: graph) do %>
+        <li>
+          <%= graph.title %>
+        </li>
+      <% end %>
+    <% end %>
+  </ul>
+
+
+</div>

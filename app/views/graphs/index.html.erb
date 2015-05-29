@@ -12,21 +12,6 @@
       <% end %>
     <% end %>
   </ul>
-
   <h2>Create a new canvas</h2>
-
   <%= render 'form' %>
-
-  <h2>All the Canvases</h2>
-  <ul>
-    <% @all_graphs.each do |graph| %>
-      <%= link_to user_graph_path(user_id: graph.user, id: graph) do %>
-        <li>
-          <%= graph.title %>
-        </li>
-      <% end %>
-    <% end %>
-  </ul>
-
-
 </div>

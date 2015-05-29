@@ -4,9 +4,9 @@ class IdeasController < ApplicationController
   before_action :set_concept, only: [:create, :update]
 
   def index
-     @other_user = true if current_user.id != params[:user_id]
-     @ideas = @graph.ideas
-     @links = @ideas.map{|idea| idea.links }.flatten
+    @same_user = @graph.user == current_user
+    @ideas = @graph.ideas
+    @links = @ideas.map{|idea| idea.links }.flatten
   end
 
   def create
