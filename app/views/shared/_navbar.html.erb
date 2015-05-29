@@ -22,18 +22,6 @@
         <li><p id='alert'></p><li>
         <li><%= link_to user_graphs_path do %><i class="fa fa-arrow-left"></i><% end %></li>
         <li> <%= @graph.title %>  </li>
-        <li><div id="creative-structured" class="label label-default">Structured </div></li>
-        <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle='dropdown' role='button' 'aria-expanded'='false' >API <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><div id="random-button" class="btn btn-default">Random</div></li>
-            <li><div id="related_idol-button" class="btn btn-default">Related</div></li>
-            <li><div id="wiki_category-button" class="btn btn-default">Wikipedia Category</div></li>
-            <li><div id="flickr_tags-button" class="btn btn-default">Flickr related tags</div></li>
-            <li><div id="user-button" class="btn btn-default">User matches</div></li>
-          </ul>
-        </li>
-        <li>
       <% end %>
           <li class="dropdown">
             <%= link_to "#", {class: "dropdown-toggle", "data-toggle" => "dropdown", "role" => "button", "aria-expanded" => "false"} do %>
@@ -41,8 +29,9 @@
               Settings <span class="caret"></span>
             <% end %>
             <ul class="dropdown-menu" role="menu">
-              <li><div id="mode-switch" class="btn btn-default">Switch mode</div></li>
               <li><a id='show-instructions'><i class="fa fa-info-circle" ></i> Help</a></li>
+              <li><a><i class="fa fa-user"></i> Suggestions</a>
+              </li>
               <li>
                 <%= link_to "#" do %>
                   <i class="fa fa-user"></i> <%= t ".profile", default: "Profile" %>

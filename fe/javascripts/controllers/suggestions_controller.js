@@ -24,8 +24,8 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
       var bias = 300;
-      var duration_in = 2000;
-      var duration = 6000;
+      var duration_in = 0;
+      var duration = 12000;
       console.log('delay', random_delay() );
 
       var new_concept = d3.select(".graph").selectAll('g.' + data.title)
