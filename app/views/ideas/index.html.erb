@@ -1,4 +1,4 @@
-<div id="window" data-graph='<%= @graph.id %>'>
+<div id="window" data-graph='<%= @graph.id %>' data-permission=<%= @same_user %>>
 </div>
 
 <div id="instructions" class="hidden">
@@ -10,13 +10,17 @@
     <li>Backspace to delete </li>
   </ul>
 </div>
-<div id="toolbox">
-  <div id="random-button" class="btn btn-default">Random</div>
-  <div id="related_idol-button" class="btn btn-default">Related</div>
-  <div id="wiki_category-button" class="btn btn-default">Wikipedia Category</div>
-  <div id="flickr_tags-button" class="btn btn-default">Flickr related tags</div>
-  <div id="user-button" class="btn btn-default">User matches</div>
-</div>
+
+<% if @same_user %>
+  <div id="toolbox">
+    <div id="random-button" class="btn btn-default">Random</div>
+    <div id="related_idol-button" class="btn btn-default">Related</div>
+    <div id="wiki_category-button" class="btn btn-default">Wikipedia Category</div>
+    <div id="flickr_tags-button" class="btn btn-default">Flickr related tags</div>
+    <div id="user-button" class="btn btn-default">User matches</div>
+  </div>
+<% end %>
+
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">

@@ -6,6 +6,7 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   var ajax = utils.ajax;
   var windowSize = utils.windowSize;
 
+
 // $('#myModal').modal({ show: false})
 
   click_button('related_idol_wt', 'en');
@@ -44,6 +45,9 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
     });
 
   });
+
+if(graph.permission == 'user'){
+}
 
   d3.select('#idea-plus').on("click", function(){
     var idea = new Idea(graph)

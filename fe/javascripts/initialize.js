@@ -8,8 +8,8 @@ var windowSize = utils.windowSize;
   var svg = d3.select("body").append("svg")
         .attr("width", windowSize().width)
         .attr("height", windowSize().height);
-
-  var graph = new GraphCreator(svg, nodes, edges);
+  var permission = d3.select('#window').attr('data-permission');
+  var graph = new GraphCreator(svg, nodes, edges, permission);
 
   graph.load_data();
   graph.setIdCt(2);

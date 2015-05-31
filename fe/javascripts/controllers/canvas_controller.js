@@ -7,10 +7,11 @@ define(['../utils.js', './ideas_controller.js', './links_controller.js'], functi
   var windowSize = utils.windowSize;
   var selectElementContents = utils.selectElementContents;
 
-var GraphCreator = function(svg, nodes, edges){
+var GraphCreator = function(svg, nodes, edges, permission){
     var thisGraph = this;
         thisGraph.idct = 0;
         thisGraph.idLink = 0;
+        thisGraph.permission = permission;
 
     thisGraph.nodes = nodes || [];
     thisGraph.edges = edges || [];
@@ -103,6 +104,9 @@ var GraphCreator = function(svg, nodes, edges){
             // todo check if edge-mode is selected
           });
 
+    if (thisGraph.permission == 'false' ){
+    thisGraph.drag.on('drag', null);
+    }
         // listen for key events
         d3.select(window).on("keydown", function(){
           thisGraph.svgKeyDown.call(thisGraph);
@@ -340,7 +344,7 @@ var GraphCreator = function(svg, nodes, edges){
 
     thisGraph.dragLine.classed("hidden", true);
 
-    if (mouseDownNode !== d){
+    if (mouseDownNode !== d  && thisGraph.permission != 'false'){
       // we're in a different node: create new edge for mousedown edge and add to graph
       var newEdge = {source: mouseDownNode, target: d, id: 0 };
       var existing_link = thisGraph.edges.map(function(link){
@@ -354,14 +358,14 @@ var GraphCreator = function(svg, nodes, edges){
       }
     } else{
       // we're in the same node
-      if (state.justDragged) {
+      if (state.justDragged  && thisGraph.permission != 'false') {
         // dragged, not clicked
         var idea = new Idea(thisGraph);
         idea.update(d);
         state.justDragged = false;
       } else{
         // clicked, not dragged
-        if (d3.event.shiftKey){
+        if (d3.event.shiftKey  && thisGraph.permission != 'false'){
           // shift-clicked node: edit text content
           thisGraph.interactionEditTextContent(d3node, d);
         } else{
@@ -420,11 +424,11 @@ var GraphCreator = function(svg, nodes, edges){
     if (state.justScaleTransGraph) {
       // dragged not clicked
       state.justScaleTransGraph = false;
-    } else if (state.graphMouseDown && d3.event.shiftKey){
+    } else if (state.graphMouseDown && d3.event.shiftKey && thisGraph.permission != 'false' ){
       // clicked not dragged from svg
       thisGraph.interactionCreateIdea();
       // make title of text immediently editable
-    } else if (state.shiftNodeDrag){
+    } else if (state.shiftNodeDrag && thisGraph.permission != 'false'){
       // dragged from node
       state.shiftNodeDrag = false;
       thisGraph.dragLine.classed("hidden", true);
@@ -448,9 +452,9 @@ var GraphCreator = function(svg, nodes, edges){
     case consts.BACKSPACE_KEY:
     case consts.DELETE_KEY:
       d3.event.preventDefault();
-      if (selectedNode){
+      if (selectedNode && thisGraph.permission != 'false'){
         new Idea(thisGraph).delete(selectedNode, state);
-      } else if (selectedEdge){
+      } else if (selectedEdge && thisGraph.permission != 'false'){
         new Link(thisGraph).delete(selectedEdge);
         state.selectedEdge = null;
         thisGraph.updateGraph();
