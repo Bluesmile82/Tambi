@@ -2,11 +2,11 @@ class GraphsController < ApplicationController
   before_action :set_graph, only: [:show, :redirect, :update, :destroy]
 
   def index
-    @graphs= current_user.graphs
+    @graphs = current_user.graphs
   end
 
   def all
-    @graphs = Graph.all
+    @graphs = Graph.all - current_user.graphs
   end
 
   def show

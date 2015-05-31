@@ -59,7 +59,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(3), __webpack_require__(4), __webpack_require__(5), __webpack_require__(7), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 	  var parsePx = utils.parsePx;
 	  var getUrl = utils.getUrl;
@@ -224,7 +224,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(5), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
 
 	  var parsePx = utils.parsePx;
 	  var ajax = utils.ajax;
@@ -829,41 +829,6 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(4)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
-
-	  var windowSize = utils.windowSize;
-
-	  var nodes = [];
-	  var edges = [];
-
-	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
-	  var permission = d3.select("#window").attr("data-permission");
-	  var graph = new GraphCreator(svg, nodes, edges, permission);
-
-	  graph.load_data();
-	  graph.setIdCt(2);
-	  graph.setIdLink(2);
-	  graph.updateGraph();
-
-	  // var force = d3.layout.force()
-	  //   .size([windowSize().width, windowSize().height])
-	  //   .linkDistance(150)
-	  //   .charge(-500)
-	  //   .nodes(graph.nodes)
-	  //   .start()
-	  //   .on('tick',function(){
-	  //     graph.updateGraph();
-	  //   });
-
-	  return graph;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
@@ -938,12 +903,12 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 5 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -1164,7 +1129,7 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -1192,12 +1157,99 @@
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+
+	  var toWhiteSpace = utils.toWhiteSpace;
+	  var ajax = utils.ajax;
+
+	  var Link = function Link(graph) {
+	    this.graph = graph;
+	  };
+
+	  Link.prototype.create = function (idea_one, idea_two, id) {
+	    var graph = this.graph;
+	    this.save(idea_one, idea_two, id).done(function (data, errors) {
+	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
+	      graph.edges.push(newEdge);
+	      graph.updateGraph();
+	    });
+	  };
+
+	  Link.prototype.save = function (idea_one, idea_two, id) {
+	    return $.ajax({
+	      type: "POST",
+	      url: "links/",
+	      beforeSend: function beforeSend(xhr) {
+	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
+	      },
+	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
+	      dataType: "json",
+	      success: function success(result) {
+	        return result;
+	      },
+	      error: function error(xhr, ajaxOptions, thrownError) {
+	        console.log(thrownError);
+	      }
+	    });
+	  };
+
+	  Link.prototype["delete"] = function (selectedEdge) {
+	    var graph = this.graph;
+	    var link_index = graph.edges.indexOf(selectedEdge);
+	    graph.edges.splice(link_index, 1);
+	    ajax("links/" + selectedEdge.id, "DELETE");
+	  };
+
+	  return Link;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(5), __webpack_require__(8)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(3)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, utils) {
+
+	  var windowSize = utils.windowSize;
+
+	  var nodes = [];
+	  var edges = [];
+
+	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
+	  var permission = d3.select("#window").attr("data-permission");
+	  var graph = new GraphCreator(svg, nodes, edges, permission);
+
+	  graph.load_data();
+	  graph.setIdCt(2);
+	  graph.setIdLink(2);
+	  graph.updateGraph();
+
+	  // var force = d3.layout.force()
+	  //   .size([windowSize().width, windowSize().height])
+	  //   .linkDistance(150)
+	  //   .charge(-500)
+	  //   .nodes(graph.nodes)
+	  //   .start()
+	  //   .on('tick',function(){
+	  //     graph.updateGraph();
+	  //   });
+
+	  return graph;
+	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
+
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
 
 	  var getUrl = Utils.getUrl;
 	  var toWhiteSpace = Utils.toWhiteSpace;
@@ -1402,58 +1454,6 @@
 	  }
 
 	  return Suggestions;
-	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
-
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
-
-	  var toWhiteSpace = utils.toWhiteSpace;
-	  var ajax = utils.ajax;
-
-	  var Link = function Link(graph) {
-	    this.graph = graph;
-	  };
-
-	  Link.prototype.create = function (idea_one, idea_two, id) {
-	    var graph = this.graph;
-	    this.save(idea_one, idea_two, id).done(function (data, errors) {
-	      var newEdge = { source: idea_one, target: idea_two, id: data.id };
-	      graph.edges.push(newEdge);
-	      graph.updateGraph();
-	    });
-	  };
-
-	  Link.prototype.save = function (idea_one, idea_two, id) {
-	    return $.ajax({
-	      type: "POST",
-	      url: "links/",
-	      beforeSend: function beforeSend(xhr) {
-	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
-	      },
-	      data: { link: { idea_a_id: idea_one.id, idea_b_id: idea_two.id } },
-	      dataType: "json",
-	      success: function success(result) {
-	        return result;
-	      },
-	      error: function error(xhr, ajaxOptions, thrownError) {
-	        console.log(thrownError);
-	      }
-	    });
-	  };
-
-	  Link.prototype["delete"] = function (selectedEdge) {
-	    var graph = this.graph;
-	    var link_index = graph.edges.indexOf(selectedEdge);
-	    graph.edges.splice(link_index, 1);
-	    ajax("links/" + selectedEdge.id, "DELETE");
-	  };
-
-	  return Link;
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }

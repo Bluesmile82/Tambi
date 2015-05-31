@@ -6,6 +6,12 @@ class LinksController < ApplicationController
     @links_a = Link.all.select{ |link| link.idea_b.concept.title == title }
   end
 
+  def matches
+    title = params[:title]
+    @links_b = Link.all.select{ |link| link.idea_a.concept.title == title }.reject{ |link| link.idea_a.graph.user == current_user }
+    @links_a = Link.all.select{ |link| link.idea_b.concept.title == title }.reject{ |link| link.idea_b.graph.user == current_user }
+  end
+
   def create
     @idea_a = Idea.find(params[:link][:idea_a_id])
     @idea_b = Idea.find(params[:link][:idea_b_id])

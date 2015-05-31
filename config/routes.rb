@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   get 'matches/:title' => 'matches#index'
-  get 'links/:title' => 'links#index'
+  get 'links/:title' => 'links#matches'
 
     get 'users/graphs' => 'graphs#all'
   resources :users do
