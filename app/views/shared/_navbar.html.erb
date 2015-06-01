@@ -20,7 +20,7 @@
             <li><p id='alert'></p><li>
             <li> <a><%= @graph.title %></a>  </li>
           <% end %>
-            <li><%= link_to "My canvases", user_graphs_path(current_user) %></li>
+            <li><%= link_to "My Tambis", user_graphs_path(current_user) %></li>
             <li><%= link_to "Feed", users_graphs_path %></li>
             <li class="dropdown">
               <%= link_to "#", {class: "dropdown-toggle", "data-toggle" => "dropdown", "role" => "button", "aria-expanded" => "false"} do %>
@@ -31,10 +31,6 @@
                 <li><a id='show-instructions'><i class="fa fa-info-circle" ></i> Help</a></li>
                 <li><a><i class="fa fa-user"></i> Suggestions</a>
                 </li>
-                <li>
-                  <%= link_to "#" do %>
-                    <i class="fa fa-user"></i> <%= t ".profile", default: "Profile" %>
-                  <% end %>
                 </li>
                 <li>
                   <%= link_to destroy_user_session_path, method: :delete do %>

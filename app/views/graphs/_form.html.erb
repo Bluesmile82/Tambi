@@ -1,5 +1,5 @@
 <% @graph = Graph.new %>
-<%= form_for([current_user, @graph]) do |f| %>
+<%= simple_form_for([current_user, @graph])  do |f| %>
   <% if @graph.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@graph.errors.count, "error") %> prohibited this graph from being saved:</h2>
@@ -11,12 +11,7 @@
       </ul>
     </div>
   <% end %>
-
-  <div class="field">
-    <%= f.label :title %><br>
-    <%= f.text_field :title %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
+    <%= f.input :title, :placeholder=>"New Tambi"%>
+    <%= f.input :description,:as =>'text', :placeholder=>"Short description of the Tambi"%>
+    <%= f.submit 'Create', :class=>'btn btn-default vertical-center' %>
 <% end %>

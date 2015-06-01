@@ -38,7 +38,8 @@ gem 'sprockets-es6', require: 'sprockets/es6'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
-
+gem 'aws-sdk', '< 2.0'
+gem 'paperclip'
 gem 'devise'
 gem 'rails_12factor', group: :production
 gem 'puma',           group: :production

@@ -1,14 +1,15 @@
 <div class="container">
-  <h1>Canvases Feed</h1>
-  <ul>
+  <h1>Tambis Feed</h1>
     <% @graphs.each do |graph| %>
-      <%= link_to user_graph_path(user_id: graph.user, id: graph) do %>
-        <li>
-          <%= graph.title %>
-        </li>
-      <% end %>
+      <div class="panel panel-default col-md-3 thumbnail feed">
+        <div class="panel-body">
+          <%= link_to user_graph_path(user_id: graph.user, id: graph) do %>
+             <h3><%= graph.title %></h3>
+           <% end %>
+          <div><%= graph.description %></div>
+        </div>
+      </div>
     <% end %>
-  </ul>
 
 
 </div>
