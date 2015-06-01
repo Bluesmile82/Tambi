@@ -20,7 +20,7 @@ class GraphsController < ApplicationController
   def create
     @graph = current_user.graphs.new(graph_params)
     if @graph.save
-      create_first_idea
+      create_first_idea(@graph.title)
       redirect_to user_graph_ideas_path(graph_id: @graph.id)
     else
       redirect_to user_graphs_path, alert: 'Something has gone wrong'
@@ -34,8 +34,8 @@ class GraphsController < ApplicationController
 
   private
 
-  def create_first_idea
-      first_title = 'Idea'
+  def create_first_idea(first_title)
+      first_title ||= 'Idea'
       concept = Concept.find_by_title( first_title ) || Concept.create(title: first_title )
       Idea.create(  graph_id: @graph.id,
                     x: 600,
