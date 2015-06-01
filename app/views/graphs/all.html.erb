@@ -6,6 +6,7 @@
           <%= link_to user_graph_path(user_id: graph.user, id: graph) do %>
              <h3><%= graph.title %></h3>
            <% end %>
+          <h5><em><%= graph.user.username %></em></h5>
           <div><%= graph.description %></div>
         </div>
       </div>
