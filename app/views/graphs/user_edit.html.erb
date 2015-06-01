@@ -2,16 +2,18 @@
   <div class="row">
     <div class="col-md-4">
       <div class="panel panel-default">
-        <div class="panel-heading">Profile
-          <div class="btn btn-default badge">
-          <%= link_to 'Edit', users_edit_path %> </div>
-        </div>
+        <div class="panel-heading">Profile</div>
           <div class="panel-body">
-            <p>Image</p>
-            <p>Name</p>
-            <p><%= current_user.username %></p>
-            <p>Bio</p>
-            <p><%= current_user.bio %></p>
+            <%= simple_form_for(@user) do |f| %>
+              <%= f.error_notification %>
+              <p>Image</p>
+              <p>Name</p>
+                <%= f.input :username, required: true, autofocus: true %>
+              <p>Bio</p>
+                <%= f.input :bio, autofocus: true %>
+                <%= link_to 'Back', user_graphs_path(current_user), :class => 'btn btn-default' %>
+                <%= f.button :submit, "Save" %>
+            <% end %>
           </div>
         </div>
      </div>

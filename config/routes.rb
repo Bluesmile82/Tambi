@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  get 'users/edit' => 'graphs#user_edit'
   devise_for :users
 
   get 'matches/:title' => 'matches#index'

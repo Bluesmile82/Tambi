@@ -5,6 +5,11 @@ class GraphsController < ApplicationController
     @graphs = current_user.graphs
   end
 
+  def user_edit
+    @graphs = current_user.graphs
+    @user = current_user
+  end
+
   def all
     @graphs = Graph.all - current_user.graphs
   end
