@@ -16,7 +16,7 @@ class LinksController < ApplicationController
     @idea_a = Idea.find(params[:link][:idea_a_id])
     @idea_b = Idea.find(params[:link][:idea_b_id])
     @link = @idea_a.link!(@idea_b)
-    @idea_a.concept.match!(@idea_b.concept, @idea_a.graph.user)
+    # @idea_a.concept.match!(@idea_b.concept, @idea_a.graph.user)
   end
 
   def destroy

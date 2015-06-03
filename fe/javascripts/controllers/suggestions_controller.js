@@ -56,8 +56,8 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
                   .append('text').append('tspan')
                   .text(function(data) { return data_title(data, type) });
                   if (type == 'user'){
-                  new_concept.selectAll('text').style('fill','lightblue');
-                  new_concept.selectAll('text').append('tspan')
+                    new_concept.selectAll('text').style('fill','lightblue');
+                    new_concept.selectAll('text').append('tspan')
                                                .style({'fill':'white', 'font-size':'0.5em'})
                                                .attr('dy', '1em').attr('x', '0')
                                                .text(function(data) { return data.user });

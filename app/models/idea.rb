@@ -10,6 +10,6 @@ class Idea < ActiveRecord::Base
   has_many :idea_as, through: :reverse_links, source: :idea_a
 
   def link!(idea_b)
-    self.links.create(idea_a_id: id, idea_b_id: idea_b.id)
+    self.links.create(idea_a_id: id, idea_b_id: idea_b.id, user_id: graph.user.id )
   end
 end

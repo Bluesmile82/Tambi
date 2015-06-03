@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150601075836) do
+ActiveRecord::Schema.define(version: 20150603170002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -55,11 +55,13 @@ ActiveRecord::Schema.define(version: 20150601075836) do
     t.integer  "idea_b_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer  "user_id"
   end
 
   add_index "links", ["idea_a_id", "idea_b_id"], name: "index_links_on_idea_a_id_and_idea_b_id", unique: true, using: :btree
   add_index "links", ["idea_a_id"], name: "index_links_on_idea_a_id", using: :btree
   add_index "links", ["idea_b_id"], name: "index_links_on_idea_b_id", using: :btree
+  add_index "links", ["user_id"], name: "index_links_on_user_id", using: :btree
 
   create_table "matches", force: :cascade do |t|
     t.integer  "concept_a_id"
@@ -114,6 +116,7 @@ ActiveRecord::Schema.define(version: 20150601075836) do
   add_foreign_key "graphs", "users"
   add_foreign_key "ideas", "concepts"
   add_foreign_key "ideas", "graphs"
+  add_foreign_key "links", "users"
   add_foreign_key "matches", "users"
   add_foreign_key "tags", "concepts"
   add_foreign_key "tags", "ideas"
