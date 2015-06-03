@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
 
-  get 'users/edit' => 'graphs#user_edit'
-  devise_for :users
+  # get 'users/edit' => 'graphs#user_edit'
+  devise_for :users, :controllers => { registrations: 'registrations' }
 
   get 'matches/:title' => 'matches#index'
   get 'links/:title' => 'links#matches'

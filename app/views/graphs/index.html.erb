@@ -4,13 +4,14 @@
       <div class="panel panel-default">
         <div class="panel-heading">Profile
           <div class="btn btn-default badge">
-          <%= link_to 'Edit', users_edit_path %> </div>
+          <%= link_to 'Edit', edit_user_registration_path %> </div>
         </div>
           <div class="panel-body">
-            <p>Image</p>
-            <p>Name</p>
+            <h5>Image</h5>
+            <%= image_tag(current_user.image.url(:thumb), class: "img-responsive img-circle") %>
+            <h5>Name</h5>
             <p><%= current_user.username %></p>
-            <p>Bio</p>
+            <h5>Bio</h5>
             <p><%= current_user.bio %></p>
           </div>
         </div>
