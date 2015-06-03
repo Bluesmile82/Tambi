@@ -9,6 +9,7 @@
       <%= f.input :email, required: true %>
       <%= f.input :current_password, hint: "we need your current password to confirm your changes", required: true %>
       <%= f.input :image %>
+      <%= f.input :bio %>
       <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
         <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
       <% end %>
