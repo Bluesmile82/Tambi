@@ -14,5 +14,11 @@ User.create([{ username: 'Alvaro',
               email:'maria@tinymighty.com',
               password:'mariatambi',
               bio:"I am Maria from Tambi. Let's think together"
+              },
+              { username: 'Laura',
+              email:'laura.zorrilla1983@gmail.com'
+              password:'12345678',
+              bio:' I am a spy. shhhhhhh ;)'
               }
+
               ])
