@@ -17,6 +17,7 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   click_button('wordnik', 'en');
   click_button('user', 'en');
 
+
   function click_button(id, language){
    d3.select('#' + id + '-button').on("click", function(){
     var selectedId = new Idea(graph).selectedId();
@@ -48,6 +49,13 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
 
 if(graph.permission == 'user'){
 }
+
+  d3.select('#add-text').on("click", function(){
+    var idea = new Idea(graph)
+    var selectedId = idea.selectedId();
+    if (selectedId == null ) { return new View().noSelection();}
+    idea.createLongText( selectedId );
+  });
 
   d3.select('#idea-plus').on("click", function(){
     var idea = new Idea(graph)

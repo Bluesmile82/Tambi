@@ -111,6 +111,15 @@
 
 	  if (graph.permission == "user") {}
 
+	  d3.select("#add-text").on("click", function () {
+	    var idea = new Idea(graph);
+	    var selectedId = idea.selectedId();
+	    if (selectedId == null) {
+	      return new View().noSelection();
+	    }
+	    idea.createLongText(selectedId);
+	  });
+
 	  d3.select("#idea-plus").on("click", function () {
 	    var idea = new Idea(graph);
 	    var selectedId = idea.selectedId();
@@ -957,31 +966,82 @@
 	    });
 	  };
 
-	  Idea.prototype.changeText = function (d3node, d) {
-	    var graph = this.graph,
-	        idea = this,
-	        constants = graph.consts,
-	        htmlEl = d3node.node();
+	  Idea.prototype.createLongText = function (id) {
+	    var thisIdea = this;
+	    var d = thisIdea.find_by_id(id);
+	    var htmlElement = thisIdea.htmlElement(id);
+	    var d3node = thisIdea.d3Element(id);
 
-	    d3node.selectAll("text").remove();
+	    thisIdea.changeConceptType(d, "text");
+	    var textInput = thisIdea.appendTextInput(htmlElement, d);
+	    document.getElementById("editing").focus();
+	    textInput.on("blur", function (d) {
+	      d.description = this.textContent;
+	      thisIdea.updateDescription(d3node, d);
+	      thisIdea.graph.updateGraph();
+	      this.remove();
+	    });
+	  };
+
+	  Idea.prototype.updateDescription = function (d3node, d) {
+	    console.log(d3node);
+	    // create ajax call
+	    // put description into d3 node as text
+	    // Update graph
+	  };
+
+	  Idea.prototype.changeConceptType = function (d, concept_type) {
+	    var thisIdea = this;
+	    d.concept_type = concept_type;
+	    thisIdea.update(d);
+	    thisIdea.graph.updateGraph();
+	  };
+
+	  Idea.prototype.appendTextInput = function (htmlEl, d, initialText) {
+	    var graph = this.graph;
+	    var constants = graph.consts;
+	    var d3Element = this.d3Element(d.id);
 	    var nodeBCR = htmlEl.getBoundingClientRect(),
 	        curScale = nodeBCR.width / constants.nodeRadius,
 	        placePad = 5 * curScale,
 	        useHW = curScale > 1 ? nodeBCR.width * 0.71 : constants.nodeRadius * 1.42;
-	    var d3txt = graph.svg.selectAll("foreignObject").data([d]).enter().append("foreignObject").attr("x", nodeBCR.left + placePad).attr("y", nodeBCR.top + placePad).attr("height", 2 * useHW).attr("width", useHW).append("xhtml:p").style("overflow", "hidden").attr("id", constants.activeEditId).attr("contentEditable", "true").text(d.title).on("mousedown", function (d) {
+	    var textInput = graph.svg.selectAll("foreignObject").data([d]).enter().append("foreignObject").attr("x", nodeBCR.left + placePad).attr("y", nodeBCR.top + placePad).attr("height", 2 * useHW).attr("width", useHW).append("xhtml:p").style("overflow", "hidden").attr("id", constants.activeEditId).attr("contentEditable", "true").text(initialText).on("mousedown", function (d) {
 	      d3.event.stopPropagation();
 	    }).on("keydown", function (d) {
 	      d3.event.stopPropagation();
 	      if (d3.event.keyCode == constants.ENTER_KEY && !d3.event.shiftKey) {
 	        this.blur();
 	      }
-	    }).on("blur", function (d) {
+	    });
+
+	    return textInput;
+	  };
+
+	  Idea.prototype.d3Element = function (id) {
+	    return d3.select("#id" + id);
+	  };
+
+	  Idea.prototype.htmlElement = function (id) {
+	    return this.d3Element(id).node();
+	  };
+
+	  Idea.prototype.changeText = function (d3node, d) {
+	    var graph = this.graph,
+	        idea = this;
+	    htmlEl = d3node.node();
+	    console.log("htmlEl", htmlEl);
+	    console.log("d3node", d3node);
+	    d3node.selectAll("text").remove();
+	    textInput = this.appendTextInput(htmlEl, d, d.title);
+
+	    textInput.on("blur", function (d) {
 	      d.concept_type = findType(this.textContent);
 	      d.title = this.textContent;
 	      idea.update_text(d3node, d, this);
 	      graph.updateGraph();
 	    });
-	    return d3txt;
+
+	    return textInput;
 	  };
 
 	  Idea.prototype.update_text = function (d3node, d, txt_tmp) {
@@ -994,9 +1054,7 @@
 	    if (d.type == "concept") {
 	      graph.insertTitleLinebreaks(d3node, d.title);
 	    }
-
 	    d3.select(txt_tmp.parentElement).remove();
-
 	    d3.select(htmlEl).attr("id", "id" + d.id);
 	    d3.select(htmlEl).attr("title", d.title);
 	    thisIdea.update(d);
