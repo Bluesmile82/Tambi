@@ -73,11 +73,11 @@
 	  click_button("wiki_category", "en");
 	  click_button("random", "en");
 	  click_button("related_idol", "en");
-	  click_button("google_images", "en");
 	  click_button("pinterest", "en");
+	  click_button("user", "en");
+	  // click_button('google_images', 'en');
 	  // click_button('flickr_tags', 'en');
 	  // click_button('wordnik', 'en');
-	  click_button("user", "en");
 
 	  function click_button(id, language) {
 	    d3.select("#" + id + "-button").on("click", function () {
@@ -156,6 +156,10 @@
 	      case 52:
 	        // 4
 	        $("#user-button").click();
+	        break;
+	      case 53:
+	        // 5
+	        $("#pinterest-button").click();
 	        break;
 	    }
 	  });
@@ -1400,6 +1404,7 @@
 	    var selectedIdea = new Idea(graph).find_by_id(clean_id);
 	    var title = selectedIdea.title;
 	    fetch_suggestions(type, title, language).done(function (data, errors) {
+	      d3.select("#alert").text("");
 	      var data_b = data_base(data, type);
 	      if (data_b == undefined || data_b.length == 0) {
 	        d3.select("#alert").text("Term not found");
@@ -1518,6 +1523,8 @@
 	  }; // 0.1 to 3 em
 
 	  function fetch_suggestions(type, title, language) {
+	    d3.select("#alert").text("loading...");
+	    console.log("loading");
 	    var url = "";
 	    switch (type) {
 	      case "random":

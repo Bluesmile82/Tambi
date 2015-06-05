@@ -15,6 +15,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
     var selectedIdea = new Idea(graph).find_by_id(clean_id);
     var title =  selectedIdea.title;
       fetch_suggestions(type, title, language).done(function(data, errors){
+        d3.select('#alert').text('');
         var data_b = data_base(data, type);
         if( data_b == undefined || data_b.length == 0){
           d3.select('#alert').text('Term not found');
@@ -131,6 +132,8 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
   function random_font_size(){ return  parseInt( ( Math.random() * 3 + 1 ) * 10 ) / 10  + 'em' }; // 0.1 to 3 em
 
   function fetch_suggestions(type, title, language){
+    d3.select('#alert').text('loading...');
+    console.log('loading');
     var url = "";
     switch(type) {
     case 'random':

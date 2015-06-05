@@ -13,11 +13,11 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   click_button('wiki_category', 'en');
   click_button('random', 'en');
   click_button('related_idol', 'en');
-  click_button('google_images', 'en');
   click_button('pinterest', 'en');
+  click_button('user', 'en');
+  // click_button('google_images', 'en');
   // click_button('flickr_tags', 'en');
   // click_button('wordnik', 'en');
-  click_button('user', 'en');
 
 
   function click_button(id, language){
@@ -85,6 +85,9 @@ $( "body" ).on( "keydown", function( event ) {
     break;
     case 52: // 4
       $('#user-button').click();
+    break;
+    case 53: // 5
+      $('#pinterest-button').click();
     break;
   }
 })
