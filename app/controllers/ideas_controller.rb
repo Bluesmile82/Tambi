@@ -28,6 +28,7 @@ class IdeasController < ApplicationController
                   y: idea_params[:y],
                   font_size: idea_params[:font_size],
                   concept_type: idea_params[:concept_type],
+                  description: idea_params[:description],
                   parent_id: idea_params[:parent_id] )
     @idea.save
     head 200
@@ -58,6 +59,6 @@ class IdeasController < ApplicationController
     end
 
     def idea_params
-      params.require(:idea).permit(:id, :x, :y, :font_size, :graph_id, :concept_id, :concept_type, :concept_title, :parent_id)
+      params.require(:idea).permit(:id, :x, :y, :font_size, :graph_id, :concept_id, :concept_type, :concept_title, :parent_id, :description)
     end
 end

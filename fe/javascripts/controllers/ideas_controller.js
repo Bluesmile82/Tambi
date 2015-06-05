@@ -52,21 +52,45 @@ var parsePx = utils.parsePx;
     var d3node = thisIdea.d3Element(id);
 
     thisIdea.changeConceptType( d , 'text' );
-    var textInput = thisIdea.appendTextInput( htmlElement, d );
+    var textInput = thisIdea.appendTextInput( htmlElement, d , d.description);
     document.getElementById('editing').focus();
     textInput.on("blur", function(d){
+            if (this.textContent == ''){
+              d.concept_type = findType( d.title );
+            }
             d.description = this.textContent;
-            thisIdea.updateDescription(d3node, d);
             thisIdea.graph.updateGraph();
+            thisIdea.updateDescription(d3node, d);
             this.remove();
           });
   }
 
+  Idea.prototype.insertTitleLinebreaks = function ( d3node, text, words_in_line ) {
+    var words = text.split(/\s+/g),
+        nwords = words.length;
+    var newText = d3node.append("text")
+        .attr("dy", "-" + (nwords-1) * 7.5 / words_in_line);
+
+    for (var i = 0; i < words.length; i += words_in_line) {
+      var tspan = newText.append('tspan').text(words.slice( i, i + words_in_line).join().replace(/\,/g,' '));
+      if (i > 0)
+        tspan.attr('x', 0).attr('dy', '15');
+    }
+    return newText
+  };
+
+  Idea.prototype.insertDescription = function( d3group, description ){
+    if (description != null && description != ''){
+      var descriptionPadding = 20 + Math.abs(d3group.select('text').attr('dy'));
+      var newDescription = this.insertTitleLinebreaks( d3group, description , 5 );
+      newDescription.classed('description', true ).attr('dy', descriptionPadding);
+    }
+  }
+
   Idea.prototype.updateDescription = function( d3node, d ){
-    console.log(d3node);
-    // create ajax call
-    // put description into d3 node as text
-    // Update graph
+    this.insertDescription( d3node, d.description );
+    this.graph.updateGraph();
+    this.update(d);
   }
 
   Idea.prototype.changeConceptType = function(d, concept_type){
@@ -83,7 +107,7 @@ var parsePx = utils.parsePx;
     var nodeBCR = htmlEl.getBoundingClientRect(),
         curScale = nodeBCR.width / constants.nodeRadius,
         placePad  =  5 * curScale,
-        useHW = curScale > 1 ? nodeBCR.width*0.71 : constants.nodeRadius*1.42;
+        useHW = curScale > 1 ? nodeBCR.width*0.71 : constants.nodeRadius * 1.5;
     var textInput = graph.svg.selectAll("foreignObject")
           .data([d]).enter()
           .append("foreignObject")
@@ -121,13 +145,12 @@ var parsePx = utils.parsePx;
     var graph = this.graph,
         idea = this;
         htmlEl = d3node.node();
-    console.log('htmlEl', htmlEl);
-    console.log('d3node', d3node);
-    d3node.selectAll("text").remove();
+    d3node.select("text").remove();
     textInput = this.appendTextInput( htmlEl, d , d.title );
 
     textInput.on("blur", function(d){
             d.concept_type = findType(this.textContent);
+            if ( d.description != null && d.description != '' ){ d.concept_type = 'text' }
             d.title = this.textContent;
             idea.update_text(d3node, d, this);
             graph.updateGraph()
@@ -164,13 +187,11 @@ var parsePx = utils.parsePx;
   function findType(title){
     var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
     var regexp_pic = /(.+\.)(jpg|gif|png)$/
-    var regexp_text = /^(\s*\S+\s+){5,}/
 
     if (title.search(regexp_web) > -1){
       if(title.search(regexp_pic) > -1){ return 'image' }
       else{ return 'url'; }
     }else{
-      if(title.search(regexp_text) > -1){ return 'text' }
       return 'concept';
     }
   }
@@ -181,7 +202,7 @@ var parsePx = utils.parsePx;
         type: "PUT",
         url: 'ideas/' + d.id ,
         beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
-        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.concept_type }},
+        data: {idea: { id: d.id, x: d.x , y: d.y, font_size: d.font_size , concept_title: d.title, concept_type: d.concept_type, description: d.description}},
         success: function(result){
            if (result.error == "true"){ alert("An error occurred: " & result.errorMessage);
            graph.updateGraph()

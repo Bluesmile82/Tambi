@@ -1,6 +1,6 @@
 json.nodes do
   json.array!(@ideas) do |idea|
-    json.extract! idea, :id, :x, :y, :font_size, :concept_type, :parent_id
+    json.extract! idea, :id, :x, :y, :font_size, :concept_type, :parent_id, :description
     json.title idea.concept.title
   end
 end

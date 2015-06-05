@@ -59,7 +59,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 	  var parsePx = utils.parsePx;
 	  var getUrl = utils.getUrl;
@@ -73,8 +73,8 @@
 	  click_button("wiki_category", "en");
 	  click_button("random", "en");
 	  click_button("related_idol", "en");
-	  click_button("flickr_tags", "en");
-	  click_button("wordnik", "en");
+	  // click_button('flickr_tags', 'en');
+	  // click_button('wordnik', 'en');
 	  click_button("user", "en");
 
 	  function click_button(id, language) {
@@ -110,6 +110,53 @@
 	  });
 
 	  if (graph.permission == "user") {}
+	  // hotkeys
+
+	  $("body").on("keydown", function (event) {
+	    switch (event.which) {
+	      case 65:
+	        // s
+	        $(".fa-magic").click();
+	        break;
+	      case 73:
+	        // i
+	        $(".fa-info-circle").click();
+	        break;
+	      case 86:
+	        // v
+	        $("#open-url").click();
+	        break;
+	      case 67:
+	        // c
+	        event.preventDefault();
+	        $("#add-text").click();
+	        break;
+	      case 107:
+	        // +
+	        $("#idea-plus").click();
+	        break;
+	      case 109:
+	        // +
+	        $("#idea-minus").click();
+	        break;
+	      case 49:
+	        // 1
+	        $("#random-button").click();
+	        break;
+	      case 50:
+	        // 2
+	        $("#related_idol-button").click();
+	        break;
+	      case 51:
+	        // 3
+	        $("#wiki_category-button").click();
+	        break;
+	      case 52:
+	        // 4
+	        $("#user-button").click();
+	        break;
+	    }
+	  });
 
 	  d3.select("#add-text").on("click", function () {
 	    var idea = new Idea(graph);
@@ -151,6 +198,15 @@
 	    }
 	  });
 
+	  d3.select("#open-toolbox").on("click", function () {
+	    var toolbox = d3.select("#toolbox");
+	    if (toolbox.classed("hidden")) {
+	      toolbox.classed("hidden", false);
+	    } else {
+	      toolbox.classed("hidden", true);
+	    }
+	  });
+
 	  d3.select("#mode-switch").on("click", function () {
 	    var thisButton = d3.select("#creative-structured");
 	    if (thisButton.text() == "Structured") {
@@ -181,7 +237,6 @@
 	  }
 
 	  function open_url(url) {
-	    console.log("reg", url.search(/(^https*:\/\/)/));
 	    if (url.search(/(^https*:\/\/)/) == -1) {
 	      var url = "http://" + url;
 	    }
@@ -190,15 +245,6 @@
 	    d3.select(".wiki").append("div").classed("url-title", true).html(url);
 	    d3.select(".wiki").append("iframe").attr("src", url);
 	  }
-
-	  // d3.select('#squares').on("click", function(){
-	  //   circles = d3.selectAll("circle");
-	  //   parents = circles.select(function() { return this.parentNode; })
-	  //   // circles.remove();
-	  //   // <image xlink:href="firefox.jpg" x="0" y="0" height="50px" width="50px"/>
-	  //   texts = parents.selectAll('text');
-	  //   parents.append('rect').attr({'width':'100', 'height':'100', 'x':'-50', 'y':'-50' });
-	  // });
 
 	  d3.select("#open-url").on("click", function () {
 	    new View().clearIframeTab();
@@ -213,7 +259,8 @@
 
 	    switch (type) {
 	      case "concept":
-	        show_wiki(d.title, "en");
+	      case "text":
+	        open_url("http://en.wikipedia.org/wiki/" + d.title);
 	        break;
 	      case "url":
 	        open_url(d.title);
@@ -233,7 +280,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
 
 	  var parsePx = utils.parsePx;
 	  var ajax = utils.ajax;
@@ -663,25 +710,19 @@
 	    this.state.lastKeyDown = -1;
 	  };
 
-	  // call to propagate changes to graph
-	  GraphCreator.prototype.updateGraph = function () {
-	    var thisGraph = this,
-	        consts = thisGraph.consts,
-	        state = thisGraph.state;
-	    console.log('updateGraph');
-
-	    thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function (d) {
-	      return String(d.source.id) + '+' + String(d.target.id);
-	    });
-	    var paths = thisGraph.paths;
-	    // update existing paths
-	    paths.style('marker-end', 'url(#end-arrow)').classed(consts.selectedClass, function (d) {
+	  GraphCreator.prototype.updateLinks = function (paths) {
+	    var constants = this.consts;
+	    var state = this.state;
+	    paths.style('marker-end', 'url(#end-arrow)').classed(constants.selectedClass, function (d) {
 	      return d === state.selectedEdge;
 	    }).attr('d', function (d) {
 	      return 'M' + d.source.x + ',' + d.source.y + 'L' + d.target.x + ',' + d.target.y;
 	    });
+	  };
 
-	    // add new paths
+	  GraphCreator.prototype.addNewLinks = function (paths) {
+	    var constants = this.consts;
+	    var state = this.state;
 	    paths.enter().append('path').style('marker-end', 'url(#end-arrow)').classed('link', true).attr('stroke-linecap', 'round').attr('d', function (d) {
 	      return 'M' + d.source.x + ',' + d.source.y + 'L' + d.target.x + ',' + d.target.y;
 	    }).on('mousedown', function (d) {
@@ -689,11 +730,22 @@
 	    }).on('mouseup', function (d) {
 	      state.mouseDownLink = null;
 	    });
+	  };
 
-	    // remove old links
+	  GraphCreator.prototype.updateGraph = function () {
+	    console.log('updateGraph');
+	    var thisGraph = this,
+	        consts = thisGraph.consts,
+	        state = thisGraph.state;
+
+	    thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function (d) {
+	      return String(d.source.id) + '+' + String(d.target.id);
+	    });
+	    var paths = thisGraph.paths;
+	    thisGraph.updateLinks(paths);
+	    thisGraph.addNewLinks(paths);
 	    paths.exit().remove();
 
-	    // update existing Ideas
 	    thisGraph.ideas = thisGraph.ideas.data(thisGraph.nodes, function (d) {
 	      return d.id;
 	    });
@@ -702,8 +754,6 @@
 	    });
 	    thisGraph.reloadIdeas();
 	    thisGraph.addNewIdeas();
-
-	    // remove old nodes
 	    thisGraph.ideas.exit().remove();
 	  };
 
@@ -723,11 +773,13 @@
 
 	  GraphCreator.prototype.reloadIdeasShape = function (Ideas) {
 	    var thisGraph = this;
+	    var idea = new Idea(thisGraph);
 	    Ideas.each(function (d) {
-	      var Idea = d3.select(this);
-	      thisGraph.createIdeaShape(Idea, d);
-	      thisGraph.insertTitleLinebreaks(Idea, d.title);
-	      Idea.attr('id', function (d) {
+	      var d3node = d3.select(this);
+	      thisGraph.createIdeaShape(d3node, d);
+	      idea.insertTitleLinebreaks(d3node, d.title, 2);
+	      idea.insertDescription(d3node, d.description);
+	      d3node.attr('id', function (d) {
 	        return 'id' + d.id;
 	      });
 	    });
@@ -757,6 +809,23 @@
 	    thisGraph.reloadIdeasShape(newIdeas);
 	  };
 
+	  GraphCreator.prototype.getTextMaxLenght = function (text, words_in_line) {
+	    var words = text.split(/\s+/g),
+	        nwords = words.length;
+	    var max = 0;
+	    for (var i = 0; i < words.length; i += words_in_line) {
+	      lineLenght = words.slice(i, i + words_in_line).join().length;
+	      if (lineLenght > max) {
+	        max = lineLenght;
+	      };
+	    }
+	    return max;
+	  };
+
+	  GraphCreator.prototype.getNumberOfLines = function (text, words_in_line) {
+	    return Math.floor(text.split(/\s+/g).length / words_in_line) + 1;
+	  };
+
 	  GraphCreator.prototype.createIdeaShape = function (newIdea, d) {
 	    var consts = this.consts;
 	    switch (d.concept_type) {
@@ -765,7 +834,20 @@
 	        newIdea.classed('text-hidden', false).classed('text-left', false);
 	        break;
 	      case 'text':
-	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 7).attr('height', String(consts.nodeRadius) * 1.5).attr('x', String(-consts.nodeRadius + 30)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
+	        var width = consts.nodeRadius * 5;
+	        if (d.description != undefined) {
+	          var width = this.getTextMaxLenght(d.description, 5) * 9 + 30;
+	          if (width < 100) {
+	            width = 100;
+	          };
+	        }
+
+	        var height = consts.nodeRadius * 1.5;
+	        if (d.description != undefined) {
+	          var height = this.getNumberOfLines(d.description, 5) * 15 + height;
+	        }
+
+	        newIdea.append('rect').attr('width', width).attr('height', height).attr('x', String(-consts.nodeRadius + 30)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
 	        newIdea.classed('text-hidden', false).classed('text-left', true);
 	        break;
 	      case 'url':
@@ -785,34 +867,6 @@
 	      newIdea.classed('parent_id', true);
 	    } else {
 	      newIdea.classed('parent_id', false);
-	    }
-	  };
-
-	  /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
-	  // GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
-	  //   // var words = title.split(/\s+/g),
-	  //   //     nwords = words.length;
-	  //   var el = gEl.append("text")
-	  //         .attr("text-anchor","middle")
-	  //         // .text(title);
-	  //         .attr("dy", "-" + (nwords-1)*7.5);
-
-	  //   // for (var i = 0; i < words.length; i++) {
-	  //   //   var tspan = el.append('tspan').text(words[i]);
-	  //   //   if (i > 0)
-	  //   //     tspan.attr('x', 0).attr('dy', '15');
-	  //   // }
-	  // };
-
-	  GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
-	    var words = title.split(/\s+/g),
-	        nwords = words.length;
-	    var words_in_line = 5;
-	    var el = gEl.append('text').attr('dy', '-' + (nwords - 1) * 7.5 / words_in_line);
-
-	    for (var i = 0; i < words.length; i += words_in_line) {
-	      var tspan = el.append('tspan').text(words.slice(i, i + words_in_line).join().replace(/\,/g, ' '));
-	      if (i > 0) tspan.attr('x', 0).attr('dy', '15');
 	    }
 	  };
 
@@ -917,7 +971,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -973,21 +1027,43 @@
 	    var d3node = thisIdea.d3Element(id);
 
 	    thisIdea.changeConceptType(d, "text");
-	    var textInput = thisIdea.appendTextInput(htmlElement, d);
+	    var textInput = thisIdea.appendTextInput(htmlElement, d, d.description);
 	    document.getElementById("editing").focus();
 	    textInput.on("blur", function (d) {
+	      if (this.textContent == "") {
+	        d.concept_type = findType(d.title);
+	      }
 	      d.description = this.textContent;
-	      thisIdea.updateDescription(d3node, d);
 	      thisIdea.graph.updateGraph();
+	      thisIdea.updateDescription(d3node, d);
 	      this.remove();
 	    });
 	  };
 
+	  Idea.prototype.insertTitleLinebreaks = function (d3node, text, words_in_line) {
+	    var words = text.split(/\s+/g),
+	        nwords = words.length;
+	    var newText = d3node.append("text").attr("dy", "-" + (nwords - 1) * 7.5 / words_in_line);
+
+	    for (var i = 0; i < words.length; i += words_in_line) {
+	      var tspan = newText.append("tspan").text(words.slice(i, i + words_in_line).join().replace(/\,/g, " "));
+	      if (i > 0) tspan.attr("x", 0).attr("dy", "15");
+	    }
+	    return newText;
+	  };
+
+	  Idea.prototype.insertDescription = function (d3group, description) {
+	    if (description != null && description != "") {
+	      var descriptionPadding = 20 + Math.abs(d3group.select("text").attr("dy"));
+	      var newDescription = this.insertTitleLinebreaks(d3group, description, 5);
+	      newDescription.classed("description", true).attr("dy", descriptionPadding);
+	    }
+	  };
+
 	  Idea.prototype.updateDescription = function (d3node, d) {
-	    console.log(d3node);
-	    // create ajax call
-	    // put description into d3 node as text
-	    // Update graph
+	    this.insertDescription(d3node, d.description);
+	    this.graph.updateGraph();
+	    this.update(d);
 	  };
 
 	  Idea.prototype.changeConceptType = function (d, concept_type) {
@@ -1004,7 +1080,7 @@
 	    var nodeBCR = htmlEl.getBoundingClientRect(),
 	        curScale = nodeBCR.width / constants.nodeRadius,
 	        placePad = 5 * curScale,
-	        useHW = curScale > 1 ? nodeBCR.width * 0.71 : constants.nodeRadius * 1.42;
+	        useHW = curScale > 1 ? nodeBCR.width * 0.71 : constants.nodeRadius * 1.5;
 	    var textInput = graph.svg.selectAll("foreignObject").data([d]).enter().append("foreignObject").attr("x", nodeBCR.left + placePad).attr("y", nodeBCR.top + placePad).attr("height", 2 * useHW).attr("width", useHW).append("xhtml:p").style("overflow", "hidden").attr("id", constants.activeEditId).attr("contentEditable", "true").text(initialText).on("mousedown", function (d) {
 	      d3.event.stopPropagation();
 	    }).on("keydown", function (d) {
@@ -1029,13 +1105,14 @@
 	    var graph = this.graph,
 	        idea = this;
 	    htmlEl = d3node.node();
-	    console.log("htmlEl", htmlEl);
-	    console.log("d3node", d3node);
-	    d3node.selectAll("text").remove();
+	    d3node.select("text").remove();
 	    textInput = this.appendTextInput(htmlEl, d, d.title);
 
 	    textInput.on("blur", function (d) {
 	      d.concept_type = findType(this.textContent);
+	      if (d.description != null && d.description != "") {
+	        d.concept_type = "text";
+	      }
 	      d.title = this.textContent;
 	      idea.update_text(d3node, d, this);
 	      graph.updateGraph();
@@ -1070,7 +1147,6 @@
 	  function findType(title) {
 	    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
 	    var regexp_pic = /(.+\.)(jpg|gif|png)$/;
-	    var regexp_text = /^(\s*\S+\s+){5,}/;
 
 	    if (title.search(regexp_web) > -1) {
 	      if (title.search(regexp_pic) > -1) {
@@ -1079,9 +1155,6 @@
 	        return "url";
 	      }
 	    } else {
-	      if (title.search(regexp_text) > -1) {
-	        return "text";
-	      }
 	      return "concept";
 	    }
 	  }
@@ -1093,7 +1166,7 @@
 	      beforeSend: function beforeSend(xhr) {
 	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
 	      },
-	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title, concept_type: d.concept_type } },
+	      data: { idea: { id: d.id, x: d.x, y: d.y, font_size: d.font_size, concept_title: d.title, concept_type: d.concept_type, description: d.description } },
 	      success: function success(result) {
 	        if (result.error == "true") {
 	          alert("An error occurred: " & result.errorMessage);
@@ -1190,37 +1263,9 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
-
-	  var View = function View() {};
-
-	  View.prototype.clearAlert = function () {
-	    d3.select('#alert').text('');
-	  };
-
-	  View.prototype.noSelection = function () {
-	    d3.select('#alert').text('Please select an Idea first');
-	  };
-
-	  View.prototype.clearIframeTab = function () {
-	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
-	    d3.select('.url-title').remove();
-	    d3.select('.wiki iframe').remove();
-	    d3.select('.wiki div').html('');
-	  };
-
-	  return View;
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -1267,6 +1312,34 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
+
+	  var View = function View() {};
+
+	  View.prototype.clearAlert = function () {
+	    d3.select('#alert').text('');
+	  };
+
+	  View.prototype.noSelection = function () {
+	    d3.select('#alert').text('Please select an Idea first');
+	  };
+
+	  View.prototype.clearIframeTab = function () {
+	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
+	    d3.select('.url-title').remove();
+	    d3.select('.wiki iframe').remove();
+	    d3.select('.wiki div').html('');
+	  };
+
+	  return View;
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1307,7 +1380,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
 
 	  var getUrl = Utils.getUrl;
 	  var toWhiteSpace = Utils.toWhiteSpace;

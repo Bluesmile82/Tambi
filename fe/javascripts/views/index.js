@@ -13,8 +13,8 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   click_button('wiki_category', 'en');
   click_button('random', 'en');
   click_button('related_idol', 'en');
-  click_button('flickr_tags', 'en');
-  click_button('wordnik', 'en');
+  // click_button('flickr_tags', 'en');
+  // click_button('wordnik', 'en');
   click_button('user', 'en');
 
 
@@ -49,6 +49,43 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
 
 if(graph.permission == 'user'){
 }
+// hotkeys
+
+$( "body" ).on( "keydown", function( event ) {
+  switch(event.which){
+    case 65: // s
+      $('.fa-magic').click();
+    break;
+    case 73: // i
+      $('.fa-info-circle').click();
+    break;
+     case 86: // v
+      $('#open-url').click();
+    break;
+    case 67: // c
+      event.preventDefault();
+      $('#add-text').click();
+    break;
+    case 107: // +
+      $('#idea-plus').click();
+    break;
+    case 109: // +
+      $('#idea-minus').click();
+    break;
+    case 49: // 1
+      $('#random-button').click();
+    break;
+    case 50: // 2
+      $('#related_idol-button').click();
+    break;
+    case 51: // 3
+      $('#wiki_category-button').click();
+    break;
+    case 52: // 4
+      $('#user-button').click();
+    break;
+  }
+})
 
   d3.select('#add-text').on("click", function(){
     var idea = new Idea(graph)
@@ -82,6 +119,13 @@ if(graph.permission == 'user'){
   } else{instructions.classed('hidden', true)}
   });
 
+  d3.select('#open-toolbox').on("click", function(){
+    var toolbox = d3.select('#toolbox');
+    if (toolbox.classed('hidden')){
+    toolbox.classed('hidden', false);
+  } else{toolbox.classed('hidden', true)}
+  });
+
   d3.select('#mode-switch').on("click", function(){
     var thisButton = d3.select('#creative-structured');
     if (thisButton.text() == 'Structured'){
@@ -112,7 +156,6 @@ if(graph.permission == 'user'){
   }
 
   function open_url(url){
-    console.log('reg', url.search(/(^https*:\/\/)/));
     if (url.search(/(^https*:\/\/)/) == -1){
     var url = 'http://' + url;
     }
@@ -121,15 +164,6 @@ if(graph.permission == 'user'){
       d3.select('.wiki').append('div').classed('url-title', true).html(url);
       d3.select('.wiki').append('iframe').attr('src', url);
   }
-
-  // d3.select('#squares').on("click", function(){
-  //   circles = d3.selectAll("circle");
-  //   parents = circles.select(function() { return this.parentNode; })
-  //   // circles.remove();
-  //   // <image xlink:href="firefox.jpg" x="0" y="0" height="50px" width="50px"/>
-  //   texts = parents.selectAll('text');
-  //   parents.append('rect').attr({'width':'100', 'height':'100', 'x':'-50', 'y':'-50' });
-  // });
 
   d3.select('#open-url').on("click", function(){
     new View().clearIframeTab();
@@ -142,7 +176,8 @@ if(graph.permission == 'user'){
 
     switch(type) {
       case 'concept':
-        show_wiki( d.title , 'en');
+      case 'text':
+        open_url( 'http://en.wikipedia.org/wiki/' + d.title )
         break;
       case 'url':
         open_url( d.title );

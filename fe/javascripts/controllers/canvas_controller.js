@@ -467,27 +467,22 @@ var GraphCreator = function(svg, nodes, edges, permission){
     this.state.lastKeyDown = -1;
   };
 
-  // call to propagate changes to graph
-  GraphCreator.prototype.updateGraph = function(){
-    var thisGraph = this,
-        consts = thisGraph.consts,
-        state = thisGraph.state;
-    console.log('updateGraph')
 
-    thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function(d){
-      return String(d.source.id) + "+" + String(d.target.id);
-    });
-    var paths = thisGraph.paths;
-    // update existing paths
+  GraphCreator.prototype.updateLinks = function( paths ){
+    var constants = this.consts;
+    var state = this.state;
     paths.style('marker-end', 'url(#end-arrow)')
-      .classed(consts.selectedClass, function(d){
+      .classed(constants.selectedClass, function(d){
         return d === state.selectedEdge;
       })
       .attr("d", function(d){
         return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
       });
+  }
 
-    // add new paths
+  GraphCreator.prototype.addNewLinks = function( paths ){
+    var constants = this.consts;
+    var state = this.state;
     paths.enter()
       .append("path")
       .style('marker-end','url(#end-arrow)')
@@ -503,17 +498,26 @@ var GraphCreator = function(svg, nodes, edges, permission){
       .on("mouseup", function(d){
         state.mouseDownLink = null;
       });
+  }
 
-    // remove old links
+  GraphCreator.prototype.updateGraph = function(){
+    console.log('updateGraph')
+    var thisGraph = this,
+        consts = thisGraph.consts,
+        state = thisGraph.state;
+
+    thisGraph.paths = thisGraph.paths.data(thisGraph.edges, function(d){
+      return String(d.source.id) + "+" + String(d.target.id);
+    });
+    var paths = thisGraph.paths;
+    thisGraph.updateLinks( paths );
+    thisGraph.addNewLinks( paths );
     paths.exit().remove();
 
-    // update existing Ideas
     thisGraph.ideas = thisGraph.ideas.data(thisGraph.nodes, function(d){ return d.id;});
     thisGraph.ideas.attr("transform", function(d){return "translate(" + d.x + "," + d.y + ")";});
     thisGraph.reloadIdeas();
     thisGraph.addNewIdeas();
-
-    // remove old nodes
     thisGraph.ideas.exit().remove();
   };
 
@@ -533,11 +537,13 @@ var GraphCreator = function(svg, nodes, edges, permission){
 
   GraphCreator.prototype.reloadIdeasShape = function(Ideas){
     var thisGraph = this;
+    var idea = new Idea(thisGraph);
     Ideas.each(function(d){
-                  var Idea = d3.select(this);
-                  thisGraph.createIdeaShape(Idea, d);
-                  thisGraph.insertTitleLinebreaks(Idea, d.title);
-                  Idea.attr("id",function(d){return 'id' + d.id});
+                  var d3node = d3.select(this);
+                  thisGraph.createIdeaShape(d3node, d);
+                  idea.insertTitleLinebreaks(d3node, d.title, 2 );
+                  idea.insertDescription( d3node , d.description );
+                  d3node.attr("id",function(d){return 'id' + d.id});
                 })
   }
 
@@ -571,6 +577,21 @@ var GraphCreator = function(svg, nodes, edges, permission){
 
     }
 
+    GraphCreator.prototype.getTextMaxLenght = function( text , words_in_line ){
+      var words = text.split(/\s+/g),
+        nwords = words.length;
+      var max = 0;
+      for (var i = 0; i < words.length; i += words_in_line) {
+        lineLenght = words.slice( i, i + words_in_line).join().length;
+        if (lineLenght > max){ max = lineLenght };
+      }
+      return max;
+    }
+
+    GraphCreator.prototype.getNumberOfLines = function( text , words_in_line ){
+      return Math.floor(text.split(/\s+/g).length / words_in_line) + 1 ;
+    }
+
       GraphCreator.prototype.createIdeaShape = function(newIdea, d){
         var consts = this.consts;
         switch(d.concept_type){
@@ -579,9 +600,20 @@ var GraphCreator = function(svg, nodes, edges, permission){
             newIdea.classed('text-hidden', false).classed('text-left', false);
             break;
           case 'text':
+            var width = consts.nodeRadius * 5;
+            if (d.description != undefined){
+              var width = this.getTextMaxLenght( d.description, 5 ) * 9 + 30 ;
+              if (width < 100){ width = 100 };
+            }
+
+            var height = consts.nodeRadius * 1.5;
+            if (d.description != undefined){
+              var height = this.getNumberOfLines( d.description, 5 ) * 15 + height ;
+            }
+
              newIdea.append( 'rect' )
-             .attr("width", String(consts.nodeRadius) * 7)
-             .attr("height", String(consts.nodeRadius) * 1.5)
+             .attr("width", width )
+             .attr("height", height )
              .attr("x", String( -consts.nodeRadius + 30))
              .attr("y", String( -consts.nodeRadius ))
              .attr("rx", '25' )
@@ -623,37 +655,6 @@ var GraphCreator = function(svg, nodes, edges, permission){
           newIdea.classed('parent_id', false);
         }
       }
-
-
-  /* insert svg line breaks: taken from http://stackoverflow.com/questions/13241475/how-do-i-include-newlines-in-labels-in-d3-charts */
-  // GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
-  //   // var words = title.split(/\s+/g),
-  //   //     nwords = words.length;
-  //   var el = gEl.append("text")
-  //         .attr("text-anchor","middle")
-  //         // .text(title);
-  //         .attr("dy", "-" + (nwords-1)*7.5);
-
-  //   // for (var i = 0; i < words.length; i++) {
-  //   //   var tspan = el.append('tspan').text(words[i]);
-  //   //   if (i > 0)
-  //   //     tspan.attr('x', 0).attr('dy', '15');
-  //   // }
-  // };
-
-GraphCreator.prototype.insertTitleLinebreaks = function (gEl, title) {
-    var words = title.split(/\s+/g),
-        nwords = words.length;
-    var words_in_line = 5;
-    var el = gEl.append("text")
-          .attr("dy", "-" + (nwords-1) * 7.5 / words_in_line);
-
-    for (var i = 0; i < words.length; i += words_in_line) {
-      var tspan = el.append('tspan').text(words.slice( i, i + words_in_line).join().replace(/\,/g,' '));
-      if (i > 0)
-        tspan.attr('x', 0).attr('dy', '15');
-    }
-  };
 
 
   GraphCreator.prototype.zoomed = function(){

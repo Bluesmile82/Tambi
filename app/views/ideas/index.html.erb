@@ -3,21 +3,39 @@
 
 <div id="instructions" class="hidden">
   <ul>
-    <li>Select an Idea clicking on it and create Random concepts from it</li>
-    <li>Shift + click to create a new idea</li>
-    <li>Shift + click in an idea to change the content</li>
-    <li>Shift + drag to relate ideas,</li>
-    <li>Backspace to delete </li>
+    <p><h3>Info</h3></p>
+    <p><em>Select an Idea</em> - Click on idea                   </p>
+    <p><em>Get suggestions from different sources</em> - Select an idea and click on a toolbar button </p>
+    <p><em>Create a new idea</em> - Shift and click outside idea </p>
+    <p><em>Change the content</em> - Shift and click in an idea  </p>
+    <p><em>Relate ideas</em> - Shift and click in idea and drag to the target </p>
+    <p><em>Delete idea or link</em> - Backspace                 </p>
+    <h4>Hotkeys</h4>
+    <p>  v <em>view info about idea</em> </p>
+    <p>  c <em>add description to idea</em> </p>
+    <p>  + <em>grow idea</em> </p>
+    <p>  - <em>shrink idea</em> </p>
+    <p>  i <em>info</em> </p>
+    <p>  a <em>toolbox</em> </p>
+
   </ul>
 </div>
 
 <% if @same_user %>
   <div id="toolbox">
-    <div id="random-button" class="btn btn-default">Random</div>
-    <div id="related_idol-button" class="btn btn-default">Related</div>
-    <div id="wiki_category-button" class="btn btn-default">Wikipedia Category</div>
+    <div id="random-button" class="btn btn-default">
+      <span class='label label-default'>1</span>
+       Random</div>
+    <div id="related_idol-button" class="btn btn-default">
+      <span class='label label-default'>2</span>
+     Related</div>
+    <div id="wiki_category-button" class="btn btn-default">
+      <span class='label label-default'>3</span>
+     Wikipedia Category</div>
     <!-- <div id="flickr_tags-button" class="btn btn-default">Flickr related tags</div> -->
-    <div id="user-button" class="btn btn-default">User matches</div>
+    <div id="user-button" class="btn btn-default">
+      <span class='label label-default'>4</span>
+     User matches</div>
   </div>
 <% end %>
 
@@ -37,13 +55,9 @@
   <input type="file" id="hidden-file-upload"></input>
 
   <div id="idea-toolbox">
-<!--
-    <div>
+    <!-- <div>
       <i class="fa fa-link fa-3x" id="open-canvas" data-toggle="modal" data-target="#myModal" ></i>
     </div> -->
-    <div>
-      <i class="fa fa-comment fa-3x" id="add-text"></i>
-    </div>
     <div>
       <i class="fa fa-eye fa-3x" id="open-url"></i>
     </div>
@@ -57,6 +71,9 @@
       <div>
         <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
       </div>
+    <div>
+      <i class="fa fa-comment fa-3x" id="add-text"></i>
+    </div>
     <% end %>
   </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>

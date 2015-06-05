@@ -31,7 +31,11 @@ body{
     user-select: none;
 }
 
-
+.conceptG{
+  .description{
+    fill: grey;
+  }
+}
 
 .conceptG text{
     pointer-events: none;

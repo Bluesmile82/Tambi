@@ -32,10 +32,6 @@ p{
   color: #333;
 }
 
-.avatar.img-responsive {
-    // margin: 0 auto;
-}
-
 .modal-dialog{
   width:80%;
   height:80%;
@@ -48,10 +44,6 @@ p{
 
 #toolbox{
   position: fixed;
-  // width: 10%;
-  // top: 10%;
-  // left: 0;
-  // margin-top: 0.5em;
   margin-right: 1em;
   border: 2px solid #EEEEEE;
   border-radius: 5px;
@@ -132,6 +124,16 @@ svg{
   padding: 1em;
   z-index: 5;
   background-color: white;
+  p{
+    text-align: left;
+  }
+  em{
+    font-weight: bold;
+    font-style: normal;
+  }
+  ul{
+   list-style-type: none;
+  }
 }
 
 .wiki{
