@@ -721,6 +721,7 @@
 	  };
 
 	  GraphCreator.prototype.addNewLinks = function (paths) {
+	    var thisGraph = this;
 	    var constants = this.consts;
 	    var state = this.state;
 	    paths.enter().append('path').style('marker-end', 'url(#end-arrow)').classed('link', true).attr('stroke-linecap', 'round').attr('d', function (d) {

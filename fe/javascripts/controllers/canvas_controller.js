@@ -481,6 +481,7 @@ var GraphCreator = function(svg, nodes, edges, permission){
   }
 
   GraphCreator.prototype.addNewLinks = function( paths ){
+    var thisGraph = this;
     var constants = this.consts;
     var state = this.state;
     paths.enter()
