@@ -2,6 +2,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
 
   var getUrl = Utils.getUrl;
   var toWhiteSpace = Utils.toWhiteSpace;
+  var findType = Utils.findType;
 
   var Suggestions = function(graph){
     this.graph = graph;
@@ -18,7 +19,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
         if( data_b == undefined || data_b.length == 0){
           d3.select('#alert').text('Term not found');
         }
-
+        console.log('data_b', data_b);
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
@@ -45,23 +46,33 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
                     var transform = d3.select(this).attr('transform');
                     var translate = d3.transform(transform).translate;
                     var idea = new Idea(graph);
-                    var d = {title: toWhiteSpace(d3.select(this).attr('id')) , x: translate[0] , y: translate[1], font_size: 20 , concept_type: 'concept', parent_id: d3.select(this).attr('parent_id') };
+                    var d = {title: toWhiteSpace(d3.select(this).attr('id')) , x: translate[0] , y: translate[1], font_size: 20 , parent_id: d3.select(this).attr('parent_id') };
+                    d.concept_type = findType( d.title );
                     idea.create( d ).done(function(data){
                       new Link(graph).create( selectedIdea,
                                               new Idea(graph).find_by_id(data.id),
                                               graph.idLink++ );
                     });
                     d3.select(this).remove();
-                  })
-                  .append('text').append('tspan')
-                  .text(function(data) { return data_title(data, type) });
-                  if (type == 'user'){
-                    new_concept.selectAll('text').style('fill','lightblue');
-                    new_concept.selectAll('text').append('tspan')
-                                               .style({'fill':'white', 'font-size':'0.5em'})
-                                               .attr('dy', '1em').attr('x', '0')
-                                               .text(function(data) { return data.user });
-                  }
+                  });
+      if (type == 'pinterest'){
+        new_concept.append('image')
+                   .attr('xlink:href', function(data) { return data_title(data, type)})
+                   .attr("width", 200)
+                   .attr("height", 200);
+      }else{
+        new_concept.append('text').append('tspan')
+                   .text(function(data) { return data_title(data, type)});
+      }
+
+      if (type == 'user'){
+        new_concept.selectAll('text').style('fill','lightblue');
+        new_concept.selectAll('text').append('tspan')
+                                   .style({'fill':'white', 'font-size':'0.5em'})
+                                   .attr('dy', '1em').attr('x', '0')
+                                   .text(function(data) { return data.user });
+      }
+
       var anim_concept = new_concept
                   .transition().delay(random_delay).duration(duration_in).style({'opacity':'1'})
                   .transition().duration(duration);
@@ -97,7 +108,10 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       contentType: "application/json",
       dataType: "json",
       url: '/links/' + title,
-      beforeSend: function(xhr) {xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))},
+      beforeSend: function(xhr) {
+        // xhr.setRequestHeader('Api-Key', '2e9dkuu9ydcauucmbqh3r3zp');
+        xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+      },
       success: function(result){
       },
       error: function (xhr, ajaxOptions, thrownError) {
@@ -117,7 +131,6 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
   function random_font_size(){ return  parseInt( ( Math.random() * 3 + 1 ) * 10 ) / 10  + 'em' }; // 0.1 to 3 em
 
   function fetch_suggestions(type, title, language){
-
     var url = "";
     switch(type) {
     case 'random':
@@ -138,6 +151,17 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
     case 'wordnik':
       url =  'http://api.wordnik.com:80/v4/word.json/' + title + '/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
         break;
+    case 'getty_images':
+      url =  'https://api.gettyimages.com:443/v3/search/images?phrase=' + title
+        break;
+    case 'google_images':
+      url =  'https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=' + title
+        break;
+    case 'pinterest':
+      url =  'https://www.pinterest.com/search/pins/?q=' + title
+      console.log(url);
+      return scrape(url);
+        break;
     case 'user':
       return getLinks(title);
     break;
@@ -145,6 +169,24 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
 
     return getUrl(url);
   }
+
+function scrape( url ){
+  return $.ajax({
+     url: '/scraper/get/',
+     dataType: 'json',
+     data: url,
+     success: function(data) {
+      console.log(data);
+          // var elements = $("<div>").html(data)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
+          // for(var i = 0; i < elements.length; i++) {
+          //      var theText = elements[i].firstChild.nodeValue;
+          //      // Do something here
+          },
+      error: function(error){
+        console.log(error.responseText)
+      }
+  });
+}
 
   function data_title(data, type) {
     switch(type) {
@@ -158,6 +200,9 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
         return data;
       case 'flickr_tags' :
         return data._content;
+      case 'pinterest':
+        return data;
+      break;
       case 'user':
         return data.title;
       break;
@@ -179,6 +224,9 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       case 'wiki_category':
         return d3.values(data.query.pages)[0].categories;
         break;
+      case 'pinterest':
+        return d3.values(data.data);
+      break;
       case 'flickr_tags':
       if (data.stat == 'fail'){
         console.log(data.message);
@@ -193,7 +241,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
         return data;
       break;
       default:
-      console.log('base not found');
+      console.log("base for #{type} not found");
     }
   }
 

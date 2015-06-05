@@ -207,6 +207,7 @@ DEPENDENCIES
   intercom-rails
   jbuilder (~> 2.0)
   jquery-rails
+  nokogiri
   paperclip
   pg
   puma

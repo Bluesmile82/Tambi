@@ -59,7 +59,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(2), __webpack_require__(7), __webpack_require__(3), __webpack_require__(4), __webpack_require__(8), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea, Suggestions, View) {
 
 	  var parsePx = utils.parsePx;
 	  var getUrl = utils.getUrl;
@@ -73,6 +73,8 @@
 	  click_button("wiki_category", "en");
 	  click_button("random", "en");
 	  click_button("related_idol", "en");
+	  click_button("google_images", "en");
+	  click_button("pinterest", "en");
 	  // click_button('flickr_tags', 'en');
 	  // click_button('wordnik', 'en');
 	  click_button("user", "en");
@@ -280,7 +282,7 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, Idea, Link) {
 
 	  var parsePx = utils.parsePx;
 	  var ajax = utils.ajax;
@@ -936,6 +938,7 @@
 	        url: url,
 	        dataType: 'json',
 	        error: function error(request, _error) {
+	          console.log('request', request);
 	          console.log(' Can\'t do because: ' + _error);
 	        }
 	      });
@@ -956,6 +959,19 @@
 	      var sel = window.getSelection();
 	      sel.removeAllRanges();
 	      sel.addRange(range);
+	    },
+	    findType: function findType(title) {
+	      var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
+	      var regexp_pic = /(.+\.)(jpg|gif|png)$/;
+	      if (title.search(regexp_web) > -1) {
+	        if (title.search(regexp_pic) > -1) {
+	          return 'image';
+	        } else {
+	          return 'url';
+	        }
+	      } else {
+	        return 'concept';
+	      }
 	    }
 
 	    //   getEm: function(selected){
@@ -972,11 +988,12 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, View) {
 
-	  var toWhiteSpace = utils.toWhiteSpace;
-	  var ajax = utils.ajax;
-	  var parsePx = utils.parsePx;
+	  var toWhiteSpace = Utils.toWhiteSpace;
+	  var ajax = Utils.ajax;
+	  var parsePx = Utils.parsePx;
+	  var findType = Utils.findType;
 
 	  var Idea = function Idea(graph) {
 	    this.graph = graph;
@@ -1145,21 +1162,6 @@
 	    name.attr("x", 0).attr("dy", "15");
 	  };
 
-	  function findType(title) {
-	    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/;
-	    var regexp_pic = /(.+\.)(jpg|gif|png)$/;
-
-	    if (title.search(regexp_web) > -1) {
-	      if (title.search(regexp_pic) > -1) {
-	        return "image";
-	      } else {
-	        return "url";
-	      }
-	    } else {
-	      return "concept";
-	    }
-	  }
-
 	  Idea.prototype.update = function (d) {
 	    $.ajax({
 	      type: "PUT",
@@ -1264,9 +1266,37 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
+
+	  var View = function View() {};
+
+	  View.prototype.clearAlert = function () {
+	    d3.select('#alert').text('');
+	  };
+
+	  View.prototype.noSelection = function () {
+	    d3.select('#alert').text('Please select an Idea first');
+	  };
+
+	  View.prototype.clearIframeTab = function () {
+	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
+	    d3.select('.url-title').remove();
+	    d3.select('.wiki iframe').remove();
+	    d3.select('.wiki div').html('');
+	  };
+
+	  return View;
+	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (utils, View) {
 
 	  var toWhiteSpace = utils.toWhiteSpace;
 	  var ajax = utils.ajax;
@@ -1313,34 +1343,6 @@
 	}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (GraphCreator, graph, utils, Idea) {
-
-	  var View = function View() {};
-
-	  View.prototype.clearAlert = function () {
-	    d3.select('#alert').text('');
-	  };
-
-	  View.prototype.noSelection = function () {
-	    d3.select('#alert').text('Please select an Idea first');
-	  };
-
-	  View.prototype.clearIframeTab = function () {
-	    d3.select('.wiki').classed('wiki-open', false).classed('url-open', false);
-	    d3.select('.url-title').remove();
-	    d3.select('.wiki iframe').remove();
-	    d3.select('.wiki div').html('');
-	  };
-
-	  return View;
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1381,10 +1383,11 @@
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;"use strict";
 
-	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(5)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
+	!(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(3), __webpack_require__(4), __webpack_require__(6)], __WEBPACK_AMD_DEFINE_RESULT__ = function (Utils, Idea, Link) {
 
 	  var getUrl = Utils.getUrl;
 	  var toWhiteSpace = Utils.toWhiteSpace;
+	  var findType = Utils.findType;
 
 	  var Suggestions = function Suggestions(graph) {
 	    this.graph = graph;
@@ -1401,7 +1404,7 @@
 	      if (data_b == undefined || data_b.length == 0) {
 	        d3.select("#alert").text("Term not found");
 	      }
-
+	      console.log("data_b", data_b);
 	      var translate = d3.select(id).attr("transform");
 	      var parent = translate.match(/\((.+),(.+)\)/);
 	      var parent_left = parseInt(parent[1]);
@@ -1427,20 +1430,30 @@
 	        var transform = d3.select(this).attr("transform");
 	        var translate = d3.transform(transform).translate;
 	        var idea = new Idea(graph);
-	        var d = { title: toWhiteSpace(d3.select(this).attr("id")), x: translate[0], y: translate[1], font_size: 20, concept_type: "concept", parent_id: d3.select(this).attr("parent_id") };
+	        var d = { title: toWhiteSpace(d3.select(this).attr("id")), x: translate[0], y: translate[1], font_size: 20, parent_id: d3.select(this).attr("parent_id") };
+	        d.concept_type = findType(d.title);
 	        idea.create(d).done(function (data) {
 	          new Link(graph).create(selectedIdea, new Idea(graph).find_by_id(data.id), graph.idLink++);
 	        });
 	        d3.select(this).remove();
-	      }).append("text").append("tspan").text(function (data) {
-	        return data_title(data, type);
 	      });
+	      if (type == "pinterest") {
+	        new_concept.append("image").attr("xlink:href", function (data) {
+	          return data_title(data, type);
+	        }).attr("width", 200).attr("height", 200);
+	      } else {
+	        new_concept.append("text").append("tspan").text(function (data) {
+	          return data_title(data, type);
+	        });
+	      }
+
 	      if (type == "user") {
 	        new_concept.selectAll("text").style("fill", "lightblue");
 	        new_concept.selectAll("text").append("tspan").style({ "fill": "white", "font-size": "0.5em" }).attr("dy", "1em").attr("x", "0").text(function (data) {
 	          return data.user;
 	        });
 	      }
+
 	      var anim_concept = new_concept.transition().delay(random_delay).duration(duration_in).style({ "opacity": "1" }).transition().duration(duration);
 
 	      var dead_concept = anim_concept.style({ "opacity": "0" }).duration(duration).attr("data-status", "dead").remove();
@@ -1474,6 +1487,7 @@
 	      dataType: "json",
 	      url: "/links/" + title,
 	      beforeSend: function beforeSend(xhr) {
+	        // xhr.setRequestHeader('Api-Key', '2e9dkuu9ydcauucmbqh3r3zp');
 	        xhr.setRequestHeader("X-CSRF-Token", $("meta[name=\"csrf-token\"]").attr("content"));
 	      },
 	      success: function success(result) {},
@@ -1504,7 +1518,6 @@
 	  }; // 0.1 to 3 em
 
 	  function fetch_suggestions(type, title, language) {
-
 	    var url = "";
 	    switch (type) {
 	      case "random":
@@ -1525,12 +1538,41 @@
 	      case "wordnik":
 	        url = "http://api.wordnik.com:80/v4/word.json/" + title + "/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5";
 	        break;
+	      case "getty_images":
+	        url = "https://api.gettyimages.com:443/v3/search/images?phrase=" + title;
+	        break;
+	      case "google_images":
+	        url = "https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + title;
+	        break;
+	      case "pinterest":
+	        url = "https://www.pinterest.com/search/pins/?q=" + title;
+	        console.log(url);
+	        return scrape(url);
+	        break;
 	      case "user":
 	        return getLinks(title);
 	        break;
 	    }
 
 	    return getUrl(url);
+	  }
+
+	  function scrape(url) {
+	    return $.ajax({
+	      url: "/scraper/get/",
+	      dataType: "json",
+	      data: url,
+	      success: function success(data) {
+	        console.log(data);
+	        // var elements = $("<div>").html(data)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
+	        // for(var i = 0; i < elements.length; i++) {
+	        //      var theText = elements[i].firstChild.nodeValue;
+	        //      // Do something here
+	      },
+	      error: function error(_error) {
+	        console.log(_error.responseText);
+	      }
+	    });
 	  }
 
 	  function data_title(data, type) {
@@ -1545,6 +1587,9 @@
 	        return data;
 	      case "flickr_tags":
 	        return data._content;
+	      case "pinterest":
+	        return data;
+	        break;
 	      case "user":
 	        return data.title;
 	        break;
@@ -1567,6 +1612,9 @@
 	      case "wiki_category":
 	        return d3.values(data.query.pages)[0].categories;
 	        break;
+	      case "pinterest":
+	        return d3.values(data.data);
+	        break;
 	      case "flickr_tags":
 	        if (data.stat == "fail") {
 	          console.log(data.message);
@@ -1581,7 +1629,7 @@
 	        return data;
 	        break;
 	      default:
-	        console.log("base not found");
+	        console.log("base for #{type} not found");
 	    }
 	  }
 

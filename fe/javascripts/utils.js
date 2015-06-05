@@ -36,9 +36,10 @@ define(function(require) {
                 url: url,
                 dataType: 'json',
                 error: function (request, error) {
+                  console.log('request', request);
                 console.log(" Can't do because: " + error);
                 }
-              })
+            })
             },
 
     windowSize: function(){
@@ -56,7 +57,18 @@ define(function(require) {
                   var sel = window.getSelection();
                   sel.removeAllRanges();
                   sel.addRange(range);
-  }
+                },
+    findType: function(title){
+            var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
+            var regexp_pic = /(.+\.)(jpg|gif|png)$/
+            if (title.search(regexp_web) > -1){
+              if(title.search(regexp_pic) > -1){ return 'image' }
+              else{ return 'url'; }
+            }else{
+              return 'concept';
+            }
+    }
+
 
   //   getEm: function(selected){
   //            return  parsePx($("html").css("font-size")) / parsePx(selected.style('font-size'))

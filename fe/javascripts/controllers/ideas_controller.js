@@ -1,8 +1,9 @@
-define(["../utils.js", "../views/view.js" ], function(utils, View) {
+define(["../utils.js", "../views/view.js" ], function(Utils, View) {
 
-var toWhiteSpace = utils.toWhiteSpace;
-var ajax = utils.ajax;
-var parsePx = utils.parsePx;
+var toWhiteSpace = Utils.toWhiteSpace;
+var ajax = Utils.ajax;
+var parsePx = Utils.parsePx;
+var findType = Utils.findType;
 
   var Idea = function( graph ){
     this.graph = graph;
@@ -183,19 +184,6 @@ var parsePx = utils.parsePx;
       var name = el.append('text').text(title);
         name.attr('x', 0).attr('dy', '15');
   };
-
-  function findType(title){
-    var regexp_web = /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*)/
-    var regexp_pic = /(.+\.)(jpg|gif|png)$/
-
-    if (title.search(regexp_web) > -1){
-      if(title.search(regexp_pic) > -1){ return 'image' }
-      else{ return 'url'; }
-    }else{
-      return 'concept';
-    }
-  }
-
 
   Idea.prototype.update = function(d){
     $.ajax({
