@@ -11,10 +11,12 @@
     <p><em>Relate ideas</em> - Shift and click in idea and drag to the target </p>
     <p><em>Delete idea or link</em> - Backspace                 </p>
     <h4>Hotkeys</h4>
-    <p>  v <em>view info about idea</em> </p>
+    <p>  v <em>search in duckduckgo.com</em> </p>
+    <p>  v <em>view info about idea (wikipedia or full size image)</em> </p>
     <p>  c <em>add description to idea</em> </p>
-    <p>  + <em>grow idea</em> </p>
-    <p>  - <em>shrink idea</em> </p>
+    <p>  f <em>hide / show the navbar (focus)</em> </p>
+<!--     <p>  + <em>grow idea</em> </p>
+    <p>  - <em>shrink idea</em> </p> -->
     <p>  i <em>info</em> </p>
     <p>  a <em>toolbox</em> </p>
 
@@ -22,6 +24,7 @@
 </div>
 
 <% if @same_user %>
+  <div id='alert'></div>
   <div id="toolbox">
     <div id="random-button" class="btn btn-default">
       <span class='label label-default'>1</span>
@@ -64,20 +67,26 @@
     <div>
       <i class="fa fa-eye fa-3x" id="open-url"></i>
     </div>
+    <div>
+      <i class="fa fa-search fa-3x" id="search"></i>
+    </div>
     <!-- <div>
       <i class="fa fa-play-circle fa-3x" id="play"></i>
     </div> -->
     <% if @same_user %>
-      <div>
+<!--       <div>
         <i class="fa fa-plus-circle fa-3x" id="idea-plus"></i>
       </div>
       <div>
         <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
-      </div>
+      </div> -->
     <div>
       <i class="fa fa-comment fa-3x" id="add-text"></i>
     </div>
     <% end %>
+    <div>
+      <i class="fa fa-compress fa-3x" id="focus"></i>
+    </div>
   </div>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js" ></script>
     <% if @same_user %>

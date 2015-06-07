@@ -21,7 +21,6 @@
  *= require_self
  */
 
-
 body{
   font-family: 'Quicksand', sans-serif;
 }
@@ -30,6 +29,10 @@ p{
   text-align: left;
   padding-left: 1em;
   color: #333;
+}
+
+.navbar{
+  margin-bottom: 0;
 }
 
 .modal-dialog{
@@ -41,6 +44,15 @@ p{
   height:100%;
 }
 
+#alert{
+  position: fixed;
+  right: 1%;
+  border: 2px solid #EEEEEE;
+  border-radius: 5px;
+  z-index: 5;
+  margin-top: 1%;
+  background-color: white;
+}
 
 #toolbox{
   position: fixed;
