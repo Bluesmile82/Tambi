@@ -1,11 +1,11 @@
-<% @graph = Graph.new %>
-<%= simple_form_for([current_user, @graph])  do |f| %>
-  <% if @graph.errors.any? %>
+<% graph =  @graph || Graph.new %>
+<%= simple_form_for([current_user, graph])  do |f| %>
+  <% if graph.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@graph.errors.count, "error") %> prohibited this graph from being saved:</h2>
+      <h2><%= pluralize(graph.errors.count, "error") %> prohibited this graph from being saved:</h2>
 
       <ul>
-      <% @graph.errors.full_messages.each do |message| %>
+      <% graph.errors.full_messages.each do |message| %>
         <li><%= message %></li>
       <% end %>
       </ul>
@@ -13,5 +13,6 @@
   <% end %>
     <%= f.input :title, :placeholder=>"New Tambi"%>
     <%= f.input :description,:as =>'text', :placeholder=>"Short description of the Tambi"%>
-    <%= f.submit 'Create', :class=>'btn btn-default vertical-center' %>
+    <%= link_to 'Back', :back, class: 'btn btn-default' if @graph %>
+    <%= f.submit text, :class=>'btn btn-success vertical-center' %>
 <% end %>

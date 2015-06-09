@@ -1,5 +1,5 @@
 class GraphsController < ApplicationController
-  before_action :set_graph, only: [:show, :redirect, :update, :destroy]
+  before_action :set_graph, only: [:show, :redirect, :update, :destroy, :edit, :update]
 
   def index
     @graphs = current_user.graphs
@@ -8,6 +8,17 @@ class GraphsController < ApplicationController
   def user_edit
     @graphs = current_user.graphs
     @user = current_user
+  end
+
+  def edit
+  end
+
+  def update
+    if @graph.update(graph_params)
+      redirect_to user_graphs_path, notice: 'Tambi was successfully updated.'
+    else
+      render :edit
+    end
   end
 
   def all
