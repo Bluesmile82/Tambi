@@ -23,6 +23,7 @@
 
 body{
   font-family: 'Quicksand', sans-serif;
+  overflow-y: scroll;
 }
 
 p{
@@ -232,8 +233,4 @@ form .btn{
   height: 200px;
   padding:1%;
   margin:0.5%;
-}
-
-body{
-  overflow-y: scroll;
 }
