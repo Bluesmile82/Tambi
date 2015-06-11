@@ -4,8 +4,8 @@ module.exports = {
         index:  "./fe/javascripts/index.js"
     },
     output: {
-        path: "./app/assets/javascripts/",
-        filename: "app-bundle.js",
+        path: "./app/views/ideas/",
+        filename: "_appBundle.js",
     },
   module: {
     loaders: [
