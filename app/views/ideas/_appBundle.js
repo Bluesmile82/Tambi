@@ -116,7 +116,7 @@
 	  // hotkeys
 
 	  $("body").on("keydown", function (event) {
-	    console.log(event.which);
+	    // console.log(event.which);
 	    switch (event.which) {
 	      case 83:
 	        // s
@@ -815,9 +815,14 @@
 	    var idea = new Idea(thisGraph);
 	    Ideas.each(function (d) {
 	      var d3node = d3.select(this);
+	      if (d.description != null && d.description != undefined && d.description != '') {
+	        thisGraph.createDescriptionShape(d3node, d);
+	      }
 	      thisGraph.createIdeaShape(d3node, d);
 	      idea.insertTitleLinebreaks(d3node, d.title, 2);
-	      idea.insertDescription(d3node, d.description);
+	      if (d.description != null && d.description != undefined && d.description != '') {
+	        idea.insertDescription(d3node, d.description);
+	      }
 	      d3node.attr('id', function (d) {
 	        return 'id' + d.id;
 	      });
@@ -865,29 +870,39 @@
 	    return Math.floor(text.split(/\s+/g).length / words_in_line) + 1;
 	  };
 
+	  GraphCreator.prototype.createDescriptionShape = function (newIdea, d) {
+	    var consts = this.consts;
+	    var width = consts.nodeRadius * 5;
+	    if (d.description != undefined) {
+	      var width = this.getTextMaxLenght(d.description, 5) * 9 + 30;
+	      if (width < 100) {
+	        width = 100;
+	      };
+	    }
+
+	    var height = consts.nodeRadius * 1.5;
+	    if (d.description != undefined) {
+	      var height = this.getNumberOfLines(d.description, 5) * 15 + height;
+	    }
+
+	    height += this.getNumberOfLines(d.title, 2) * 5;
+
+	    newIdea.append('rect').attr('width', width).attr('height', height).attr('x', String(-width / 2)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
+	    newIdea.classed('text-hidden', false).classed('text-left', true);
+	  };
+
 	  GraphCreator.prototype.createIdeaShape = function (newIdea, d) {
 	    var consts = this.consts;
 	    switch (d.concept_type) {
 	      case 'concept':
-	        newIdea.append('circle').attr('r', String(consts.nodeRadius));
-	        newIdea.classed('text-hidden', false).classed('text-left', false);
+	        if (d.description == undefined || d.description == '' || d.description == null) {
+	          newIdea.append('circle').attr('r', String(consts.nodeRadius));
+	          newIdea.classed('text-hidden', false).classed('text-left', false);
+	        } else {
+	          newIdea.select('rect').attr('x', '-20');
+	        }
 	        break;
 	      case 'text':
-	        var width = consts.nodeRadius * 5;
-	        if (d.description != undefined) {
-	          var width = this.getTextMaxLenght(d.description, 5) * 9 + 30;
-	          if (width < 100) {
-	            width = 100;
-	          };
-	        }
-
-	        var height = consts.nodeRadius * 1.5;
-	        if (d.description != undefined) {
-	          var height = this.getNumberOfLines(d.description, 5) * 15 + height;
-	        }
-
-	        newIdea.append('rect').attr('width', width).attr('height', height).attr('x', String(-consts.nodeRadius + 30)).attr('y', String(-consts.nodeRadius)).attr('rx', '25').attr('ry', '25');
-	        newIdea.classed('text-hidden', false).classed('text-left', true);
 	        break;
 	      case 'url':
 	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('y', String(-consts.nodeRadius)).attr('x', String(-consts.nodeRadius));
@@ -1080,7 +1095,7 @@
 	    var htmlElement = thisIdea.htmlElement(id);
 	    var d3node = thisIdea.d3Element(id);
 
-	    thisIdea.changeConceptType(d, "text");
+	    // thisIdea.changeConceptType( d , 'text' );
 	    var textInput = thisIdea.appendTextInput(htmlElement, d, d.description);
 	    document.getElementById("editing").focus();
 	    textInput.on("blur", function (d) {
@@ -1164,9 +1179,7 @@
 
 	    textInput.on("blur", function (d) {
 	      d.concept_type = findType(this.textContent);
-	      if (d.description != null && d.description != "") {
-	        d.concept_type = "text";
-	      }
+	      // if ( d.description != null && d.description != '' ){ d.concept_type = 'text' }
 	      d.title = this.textContent;
 	      idea.update_text(d3node, d, this);
 	      graph.updateGraph();

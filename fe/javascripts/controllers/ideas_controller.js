@@ -52,7 +52,7 @@ var findType = Utils.findType;
     var htmlElement = thisIdea.htmlElement(id);
     var d3node = thisIdea.d3Element(id);
 
-    thisIdea.changeConceptType( d , 'text' );
+    // thisIdea.changeConceptType( d , 'text' );
     var textInput = thisIdea.appendTextInput( htmlElement, d , d.description);
     document.getElementById('editing').focus();
     textInput.on("blur", function(d){
@@ -151,7 +151,7 @@ var findType = Utils.findType;
 
     textInput.on("blur", function(d){
             d.concept_type = findType(this.textContent);
-            if ( d.description != null && d.description != '' ){ d.concept_type = 'text' }
+            // if ( d.description != null && d.description != '' ){ d.concept_type = 'text' }
             d.title = this.textContent;
             idea.update_text(d3node, d, this);
             graph.updateGraph()

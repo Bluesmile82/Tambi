@@ -541,9 +541,12 @@ var GraphCreator = function(svg, nodes, edges, permission){
     var idea = new Idea(thisGraph);
     Ideas.each(function(d){
                   var d3node = d3.select(this);
+                  if (d.description != null && d.description != undefined && d.description != ''){ thisGraph.createDescriptionShape( d3node, d ); }
                   thisGraph.createIdeaShape(d3node, d);
                   idea.insertTitleLinebreaks(d3node, d.title, 2 );
+                  if (d.description != null && d.description != undefined && d.description != ''){
                   idea.insertDescription( d3node , d.description );
+                   }
                   d3node.attr("id",function(d){return 'id' + d.id});
                 })
   }
@@ -593,33 +596,45 @@ var GraphCreator = function(svg, nodes, edges, permission){
       return Math.floor(text.split(/\s+/g).length / words_in_line) + 1 ;
     }
 
-      GraphCreator.prototype.createIdeaShape = function(newIdea, d){
+    GraphCreator.prototype.createDescriptionShape = function( newIdea, d ){
         var consts = this.consts;
-        switch(d.concept_type){
-          case 'concept':
-            newIdea.append( 'circle' ).attr("r", String(consts.nodeRadius));
-            newIdea.classed('text-hidden', false).classed('text-left', false);
-            break;
-          case 'text':
             var width = consts.nodeRadius * 5;
             if (d.description != undefined){
               var width = this.getTextMaxLenght( d.description, 5 ) * 9 + 30 ;
               if (width < 100){ width = 100 };
             }
 
+
             var height = consts.nodeRadius * 1.5;
             if (d.description != undefined){
               var height = this.getNumberOfLines( d.description, 5 ) * 15 + height ;
             }
 
+            height += this.getNumberOfLines( d.title, 2 ) * 5;
+
              newIdea.append( 'rect' )
              .attr("width", width )
              .attr("height", height )
-             .attr("x", String( -consts.nodeRadius + 30))
+             .attr("x", String( - width / 2))
              .attr("y", String( -consts.nodeRadius ))
              .attr("rx", '25' )
              .attr("ry", '25' );
             newIdea.classed('text-hidden', false).classed('text-left', true);
+    }
+
+      GraphCreator.prototype.createIdeaShape = function(newIdea, d){
+        var consts = this.consts;
+        switch(d.concept_type){
+          case 'concept':
+            if (d.description == undefined || d.description == '' || d.description == null ){
+              newIdea.append( 'circle' ).attr("r", String(consts.nodeRadius));
+              newIdea.classed('text-hidden', false).classed('text-left', false);
+            }
+            else{
+              newIdea.select('rect').attr('x','-20');
+            }
+            break;
+          case 'text':
             break;
           case 'url':
             newIdea.append( 'rect' )

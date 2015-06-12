@@ -4,8 +4,13 @@ body{
     overflow:hidden;
 }
 
-.text-hidden text{
+.text-hidden{
+  text{
   visibility: hidden
+  }
+  .description{
+    visibility: visible
+  }
 }
 
 #editing{
