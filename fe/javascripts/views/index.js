@@ -14,6 +14,7 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   click_button('random', 'en');
   click_button('related_idol', 'en');
   click_button('pinterest', 'en');
+  click_button('youtube', 'en');
   click_button('user', 'en');
   // click_button('google_images', 'en');
   // click_button('flickr_tags', 'en');

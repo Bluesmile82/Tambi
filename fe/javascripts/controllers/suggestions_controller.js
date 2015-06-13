@@ -74,6 +74,12 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
                                    .text(function(data) { return data.user });
       }
 
+      if (type == 'youtube'){
+        new_concept.selectAll('text').style({'fill':'white'})
+                                   .attr('dy', '1em').attr('x', '0')
+                                   .text(function(data) { return data.title });
+      }
+
       var anim_concept = new_concept
                   .transition().delay(random_delay).duration(duration_in).style({'opacity':'1'})
                   .transition().duration(duration);
@@ -165,6 +171,10 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       console.log(url);
       return scrape(url);
         break;
+    case 'youtube':
+      url =  'https://www.youtube.com/results?search_query=' + title
+      return scrape(url);
+        break;
     case 'user':
       return getLinks(title);
     break;
@@ -179,11 +189,7 @@ function scrape( url ){
      dataType: 'json',
      data: url,
      success: function(data) {
-      console.log(data);
-          // var elements = $("<div>").html(data)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
-          // for(var i = 0; i < elements.length; i++) {
-          //      var theText = elements[i].firstChild.nodeValue;
-          //      // Do something here
+      console.log('scraping', data);
           },
       error: function(error){
         console.log(error.responseText)
@@ -199,16 +205,19 @@ function scrape( url ){
         return data.text;
       case 'wiki_category':
         return data.title.replace(/Category:/,'');
-     case 'related_idol_wt':
+      case 'related_idol_wt':
         return data;
       case 'flickr_tags' :
         return data._content;
       case 'pinterest':
         return data;
-      break;
+        break;
+      case 'youtube':
+        return data.data;
+        break;
       case 'user':
         return data.title;
-      break;
+        break;
       default:
       console.log('title not found');
     } };
@@ -229,6 +238,9 @@ function scrape( url ){
         break;
       case 'pinterest':
         return d3.values(data.data);
+      break;
+      case 'youtube':
+        return data.data;
       break;
       case 'flickr_tags':
       if (data.stat == 'fail'){

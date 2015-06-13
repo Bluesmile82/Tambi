@@ -74,6 +74,7 @@
 	  click_button("random", "en");
 	  click_button("related_idol", "en");
 	  click_button("pinterest", "en");
+	  click_button("youtube", "en");
 	  click_button("user", "en");
 	  // click_button('google_images', 'en');
 	  // click_button('flickr_tags', 'en');
@@ -1504,6 +1505,12 @@
 	        });
 	      }
 
+	      if (type == "youtube") {
+	        new_concept.selectAll("text").style({ "fill": "white" }).attr("dy", "1em").attr("x", "0").text(function (data) {
+	          return data.title;
+	        });
+	      }
+
 	      var anim_concept = new_concept.transition().delay(random_delay).duration(duration_in).style({ "opacity": "1" }).transition().duration(duration);
 
 	      var dead_concept = anim_concept.style({ "opacity": "0" }).duration(duration).attr("data-status", "dead").remove();
@@ -1601,6 +1608,10 @@
 	        console.log(url);
 	        return scrape(url);
 	        break;
+	      case "youtube":
+	        url = "https://www.youtube.com/results?search_query=" + title;
+	        return scrape(url);
+	        break;
 	      case "user":
 	        return getLinks(title);
 	        break;
@@ -1615,11 +1626,7 @@
 	      dataType: "json",
 	      data: url,
 	      success: function success(data) {
-	        console.log(data);
-	        // var elements = $("<div>").html(data)[0].getElementsByTagName("ul")[0].getElementsByTagName("li");
-	        // for(var i = 0; i < elements.length; i++) {
-	        //      var theText = elements[i].firstChild.nodeValue;
-	        //      // Do something here
+	        console.log("scraping", data);
 	      },
 	      error: function error(_error) {
 	        console.log(_error.responseText);
@@ -1641,6 +1648,9 @@
 	        return data._content;
 	      case "pinterest":
 	        return data;
+	        break;
+	      case "youtube":
+	        return data.data;
 	        break;
 	      case "user":
 	        return data.title;
@@ -1666,6 +1676,9 @@
 	        break;
 	      case "pinterest":
 	        return d3.values(data.data);
+	        break;
+	      case "youtube":
+	        return data.data;
 	        break;
 	      case "flickr_tags":
 	        if (data.stat == "fail") {
