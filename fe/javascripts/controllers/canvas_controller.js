@@ -158,7 +158,10 @@ var GraphCreator = function(svg, nodes, edges, permission){
     nodeRadius: 50,
     min_size: 14,
     max_size: 154,
-    change: 30
+    change: 30,
+    bias: 300,
+    duration_in: 1000,
+    duration: 10000
   };
 
   GraphCreator.prototype.setIdCt = function(idct){
@@ -545,7 +548,7 @@ var GraphCreator = function(svg, nodes, edges, permission){
                   thisGraph.createIdeaShape(d3node, d);
                   idea.insertTitleLinebreaks(d3node, d.title, 2 );
                   if (d.description != null && d.description != undefined && d.description != ''){
-                  idea.insertDescription( d3node , d.description );
+                  idea.insertDescription( d3node , d );
                    }
                   d3node.attr("id",function(d){return 'id' + d.id});
                 })
@@ -592,22 +595,42 @@ var GraphCreator = function(svg, nodes, edges, permission){
       return max;
     }
 
+    GraphCreator.prototype.getDivMaxLenght = function( text , words_in_line ){
+      text = text.replace(/<div>/g, '');
+      var cleanText = text.replace(/<br>/g, '');
+      var lines = cleanText.split(/<\/div>/g);
+      var max = 0;
+      for (var i = 0; i < lines.length ; i++) {
+        var lineLenght = lines[i].length;
+        if (lineLenght > max){ max = lineLenght };
+      }
+      return max;
+    }
+
     GraphCreator.prototype.getNumberOfLines = function( text , words_in_line ){
       return Math.floor(text.split(/\s+/g).length / words_in_line) + 1 ;
+    }
+
+    GraphCreator.prototype.getNumberOfDivs = function( text ){
+      return text.split(/<\/div>/g).length ;
     }
 
     GraphCreator.prototype.createDescriptionShape = function( newIdea, d ){
         var consts = this.consts;
             var width = consts.nodeRadius * 5;
             if (d.description != undefined){
-              var width = this.getTextMaxLenght( d.description, 5 ) * 9 + 30 ;
+              var width = this.getDivMaxLenght( d.description ) * 7 + 60 ;
               if (width < 100){ width = 100 };
             }
 
 
             var height = consts.nodeRadius * 1.5;
             if (d.description != undefined){
-              var height = this.getNumberOfLines( d.description, 5 ) * 15 + height ;
+              var height = this.getNumberOfDivs( d.description ) * 15 + height ;
+            if (d.concept_type == 'image'){
+              height += 80;
+            }
+
             }
 
             height += this.getNumberOfLines( d.title, 2 ) * 5;
@@ -633,8 +656,6 @@ var GraphCreator = function(svg, nodes, edges, permission){
             else{
               newIdea.select('rect').attr('x','-20');
             }
-            break;
-          case 'text':
             break;
           case 'url':
             newIdea.append( 'rect' )

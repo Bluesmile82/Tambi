@@ -52,18 +52,13 @@ var findType = Utils.findType;
     var htmlElement = thisIdea.htmlElement(id);
     var d3node = thisIdea.d3Element(id);
 
-    // thisIdea.changeConceptType( d , 'text' );
-    var textInput = thisIdea.appendTextInput( htmlElement, d , d.description);
+    var textInput = thisIdea.appendTextInput( htmlElement, d , d.description, true);
     document.getElementById('editing').focus();
     textInput.on("blur", function(d){
-            if (this.textContent == ''){
-              d.concept_type = findType( d.title );
-            }
-            d.description = this.textContent;
-            thisIdea.graph.updateGraph();
-            thisIdea.updateDescription(d3node, d);
-            this.remove();
-          });
+      d.description = textInput.node().innerHTML;
+      thisIdea.updateDescription(d3node, d);
+      this.remove();
+    });
   }
 
   Idea.prototype.insertTitleLinebreaks = function ( d3node, text, words_in_line ) {
@@ -80,16 +75,26 @@ var findType = Utils.findType;
     return newText
   };
 
-  Idea.prototype.insertDescription = function( d3group, description ){
-    if (description != null && description != ''){
+  Idea.prototype.insertDescriptionText = function ( d3node, text ) {
+    var text = text.replace(/<div>/g,'<tspan dy=15 x=0 >');
+    text = text.replace(/<\/div>/g,'<\/tspan>');
+    text = text.replace(/<\/br>/g,'<tspan dy=15 x=0 ></tspan>');
+    return d3node.append("text").html(text);
+  };
+
+  Idea.prototype.insertDescription = function( d3group, d ){
+    if (d.description != null && d.description != ''){
       var descriptionPadding = 20 + Math.abs(d3group.select('text').attr('dy'));
-      var newDescription = this.insertTitleLinebreaks( d3group, description , 5 );
+      if (d.concept_type == 'image'){ descriptionPadding += 80; }
+      var newDescription = this.insertDescriptionText( d3group, d.description )
+      // Todo append a foreign object
+      console.log('new', newDescription)
       newDescription.classed('description', true ).attr('dy', descriptionPadding);
     }
   }
 
   Idea.prototype.updateDescription = function( d3node, d ){
-    this.insertDescription( d3node, d.description );
+    this.insertDescription( d3node, d );
     this.graph.updateGraph();
     this.update(d);
   }
@@ -101,7 +106,7 @@ var findType = Utils.findType;
     thisIdea.graph.updateGraph();
   }
 
-  Idea.prototype.appendTextInput = function( htmlEl, d , initialText){
+  Idea.prototype.appendTextInput = function( htmlEl, d , initialText, enterKeyEscape){
     var graph = this.graph;
     var constants = graph.consts;
     var d3Element = this.d3Element( d.id );
@@ -114,20 +119,21 @@ var findType = Utils.findType;
           .append("foreignObject")
           .attr("x", nodeBCR.left + placePad )
           .attr("y", nodeBCR.top + placePad )
-          .attr("height", 2 * useHW)
-          .attr("width", useHW)
+          .attr("height", useHW)
+          .attr("width", 2 * useHW)
           .append("xhtml:p")
           .style('overflow', 'hidden')
           .attr("id", constants.activeEditId)
           .attr("contentEditable", "true")
-          .text(initialText)
+          .html(initialText)
           .on("mousedown", function(d){
             d3.event.stopPropagation();
           })
           .on("keydown", function(d){
             d3.event.stopPropagation();
-            if (d3.event.keyCode == constants.ENTER_KEY && !d3.event.shiftKey){
-              this.blur();
+            if (d3.event.keyCode == constants.ENTER_KEY && (!enterKeyEscape || d3.event.shiftKey)){
+                this.blur();
+                textInput.exit();
             }
           });
 

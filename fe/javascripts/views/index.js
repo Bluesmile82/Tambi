@@ -21,6 +21,7 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   // click_button('wordnik', 'en');
 
 
+
   function click_button(id, language){
    d3.select('#' + id + '-button').on("click", function(){
     var selectedId = new Idea(graph).selectedId();
@@ -56,7 +57,7 @@ if(graph.permission == 'user'){
 // hotkeys
 
 $( "body" ).on( "keydown", function( event ) {
-   // console.log(event.which);
+  // console.log(event.which);
   switch(event.which){
     case 83: // s
       $('#search').click();
@@ -98,8 +99,17 @@ $( "body" ).on( "keydown", function( event ) {
     case 53: // 5
       $('#pinterest-button').click();
     break;
+    case 54: // 6
+      $('#youtube-button').click();
+    break;
   }
 })
+
+document.getElementById('duration').addEventListener('change', function() {
+        var selected = this.value;
+        $('#duration-label').text(parseInt(selected / 1000) + 'secs');
+        graph.consts.duration = selected;
+});
 
   d3.select('svg').on("click", function(){
     new View().clearIframeTab();

@@ -10,6 +10,8 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
 
   Suggestions.prototype.create = function(id, type, language){
     var graph = this.graph;
+    var constants = graph.consts
+    console.log(constants);
     var clean_id = id.replace(/#/, '');
     var id = '#id' + clean_id;
     var selectedIdea = new Idea(graph).find_by_id(clean_id);
@@ -25,9 +27,9 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
       var parent_top = parseInt(parent[2]);
-      var bias = 300;
-      var duration_in = 1000;
-      var duration = 6000;
+      var bias = constants.bias;
+      var duration_in = constants.duration_in;
+      var duration = constants.duration;
       console.log('delay', random_delay() );
 
       var new_concept = d3.select(".graph").selectAll('g.' + data.title)
@@ -56,6 +58,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
                     });
                     d3.select(this).remove();
                   });
+
       if (type == 'pinterest'){
         new_concept.append('image')
                    .attr('xlink:href', function(data) { return data_title(data, type)})

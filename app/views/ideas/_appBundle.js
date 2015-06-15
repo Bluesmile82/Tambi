@@ -170,7 +170,17 @@
 	        // 5
 	        $("#pinterest-button").click();
 	        break;
+	      case 54:
+	        // 6
+	        $("#youtube-button").click();
+	        break;
 	    }
+	  });
+
+	  document.getElementById("duration").addEventListener("change", function () {
+	    var selected = this.value;
+	    $("#duration-label").text(parseInt(selected / 1000) + "secs");
+	    graph.consts.duration = selected;
 	  });
 
 	  d3.select("svg").on("click", function () {
@@ -440,7 +450,10 @@
 	    nodeRadius: 50,
 	    min_size: 14,
 	    max_size: 154,
-	    change: 30
+	    change: 30,
+	    bias: 300,
+	    duration_in: 1000,
+	    duration: 10000
 	  };
 
 	  GraphCreator.prototype.setIdCt = function (idct) {
@@ -822,7 +835,7 @@
 	      thisGraph.createIdeaShape(d3node, d);
 	      idea.insertTitleLinebreaks(d3node, d.title, 2);
 	      if (d.description != null && d.description != undefined && d.description != '') {
-	        idea.insertDescription(d3node, d.description);
+	        idea.insertDescription(d3node, d);
 	      }
 	      d3node.attr('id', function (d) {
 	        return 'id' + d.id;
@@ -867,15 +880,33 @@
 	    return max;
 	  };
 
+	  GraphCreator.prototype.getDivMaxLenght = function (text, words_in_line) {
+	    text = text.replace(/<div>/g, '');
+	    var cleanText = text.replace(/<br>/g, '');
+	    var lines = cleanText.split(/<\/div>/g);
+	    var max = 0;
+	    for (var i = 0; i < lines.length; i++) {
+	      var lineLenght = lines[i].length;
+	      if (lineLenght > max) {
+	        max = lineLenght;
+	      };
+	    }
+	    return max;
+	  };
+
 	  GraphCreator.prototype.getNumberOfLines = function (text, words_in_line) {
 	    return Math.floor(text.split(/\s+/g).length / words_in_line) + 1;
+	  };
+
+	  GraphCreator.prototype.getNumberOfDivs = function (text) {
+	    return text.split(/<\/div>/g).length;
 	  };
 
 	  GraphCreator.prototype.createDescriptionShape = function (newIdea, d) {
 	    var consts = this.consts;
 	    var width = consts.nodeRadius * 5;
 	    if (d.description != undefined) {
-	      var width = this.getTextMaxLenght(d.description, 5) * 9 + 30;
+	      var width = this.getDivMaxLenght(d.description) * 7 + 60;
 	      if (width < 100) {
 	        width = 100;
 	      };
@@ -883,7 +914,10 @@
 
 	    var height = consts.nodeRadius * 1.5;
 	    if (d.description != undefined) {
-	      var height = this.getNumberOfLines(d.description, 5) * 15 + height;
+	      var height = this.getNumberOfDivs(d.description) * 15 + height;
+	      if (d.concept_type == 'image') {
+	        height += 80;
+	      }
 	    }
 
 	    height += this.getNumberOfLines(d.title, 2) * 5;
@@ -902,8 +936,6 @@
 	        } else {
 	          newIdea.select('rect').attr('x', '-20');
 	        }
-	        break;
-	      case 'text':
 	        break;
 	      case 'url':
 	        newIdea.append('rect').attr('width', String(consts.nodeRadius) * 2).attr('height', String(consts.nodeRadius) * 2).attr('y', String(-consts.nodeRadius)).attr('x', String(-consts.nodeRadius));
@@ -1096,15 +1128,10 @@
 	    var htmlElement = thisIdea.htmlElement(id);
 	    var d3node = thisIdea.d3Element(id);
 
-	    // thisIdea.changeConceptType( d , 'text' );
-	    var textInput = thisIdea.appendTextInput(htmlElement, d, d.description);
+	    var textInput = thisIdea.appendTextInput(htmlElement, d, d.description, true);
 	    document.getElementById("editing").focus();
 	    textInput.on("blur", function (d) {
-	      if (this.textContent == "") {
-	        d.concept_type = findType(d.title);
-	      }
-	      d.description = this.textContent;
-	      thisIdea.graph.updateGraph();
+	      d.description = textInput.node().innerHTML;
 	      thisIdea.updateDescription(d3node, d);
 	      this.remove();
 	    });
@@ -1122,16 +1149,28 @@
 	    return newText;
 	  };
 
-	  Idea.prototype.insertDescription = function (d3group, description) {
-	    if (description != null && description != "") {
+	  Idea.prototype.insertDescriptionText = function (d3node, text) {
+	    var text = text.replace(/<div>/g, "<tspan dy=15 x=0 >");
+	    text = text.replace(/<\/div>/g, "</tspan>");
+	    text = text.replace(/<\/br>/g, "<tspan dy=15 x=0 ></tspan>");
+	    return d3node.append("text").html(text);
+	  };
+
+	  Idea.prototype.insertDescription = function (d3group, d) {
+	    if (d.description != null && d.description != "") {
 	      var descriptionPadding = 20 + Math.abs(d3group.select("text").attr("dy"));
-	      var newDescription = this.insertTitleLinebreaks(d3group, description, 5);
+	      if (d.concept_type == "image") {
+	        descriptionPadding += 80;
+	      }
+	      var newDescription = this.insertDescriptionText(d3group, d.description);
+	      // Todo append a foreign object
+	      console.log("new", newDescription);
 	      newDescription.classed("description", true).attr("dy", descriptionPadding);
 	    }
 	  };
 
 	  Idea.prototype.updateDescription = function (d3node, d) {
-	    this.insertDescription(d3node, d.description);
+	    this.insertDescription(d3node, d);
 	    this.graph.updateGraph();
 	    this.update(d);
 	  };
@@ -1143,7 +1182,7 @@
 	    thisIdea.graph.updateGraph();
 	  };
 
-	  Idea.prototype.appendTextInput = function (htmlEl, d, initialText) {
+	  Idea.prototype.appendTextInput = function (htmlEl, d, initialText, enterKeyEscape) {
 	    var graph = this.graph;
 	    var constants = graph.consts;
 	    var d3Element = this.d3Element(d.id);
@@ -1151,12 +1190,13 @@
 	        curScale = nodeBCR.width / constants.nodeRadius,
 	        placePad = 5 * curScale,
 	        useHW = curScale > 1 ? nodeBCR.width * 0.71 : constants.nodeRadius * 1.5;
-	    var textInput = graph.svg.selectAll("foreignObject").data([d]).enter().append("foreignObject").attr("x", nodeBCR.left + placePad).attr("y", nodeBCR.top + placePad).attr("height", 2 * useHW).attr("width", useHW).append("xhtml:p").style("overflow", "hidden").attr("id", constants.activeEditId).attr("contentEditable", "true").text(initialText).on("mousedown", function (d) {
+	    var textInput = graph.svg.selectAll("foreignObject").data([d]).enter().append("foreignObject").attr("x", nodeBCR.left + placePad).attr("y", nodeBCR.top + placePad).attr("height", useHW).attr("width", 2 * useHW).append("xhtml:p").style("overflow", "hidden").attr("id", constants.activeEditId).attr("contentEditable", "true").html(initialText).on("mousedown", function (d) {
 	      d3.event.stopPropagation();
 	    }).on("keydown", function (d) {
 	      d3.event.stopPropagation();
-	      if (d3.event.keyCode == constants.ENTER_KEY && !d3.event.shiftKey) {
+	      if (d3.event.keyCode == constants.ENTER_KEY && (!enterKeyEscape || d3.event.shiftKey)) {
 	        this.blur();
+	        textInput.exit();
 	      }
 	    });
 
@@ -1445,6 +1485,8 @@
 
 	  Suggestions.prototype.create = function (id, type, language) {
 	    var graph = this.graph;
+	    var constants = graph.consts;
+	    console.log(constants);
 	    var clean_id = id.replace(/#/, "");
 	    var id = "#id" + clean_id;
 	    var selectedIdea = new Idea(graph).find_by_id(clean_id);
@@ -1460,9 +1502,9 @@
 	      var parent = translate.match(/\((.+),(.+)\)/);
 	      var parent_left = parseInt(parent[1]);
 	      var parent_top = parseInt(parent[2]);
-	      var bias = 300;
-	      var duration_in = 1000;
-	      var duration = 6000;
+	      var bias = constants.bias;
+	      var duration_in = constants.duration_in;
+	      var duration = constants.duration;
 	      console.log("delay", random_delay());
 
 	      var new_concept = d3.select(".graph").selectAll("g." + data.title).data(data_b);
@@ -1488,6 +1530,7 @@
 	        });
 	        d3.select(this).remove();
 	      });
+
 	      if (type == "pinterest") {
 	        new_concept.append("image").attr("xlink:href", function (data) {
 	          return data_title(data, type);
