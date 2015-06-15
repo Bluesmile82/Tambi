@@ -2,6 +2,7 @@ Rails.application.routes.draw do
 
   # get 'users/edit' => 'graphs#user_edit'
   get 'scraper/get' => 'scraper#get'
+  get 'wordnik/get' => 'wordnik#get'
   devise_for :users, :controllers => { registrations: 'registrations' }
 
   get 'matches/:title' => 'matches#index'

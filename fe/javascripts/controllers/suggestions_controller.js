@@ -11,7 +11,6 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
   Suggestions.prototype.create = function(id, type, language){
     var graph = this.graph;
     var constants = graph.consts
-    console.log(constants);
     var clean_id = id.replace(/#/, '');
     var id = '#id' + clean_id;
     var selectedIdea = new Idea(graph).find_by_id(clean_id);
@@ -178,6 +177,10 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       url =  'https://www.youtube.com/results?search_query=' + title
       return scrape(url);
         break;
+    case 'synonym':
+      url = title
+      return wordnik(url);
+        break;
     case 'user':
       return getLinks(title);
     break;
@@ -193,6 +196,20 @@ function scrape( url ){
      data: url,
      success: function(data) {
       console.log('scraping', data);
+          },
+      error: function(error){
+        console.log(error.responseText)
+      }
+  });
+}
+
+function wordnik( url ){
+  return $.ajax({
+     url: '/wordnik/get/',
+     dataType: 'json',
+     data: url,
+     success: function(data) {
+      console.log('wordnik', data);
           },
       error: function(error){
         console.log(error.responseText)
@@ -220,6 +237,10 @@ function scrape( url ){
         break;
       case 'user':
         return data.title;
+        break;
+      case 'synonym':
+      console.log('d',data);
+        return data;
         break;
       default:
       console.log('title not found');
@@ -252,14 +273,15 @@ function scrape( url ){
         return data.tags.tag
       }
       break;
-      case 'wordnik':
+      case 'synonym':
+        return data.data.words;
         console.log(data);
       break;
       case 'user':
         return data;
       break;
       default:
-      console.log("base for #{type} not found");
+      console.log("base for " + type + " not found");
     }
   }
 

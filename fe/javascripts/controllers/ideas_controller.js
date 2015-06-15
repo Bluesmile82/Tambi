@@ -88,7 +88,6 @@ var findType = Utils.findType;
       if (d.concept_type == 'image'){ descriptionPadding += 80; }
       var newDescription = this.insertDescriptionText( d3group, d.description )
       // Todo append a foreign object
-      console.log('new', newDescription)
       newDescription.classed('description', true ).attr('dy', descriptionPadding);
     }
   }

@@ -76,6 +76,7 @@
 	  click_button("pinterest", "en");
 	  click_button("youtube", "en");
 	  click_button("user", "en");
+	  click_button("synonym", "en");
 	  // click_button('google_images', 'en');
 	  // click_button('flickr_tags', 'en');
 	  // click_button('wordnik', 'en');
@@ -906,7 +907,7 @@
 	    var consts = this.consts;
 	    var width = consts.nodeRadius * 5;
 	    if (d.description != undefined) {
-	      var width = this.getDivMaxLenght(d.description) * 7 + 60;
+	      var width = this.getDivMaxLenght(d.description) * 5 + 60;
 	      if (width < 100) {
 	        width = 100;
 	      };
@@ -1164,7 +1165,6 @@
 	      }
 	      var newDescription = this.insertDescriptionText(d3group, d.description);
 	      // Todo append a foreign object
-	      console.log("new", newDescription);
 	      newDescription.classed("description", true).attr("dy", descriptionPadding);
 	    }
 	  };
@@ -1486,7 +1486,6 @@
 	  Suggestions.prototype.create = function (id, type, language) {
 	    var graph = this.graph;
 	    var constants = graph.consts;
-	    console.log(constants);
 	    var clean_id = id.replace(/#/, "");
 	    var id = "#id" + clean_id;
 	    var selectedIdea = new Idea(graph).find_by_id(clean_id);
@@ -1655,6 +1654,10 @@
 	        url = "https://www.youtube.com/results?search_query=" + title;
 	        return scrape(url);
 	        break;
+	      case "synonym":
+	        url = title;
+	        return wordnik(url);
+	        break;
 	      case "user":
 	        return getLinks(title);
 	        break;
@@ -1673,6 +1676,20 @@
 	      },
 	      error: function error(_error) {
 	        console.log(_error.responseText);
+	      }
+	    });
+	  }
+
+	  function wordnik(url) {
+	    return $.ajax({
+	      url: "/wordnik/get/",
+	      dataType: "json",
+	      data: url,
+	      success: function success(data) {
+	        console.log("wordnik", data);
+	      },
+	      error: function error(_error2) {
+	        console.log(_error2.responseText);
 	      }
 	    });
 	  }
@@ -1697,6 +1714,10 @@
 	        break;
 	      case "user":
 	        return data.title;
+	        break;
+	      case "synonym":
+	        console.log("d", data);
+	        return data;
 	        break;
 	      default:
 	        console.log("title not found");
@@ -1730,14 +1751,15 @@
 	          return data.tags.tag;
 	        }
 	        break;
-	      case "wordnik":
+	      case "synonym":
+	        return data.data.words;
 	        console.log(data);
 	        break;
 	      case "user":
 	        return data;
 	        break;
 	      default:
-	        console.log("base for #{type} not found");
+	        console.log("base for " + type + " not found");
 	    }
 	  }
 

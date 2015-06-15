@@ -619,7 +619,7 @@ var GraphCreator = function(svg, nodes, edges, permission){
         var consts = this.consts;
             var width = consts.nodeRadius * 5;
             if (d.description != undefined){
-              var width = this.getDivMaxLenght( d.description ) * 7 + 60 ;
+              var width = this.getDivMaxLenght( d.description ) * 5 + 60 ;
               if (width < 100){ width = 100 };
             }
 
