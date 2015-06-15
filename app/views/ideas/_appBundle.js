@@ -175,6 +175,10 @@
 	        // 6
 	        $("#youtube-button").click();
 	        break;
+	      case 55:
+	        // 7
+	        $("#synonym-button").click();
+	        break;
 	    }
 	  });
 

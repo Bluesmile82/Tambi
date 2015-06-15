@@ -103,6 +103,9 @@ $( "body" ).on( "keydown", function( event ) {
     case 54: // 6
       $('#youtube-button').click();
     break;
+    case 55: // 7
+      $('#synonym-button').click();
+    break;
   }
 })
 
