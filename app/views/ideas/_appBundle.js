@@ -113,8 +113,6 @@
 	    });
 	  });
 
-	  if (graph.permission == "user") {}
-
 	  // hotkeys
 
 	  $("body").on("keydown", function (event) {
@@ -186,26 +184,27 @@
 	    }
 	  });
 
-	  // Suggestion controls
+	  if (graph.permission == "user") {
+	    // Suggestion controls
 
-	  document.getElementById("duration").addEventListener("change", function () {
-	    var selected = this.value;
-	    $("#duration-label").text(parseInt(selected / 1000) + "secs");
-	    graph.consts.duration = selected;
-	  });
+	    document.getElementById("duration").addEventListener("change", function () {
+	      var selected = this.value;
+	      $("#duration-label").text(parseInt(selected / 1000) + "secs");
+	      graph.consts.duration = selected;
+	    });
 
-	  // document.getElementById('in').addEventListener('change', function() {
-	  //         var selected = this.value;
-	  //         $('#in-label').text(parseInt(selected / 1000) + 'secs');
-	  //         graph.consts.duration_in = selected;
-	  // });
+	    // document.getElementById('in').addEventListener('change', function() {
+	    //         var selected = this.value;
+	    //         $('#in-label').text(parseInt(selected / 1000) + 'secs');
+	    //         graph.consts.duration_in = selected;
+	    // });
 
-	  document.getElementById("delay").addEventListener("change", function () {
-	    var selected = this.value;
-	    $("#delay-label").text(parseInt(selected / 1000) + "secs");
-	    graph.consts.delay = selected;
-	  });
-
+	    document.getElementById("delay").addEventListener("change", function () {
+	      var selected = this.value;
+	      $("#delay-label").text(parseInt(selected / 1000) + "secs");
+	      graph.consts.delay = selected;
+	    });
+	  }
 	  d3.select("svg").on("click", function () {
 	    new View().clearIframeTab();
 	  });
