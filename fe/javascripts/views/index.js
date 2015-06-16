@@ -17,9 +17,9 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   click_button('youtube', 'en');
   click_button('user', 'en');
   click_button('synonym', 'en');
+  click_button('related-wordnik', 'en');
   // click_button('google_images', 'en');
   // click_button('flickr_tags', 'en');
-  // click_button('wordnik', 'en');
 
 
 
@@ -106,13 +106,30 @@ $( "body" ).on( "keydown", function( event ) {
     case 55: // 7
       $('#synonym-button').click();
     break;
+    case 56: // 8
+      $('#related-wordnik-button').click();
+    break;
   }
 })
+
+// Suggestion controls
 
 document.getElementById('duration').addEventListener('change', function() {
         var selected = this.value;
         $('#duration-label').text(parseInt(selected / 1000) + 'secs');
         graph.consts.duration = selected;
+});
+
+// document.getElementById('in').addEventListener('change', function() {
+//         var selected = this.value;
+//         $('#in-label').text(parseInt(selected / 1000) + 'secs');
+//         graph.consts.duration_in = selected;
+// });
+
+document.getElementById('delay').addEventListener('change', function() {
+        var selected = this.value;
+        $('#delay-label').text(parseInt(selected / 1000) + 'secs');
+        graph.consts.delay = selected;
 });
 
   d3.select('svg').on("click", function(){

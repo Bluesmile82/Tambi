@@ -161,7 +161,8 @@ var GraphCreator = function(svg, nodes, edges, permission){
     change: 30,
     bias: 300,
     duration_in: 1000,
-    duration: 10000
+    duration: 10000,
+    delay: 5000
   };
 
   GraphCreator.prototype.setIdCt = function(idct){

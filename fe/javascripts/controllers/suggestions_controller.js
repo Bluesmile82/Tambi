@@ -11,6 +11,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
   Suggestions.prototype.create = function(id, type, language){
     var graph = this.graph;
     var constants = graph.consts
+    console.log('delay', random_delay(constants.delay) );
     var clean_id = id.replace(/#/, '');
     var id = '#id' + clean_id;
     var selectedIdea = new Idea(graph).find_by_id(clean_id);
@@ -21,7 +22,6 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
         if( data_b == undefined || data_b.length == 0){
           d3.select('#alert').text('Term not found');
         }
-        console.log('data_b', data_b);
       var translate = d3.select(id).attr('transform');
       var parent = translate.match(/\((.+),(.+)\)/);
       var parent_left = parseInt(parent[1]);
@@ -29,7 +29,6 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       var bias = constants.bias;
       var duration_in = constants.duration_in;
       var duration = constants.duration;
-      console.log('delay', random_delay() );
 
       var new_concept = d3.select(".graph").selectAll('g.' + data.title)
       .data(data_b);
@@ -83,7 +82,7 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       }
 
       var anim_concept = new_concept
-                  .transition().delay(random_delay).duration(duration_in).style({'opacity':'1'})
+                  .transition().delay(function(data) { return random_delay(constants.delay) }).duration(duration_in).style({'opacity':'1'})
                   .transition().duration(duration);
 
       var dead_concept = anim_concept.style({'opacity':'0'})
@@ -129,9 +128,10 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
     });
   }
 
+  function random_delay(delay){ return (Math.random() * delay) };
+
   function random_sign(){ return Math.random() < 0.5 ? -1 : 1};
 
-  function random_delay(){ return (Math.random() * 5000) }; // delay 0 to 2000
 
   function random_top(parent_top, bias){ return parseInt( parent_top + (Math.random() * bias) * random_sign() )}; // top parent + 100 + (0 to bias * sign)
 
@@ -159,9 +159,6 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
     case 'flickr_tags':
       url =  'https://api.flickr.com/services/rest/?method=flickr.tags.getRelated&api_key=46649a4365f1ea733e08c79954e4e55e&tag=' + title + '&format=json&nojsoncallback=1'
         break;
-    case 'wordnik':
-      url =  'http://api.wordnik.com:80/v4/word.json/' + title + '/relatedWords?useCanonical=false&limitPerRelationshipType=10&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5'
-        break;
     case 'getty_images':
       url =  'https://api.gettyimages.com:443/v3/search/images?phrase=' + title
         break;
@@ -178,8 +175,10 @@ define(["../utils.js", "./ideas_controller.js", "./links_controller.js"], functi
       return scrape(url);
         break;
     case 'synonym':
-      url = title
-      return wordnik(url);
+      return wordnik(title, 'synonym');
+        break;
+    case 'related-wordnik':
+      return wordnik(title, 'related');
         break;
     case 'user':
       return getLinks(title);
@@ -203,11 +202,11 @@ function scrape( url ){
   });
 }
 
-function wordnik( url ){
+function wordnik( title, type ){
   return $.ajax({
      url: '/wordnik/get/',
      dataType: 'json',
-     data: url,
+     data: {title:title, type:type},
      success: function(data) {
       console.log('wordnik', data);
           },
@@ -239,7 +238,9 @@ function wordnik( url ){
         return data.title;
         break;
       case 'synonym':
-      console.log('d',data);
+        return data;
+        break;
+      case 'related-wordnik':
         return data;
         break;
       default:
@@ -274,12 +275,15 @@ function wordnik( url ){
       }
       break;
       case 'synonym':
+        if( data.data == null){ return [] };
         return data.data.words;
-        console.log(data);
       break;
+      case 'related-wordnik':
+        return data.data;
+        break;
       case 'user':
         return data;
-      break;
+        break;
       default:
       console.log("base for " + type + " not found");
     }
