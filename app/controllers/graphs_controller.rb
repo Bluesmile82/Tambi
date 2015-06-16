@@ -22,7 +22,7 @@ class GraphsController < ApplicationController
   end
 
   def all
-    @graphs = Graph.all - current_user.graphs
+    @graphs = Graph.order(id: :desc) - current_user.graphs
   end
 
   def show
