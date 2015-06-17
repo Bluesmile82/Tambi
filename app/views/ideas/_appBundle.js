@@ -261,6 +261,16 @@
 	    }
 	  });
 
+	  d3.select("#close-instructions").on("click", function () {
+	    var instructions = d3.select("#instructions");
+	    instructions.classed("hidden", true);
+	  });
+
+	  d3.select("#close-toolbox").on("click", function () {
+	    var instructions = d3.select("#toolbox");
+	    instructions.classed("hidden", true);
+	  });
+
 	  d3.select("#open-toolbox").on("click", function () {
 	    var toolbox = d3.select("#toolbox");
 	    if (toolbox.classed("hidden")) {
@@ -1469,7 +1479,6 @@
 
 	  var nodes = [];
 	  var edges = [];
-
 	  var svg = d3.select("body").append("svg").attr("width", windowSize().width).attr("height", windowSize().height);
 	  var permission = d3.select("#window").attr("data-permission");
 	  var graph = new GraphCreator(svg, nodes, edges, permission);

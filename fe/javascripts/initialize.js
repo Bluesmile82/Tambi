@@ -4,7 +4,6 @@ var windowSize = utils.windowSize;
 
   var nodes = [];
   var edges = [];
-
   var svg = d3.select("body").append("svg")
         .attr("width", windowSize().width)
         .attr("height", windowSize().height);

@@ -1,4 +1,3 @@
-
 <% content_for :js do %>
   <script type="text/javascript">
     <%= render :partial => "appBundle.js" %>
@@ -9,6 +8,7 @@
 </div>
 
 <div id="instructions">
+  <button id="close-instructions" class="close"><span aria-hidden="true">&times;</span></button>
   <ul>
     <p><h3>Info</h3></p>
     <p><em>Select an Idea</em> - <span class="badge">click</span> on an idea                   </p>
@@ -33,6 +33,7 @@
 <% if @same_user %>
   <div id='alert'></div>
   <div id="toolbox">
+  <button id="close-toolbox" class="close"><span aria-hidden="true">&times;</span></button>
     <div id="random-button" class="btn btn-default">
       <span class='label label-default'>1</span>
        Random</div>

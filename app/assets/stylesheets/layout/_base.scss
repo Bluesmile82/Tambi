@@ -26,6 +26,10 @@ body{
   overflow-y: scroll !important;
 }
 
+#empty{
+  height:70px;
+}
+
 p{
   text-align: left;
   padding-left: 1em;
@@ -37,6 +41,10 @@ p{
 }
 .navbar{
   margin-bottom: 0;
+  position: absolute;
+  height: 8%;
+  width: 100%;
+  z-index: 50000;
 }
 
 .modal-dialog{
@@ -70,6 +78,7 @@ p{
   padding: 1em;
   z-index: 5;
   background-color: white;
+  top:8%;
   & .btn{
     margin-top:0;
 }
@@ -115,12 +124,14 @@ p{
 }
 
 svg{
+  position: absolute;
+  width: 100%;
 }
 
 #window{
   background-image: url('/b1.jpg');
 
-   -webkit-filter: blur(15px);
+  -webkit-filter: blur(15px);
   -moz-filter: blur(15px);
   -o-filter: blur(15px);
   -ms-filter: blur(15px);

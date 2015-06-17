@@ -176,6 +176,16 @@ if (delayDiv != null){
   } else{instructions.classed('hidden', true)}
   });
 
+  d3.select('#close-instructions').on("click", function(){
+    var instructions = d3.select('#instructions');
+    instructions.classed('hidden', true);
+  });
+
+  d3.select('#close-toolbox').on("click", function(){
+    var instructions = d3.select('#toolbox');
+    instructions.classed('hidden', true);
+  });
+
   d3.select('#open-toolbox').on("click", function(){
     var toolbox = d3.select('#toolbox');
     if (toolbox.classed('hidden')){
