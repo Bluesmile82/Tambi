@@ -109,14 +109,23 @@ $( "body" ).on( "keydown", function( event ) {
   }
 })
 
-if(graph.permission == 'user'){
-  // Suggestion controls
-
-  document.getElementById('duration').addEventListener('change', function() {
-          var selected = this.value;
-          $('#duration-label').text(parseInt(selected / 1000) + 'secs');
-          graph.consts.duration = selected;
+var durationDiv = document.getElementById("duration");
+if (durationDiv != null){
+  durationDiv.addEventListener('change', function() {
+    var selected = this.value;
+    $('#duration-label').text(parseInt(selected / 1000) + 'secs');
+    graph.consts.duration = selected;
   });
+}
+
+var delayDiv = document.getElementById("delay");
+if (delayDiv != null){
+  delayDiv.addEventListener('change', function() {
+    var selected = this.value;
+    $('#delay-label').text(parseInt(selected / 1000) + 'secs');
+    graph.consts.delay = selected;
+  });
+}
 
   // document.getElementById('in').addEventListener('change', function() {
   //         var selected = this.value;
@@ -124,13 +133,6 @@ if(graph.permission == 'user'){
   //         graph.consts.duration_in = selected;
   // });
 
-  document.getElementById('delay').addEventListener('change', function() {
-          var selected = this.value;
-          $('#delay-label').text(parseInt(selected / 1000) + 'secs');
-          graph.consts.delay = selected;
-  });
-
-}
   d3.select('svg').on("click", function(){
     new View().clearIframeTab();
   });

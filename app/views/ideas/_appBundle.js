@@ -184,27 +184,30 @@
 	    }
 	  });
 
-	  if (graph.permission == "user") {
-	    // Suggestion controls
-
-	    document.getElementById("duration").addEventListener("change", function () {
+	  var durationDiv = document.getElementById("duration");
+	  if (durationDiv != null) {
+	    durationDiv.addEventListener("change", function () {
 	      var selected = this.value;
 	      $("#duration-label").text(parseInt(selected / 1000) + "secs");
 	      graph.consts.duration = selected;
 	    });
+	  }
 
-	    // document.getElementById('in').addEventListener('change', function() {
-	    //         var selected = this.value;
-	    //         $('#in-label').text(parseInt(selected / 1000) + 'secs');
-	    //         graph.consts.duration_in = selected;
-	    // });
-
-	    document.getElementById("delay").addEventListener("change", function () {
+	  var delayDiv = document.getElementById("delay");
+	  if (delayDiv != null) {
+	    delayDiv.addEventListener("change", function () {
 	      var selected = this.value;
 	      $("#delay-label").text(parseInt(selected / 1000) + "secs");
 	      graph.consts.delay = selected;
 	    });
 	  }
+
+	  // document.getElementById('in').addEventListener('change', function() {
+	  //         var selected = this.value;
+	  //         $('#in-label').text(parseInt(selected / 1000) + 'secs');
+	  //         graph.consts.duration_in = selected;
+	  // });
+
 	  d3.select("svg").on("click", function () {
 	    new View().clearIframeTab();
 	  });
@@ -1218,7 +1221,7 @@
 	      d3.event.stopPropagation();
 	      if (d3.event.keyCode == constants.ENTER_KEY && (!enterKeyEscape || d3.event.shiftKey)) {
 	        this.blur();
-	        textInput.exit();
+	        textInput.data([d]).exit().remove();
 	      }
 	    });
 

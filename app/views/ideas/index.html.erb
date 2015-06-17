@@ -8,24 +8,24 @@
 <div id="window" data-graph='<%= @graph.id %>' data-permission=<%= @same_user %>>
 </div>
 
-<div id="instructions" class="hidden">
+<div id="instructions">
   <ul>
     <p><h3>Info</h3></p>
-    <p><em>Select an Idea</em> - Click on idea                   </p>
-    <p><em>Get suggestions from different sources</em> - Select an idea and click on a toolbar button </p>
-    <p><em>Create a new idea</em> - Shift and click outside idea </p>
-    <p><em>Change the content</em> - Shift and click in an idea  </p>
-    <p><em>Relate ideas</em> - Shift and click in idea and drag to the target </p>
-    <p><em>Delete idea or link</em> - Backspace                 </p>
+    <p><em>Select an Idea</em> - <span class="badge">click</span> on an idea                   </p>
+    <p><em>Create a new idea</em> - <span class="badge">Shift</span> + <span class="badge">click</span> outside idea </p>
+    <p><em>Change the content</em> - <span class="badge">Shift</span> + <span class="badge">click</span> in an idea  </p>
+    <p><em>Delete idea or link</em> - <span class="badge">Backspace</span> or <span class="badge">Delete</span> </p>
+    <p><em>Relate ideas</em> - <span class="badge">Shift</span> + <span class="badge"> drag </span> to other idea </p>
+    <p><em>Get suggestions from different sources</em> - <span class="badge">Select</span> an idea and <span class="badge">click</span> on a toolbar button </p>
     <h4>Hotkeys</h4>
-    <p>  s <em>search in duckduckgo.com</em> </p>
-    <p>  v <em>view info about idea (wikipedia or full size image)</em> </p>
-    <p>  c <em>add description to idea</em> </p>
-    <p>  f <em>hide / show the navbar (focus)</em> </p>
+    <p> <span class="badge"> v </span><em> View info about idea (Wikipedia, full size image, web or youtube video)</em></p>
+    <p> <span class="badge"> s </span> <em> Search in duckduckgo.com</em> </p>
+    <p><span class="badge">  c </span> <em> Add description to idea</em> </p>
+    <p><span class="badge">  f </span> <em> Hide / show the navbar (focus)</em> </p>
 <!--     <p>  + <em>grow idea</em> </p>
     <p>  - <em>shrink idea</em> </p> -->
-    <p>  i <em>info</em> </p>
-    <p>  a <em>toolbox</em> </p>
+    <p><span class="badge">  i </span> <em> Info</em> </p>
+    <p><span class="badge">  a </span> <em> Toolbox</em> </p>
 
   </ul>
 </div>
@@ -60,13 +60,13 @@
        Related terms</div>
     <div class="inline">
       <label for=delay>Pace</label>
-      <span id='delay-label'>5 sec</span>
-      <input id="delay" type="range" min="100" value="5000" max="10000">
+      <!-- <span id='delay-label'>5 sec</span> -->
+      <input id="delay" type="range" min="100" value="5000" max="20000">
     </div>
     <div class="inline">
-      <label for=duration>Duration</label>
-      <span id='duration-label'>10 sec</span>
-      <input id="duration" type="range" name="suggestions-duration" value="10000" min="2000" max="12000">
+      <label for=duration class="inline">Duration</label>
+      <!-- <span id='duration-label'>10 sec</span> -->
+      <input id="duration" type="range" name="suggestions-duration" value="10000" min="2000" max="22000">
     </div>
     <!-- <div class="inline">
       <label for=in>Ease-in</label>

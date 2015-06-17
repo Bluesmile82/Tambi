@@ -132,7 +132,7 @@ var findType = Utils.findType;
             d3.event.stopPropagation();
             if (d3.event.keyCode == constants.ENTER_KEY && (!enterKeyEscape || d3.event.shiftKey)){
                 this.blur();
-                textInput.exit();
+                textInput.data([d]).exit().remove();
             }
           });
 
