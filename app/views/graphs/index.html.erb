@@ -26,9 +26,11 @@
          <div class="panel-body">
           <ul class="list-group">
             <% @graphs.each do |graph| %>
-              <%= link_to user_graph_path(user_id: current_user, id: graph) do %>
                 <li class="list-group-item">
+              <%= link_to user_graph_path(user_id: current_user, id: graph) do %>
                   <%= graph.title %>
+              <% end %>
+                  <small><strong><%= 'public' if graph.public %></strong></small>
                   <%= link_to( user_graph_path(user_id: current_user, id: graph) ,{ confirm: "Are you sure you want to delete this canvas?", method: :delete, :class => 'badge'}) do %>
                     <i class="fa fa-trash-o"></i>
                   <% end %>
@@ -37,7 +39,6 @@
                   <% end %>
                   <span class='small' ><%= graph.description %></span>
                 </li>
-              <% end %>
             <% end %>
           </ul>
           <div class="panel panel-default">
