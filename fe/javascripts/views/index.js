@@ -56,7 +56,8 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
 
 $( "body" ).on( "keydown", function( event ) {
   // console.log(event.which);
-  switch(event.which){
+  // event.preventDefault();
+  switch(event.keypress){
     case 83: // s
       $('#search').click();
     break;
@@ -73,7 +74,6 @@ $( "body" ).on( "keydown", function( event ) {
       $('#open-url').click();
     break;
     case 67: // c
-      event.preventDefault();
       $('#add-text').click();
     break;
     // case 107: // +
