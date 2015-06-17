@@ -66,6 +66,6 @@ class GraphsController < ApplicationController
   end
 
   def graph_params
-    params.require(:graph).permit(:title, :user_id, :description)
+    params.require(:graph).permit(:title, :user_id, :description, :public)
   end
 end

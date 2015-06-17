@@ -52,8 +52,6 @@ marker{
 
 g.conceptG circle{
     fill: #F6FBFF;
-    /*stroke: #333;*/
-    /*stroke-width: 2px;*/
 }
 
 g.conceptG:hover circle{
@@ -83,7 +81,7 @@ g.conceptG:hover image{
 path.link {
     fill: none;
     stroke: #BEFFFF;
-    opacity: 0.2;
+    opacity: 0.3;
     stroke-width: 10px;
     cursor: default;
 }

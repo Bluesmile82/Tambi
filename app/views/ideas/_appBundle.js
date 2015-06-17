@@ -391,10 +391,10 @@
 
 	    defs.append('svg:stop').attr('offset', '100%').attr('stop-color', '#aaaa00').attr('stop-opacity', 1);
 
-	    defs.append('svg:marker').attr('id', 'end-arrow').attr('viewBox', '0 -5 10 10').attr('refX', '32').attr('markerWidth', 3.5).attr('markerHeight', 3.5).attr('orient', 'auto').append('svg:path').attr('fill', '#ccc').attr('d', 'M0,-5L10,0L0,5');
+	    defs.append('svg:marker').attr('id', 'end-arrow').attr('viewBox', '0 -5 10 10').attr('refX', 22).attr('markerWidth', 3.5).attr('markerHeight', 3.5).attr('orient', 'auto').append('svg:path').attr('fill', '#BEFFFF').attr('d', 'M0,-5L10,0L0,5');
 
 	    // define arrow markers for leading arrow
-	    defs.append('svg:marker').attr('id', 'mark-end-arrow').attr('viewBox', '0 -5 10 10').attr('refX', 7).attr('markerWidth', 3.5).attr('markerHeight', 3.5).attr('orient', 'auto').append('svg:path').attr('fill', '#ccc').attr('d', 'M0,-5L10,0L0,5');
+	    defs.append('svg:marker').attr('id', 'mark-end-arrow').attr('viewBox', '0 -5 10 10').attr('refX', 7).attr('markerWidth', 3.5).attr('markerHeight', 3.5).attr('orient', 'auto').append('svg:path').attr('fill', '#BEFFFF').attr('d', 'M0,-5L10,0L0,5');
 
 	    thisGraph.svg = svg;
 	    thisGraph.svgG = svg.append('g').classed(thisGraph.consts.graphClass, true);

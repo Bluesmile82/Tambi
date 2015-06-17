@@ -4,7 +4,7 @@ class IdeasController < ApplicationController
   before_action :set_concept, only: [:create, :update]
 
   def index
-    @same_user = @graph.user == current_user
+    @same_user = @graph.user == current_user || @graph.public
     @ideas = @graph.ideas
     @links = @ideas.map{|idea| idea.links }.flatten
   end
