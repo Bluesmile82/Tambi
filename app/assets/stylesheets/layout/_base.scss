@@ -148,14 +148,14 @@ svg{
 }
 
 #instructions{
-  width:30%;
-
+  max-height: 70%;
+  max-width: 30%;
+  padding:1em;
   bottom:0;
   right:0;
   position: absolute;
   border: 2px solid #EEEEEE;
   border-radius: 5px;
-  padding: 1em;
   z-index: 5;
   background-color: white;
   p{
@@ -166,6 +166,7 @@ svg{
     font-style: normal;
   }
   ul{
+    padding:0;
    list-style-type: none;
   }
 }

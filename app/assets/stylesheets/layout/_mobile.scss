@@ -1,0 +1,21 @@
+
+@media screen and (max-width: 1100px) {
+
+  #instructions{
+    width: initial;
+    max-height: 70%;
+    max-width: 30%;
+    overflow:scroll;
+  }
+}
+
+@media screen and (max-width: 487px) {
+
+  #instructions{
+    width: initial;
+    top:8%;
+    max-height: 30%;
+    max-width: 100%;
+    overflow:scroll;
+  }
+}
