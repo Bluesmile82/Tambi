@@ -15,6 +15,25 @@ var windowSize = utils.windowSize;
   graph.setIdLink(2);
   graph.updateGraph();
 
+  graph.consts =  {
+    selectedClass: "selected",
+    connectClass: "connect-node",
+    circleGClass: "conceptG",
+    graphClass: "graph",
+    activeEditId: "editing",
+    BACKSPACE_KEY: 8,
+    DELETE_KEY: 46,
+    ENTER_KEY: 13,
+    nodeRadius: 65,
+    min_size: 14,
+    max_size: 154,
+    change: 30,
+    bias: 300,
+    duration_in: 1000,
+    duration: 10000,
+    delay: 5000
+  };
+
   // var force = d3.layout.force()
   //   .size([windowSize().width, windowSize().height])
   //   .linkDistance(150)

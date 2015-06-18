@@ -55,22 +55,23 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
 // hotkeys
 
 $( "body" ).on( "keydown", function( event ) {
-  // console.log(event.which);
+  console.log(event.which);
   // event.preventDefault();
-  switch(event.keypress){
+  switch(event.which){
     case 83: // s
       $('#search').click();
     break;
-    case 70: // s
+    case 70: // f
       $('#focus').click();
     break;
-    case 65: // s
+    case 65: // a
       $('.fa-magic').click();
     break;
     case 73: // i
       $('.fa-info-circle').click();
     break;
-     case 86: // v
+     case 32: // space
+      event.preventDefault();
       $('#open-url').click();
     break;
     case 67: // c

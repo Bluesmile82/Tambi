@@ -116,27 +116,28 @@
 	  // hotkeys
 
 	  $("body").on("keydown", function (event) {
-	    // console.log(event.which);
+	    console.log(event.which);
 	    // event.preventDefault();
-	    switch (event.keypress) {
+	    switch (event.which) {
 	      case 83:
 	        // s
 	        $("#search").click();
 	        break;
 	      case 70:
-	        // s
+	        // f
 	        $("#focus").click();
 	        break;
 	      case 65:
-	        // s
+	        // a
 	        $(".fa-magic").click();
 	        break;
 	      case 73:
 	        // i
 	        $(".fa-info-circle").click();
 	        break;
-	      case 86:
-	        // v
+	      case 32:
+	        // space
+	        event.preventDefault();
 	        $("#open-url").click();
 	        break;
 	      case 67:
@@ -1487,6 +1488,25 @@
 	  graph.setIdCt(2);
 	  graph.setIdLink(2);
 	  graph.updateGraph();
+
+	  graph.consts = {
+	    selectedClass: "selected",
+	    connectClass: "connect-node",
+	    circleGClass: "conceptG",
+	    graphClass: "graph",
+	    activeEditId: "editing",
+	    BACKSPACE_KEY: 8,
+	    DELETE_KEY: 46,
+	    ENTER_KEY: 13,
+	    nodeRadius: 65,
+	    min_size: 14,
+	    max_size: 154,
+	    change: 30,
+	    bias: 300,
+	    duration_in: 1000,
+	    duration: 10000,
+	    delay: 5000
+	  };
 
 	  // var force = d3.layout.force()
 	  //   .size([windowSize().width, windowSize().height])
