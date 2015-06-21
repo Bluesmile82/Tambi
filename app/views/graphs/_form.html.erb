@@ -13,7 +13,8 @@
   <% end %>
     <%= f.input :title, :placeholder=>"New Tambi"%>
     <%= f.input :description,:as =>'text', :placeholder=>"Short description of the Tambi"%>
-    <%= f.input :public %>
+    <%= f.input  :public, label: 'Make it collaborative' %>
+    <%= f.input  :private, label: 'Make it private' %>
     <%= link_to 'Back', :back, class: 'btn btn-default' if @graph %>
     <%= f.submit text, :class=>'btn btn-success vertical-center' %>
 <% end %>

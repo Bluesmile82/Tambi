@@ -22,7 +22,7 @@ class GraphsController < ApplicationController
   end
 
   def all
-    @graphs = Graph.order(id: :desc) - current_user.graphs
+    @graphs = (Graph.order(id: :desc) - current_user.graphs).reject{|g| g.private }
   end
 
   def show
@@ -66,6 +66,6 @@ class GraphsController < ApplicationController
   end
 
   def graph_params
-    params.require(:graph).permit(:title, :user_id, :description, :public)
+    params.require(:graph).permit(:title, :user_id, :description, :public, :private)
   end
 end

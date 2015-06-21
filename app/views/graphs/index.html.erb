@@ -31,7 +31,8 @@
               <%= link_to user_graph_path(user_id: current_user, id: graph) do %>
                   <%= graph.title %>
               <% end %>
-                  <small><strong><%= 'public' if graph.public %></strong></small>
+                  <small><strong><%= 'Collaborative' if graph.public %></strong></small>
+                  <small><strong><%= 'Private' if graph.private %></strong></small>
                   <%= link_to( user_graph_path(user_id: current_user, id: graph) ,{ confirm: "Are you sure you want to delete this canvas?", method: :delete, :class => 'badge'}) do %>
                     <i class="fa fa-trash-o"></i>
                   <% end %>
