@@ -49,7 +49,21 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
       d3.select('.modal-content').append('iframe').attr('src', data.path );
       d3.select('.modal-title').html( data.graph.title + ' by ' + data.user );
     });
+  });
 
+  d3.select('#center-tambi').on("click", function(){
+    var totalX = 0;
+    var totalY = 0;
+    var index = 0;
+    $.each(graph.nodes, function( i, value ) {
+      totalX += value.x;
+      totalY += value.y;
+      index += i;
+    });
+    // $('svg').scrollTo(totalX / index);
+    // /(scale.+)/.d3.select(".graph").attr("transform")
+    d3.select(".graph")
+      .attr("transform", "translate(0,0)"+" scale(" + d3.event.scale + ")");
   });
 
 // hotkeys
