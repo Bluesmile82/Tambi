@@ -52,24 +52,15 @@ define( ["../controllers/canvas_controller.js", "../initialize.js", "../utils.js
   });
 
   d3.select('#center-tambi').on("click", function(){
-    var totalX = 0;
-    var totalY = 0;
-    var index = 0;
-    $.each(graph.nodes, function( i, value ) {
-      totalX += value.x;
-      totalY += value.y;
-      index += i;
-    });
-    // $('svg').scrollTo(totalX / index);
-    // /(scale.+)/.d3.select(".graph").attr("transform")
-    d3.select(".graph")
-      .attr("transform", "translate(0,0)"+" scale(" + d3.event.scale + ")");
+    graph.consts.translate = [0,0]
+    graph.dragSvg.translate([0,0])
+    updateGraphTransform();
   });
 
 // hotkeys
 
 $( "body" ).on( "keydown", function( event ) {
-  console.log(event.which);
+  // console.log(event.which);
   // event.preventDefault();
   switch(event.which){
     case 83: // s
@@ -140,6 +131,22 @@ if (delayDiv != null){
     $('#delay-label').text(parseInt(selected / 1000) + 'secs');
     graph.consts.delay = selected;
   });
+}
+
+var zoomDiv = document.getElementById("zoom");
+if (zoomDiv != null){
+  zoomDiv.addEventListener('change', function() {
+    var selected = this.value;
+    $('#zoom-label').text(parseInt(selected * 100) + '%');
+    graph.consts.zoom = selected;
+    graph.dragSvg.scale(selected)
+    updateGraphTransform();
+  });
+}
+
+function updateGraphTransform(){
+  d3.select("." + graph.consts.graphClass)
+    .attr("transform", "translate(" + graph.consts.translate + ") scale(" + graph.consts.zoom + ")");
 }
 
   // document.getElementById('in').addEventListener('change', function() {

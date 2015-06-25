@@ -158,6 +158,7 @@ svg{
   border-radius: 5px;
   z-index: 5;
   background-color: white;
+  overflow-y: auto;
   p{
     text-align: left;
   }
@@ -254,4 +255,16 @@ form .btn{
   height: 200px;
   padding:1%;
   margin:0.5%;
+  overflow-x: auto;
+}
+
+#zoom{
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 8px;
+  height: 5em;
+  margin-left:1em;
+}
+#zoom-label{
+  color: white;
 }

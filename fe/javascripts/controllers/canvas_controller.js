@@ -118,7 +118,10 @@ var GraphCreator = function(svg, nodes, edges, permission){
         svg.on("mouseup", function(d){thisGraph.svgMouseUp.call(thisGraph, d);});
 
     // listen for dragging
-    var dragSvg = d3.behavior.zoom()
+    // var dragSvg = d3.behavior.zoom();
+    // d3.select('.graph').call(dragSvg);
+
+    thisGraph.dragSvg = d3.behavior.zoom()
           .on("zoom", function(){
             if (d3.event.sourceEvent.shiftKey){
               // TODO  the internal d3 state is still changing
@@ -139,7 +142,7 @@ var GraphCreator = function(svg, nodes, edges, permission){
             d3.select('body').style("cursor", "auto");
           });
 
-    svg.call(dragSvg).on("dblclick.zoom", null);
+    svg.call(thisGraph.dragSvg).on("dblclick.zoom", null);
 
     // listen for resize
     window.onresize = function(){thisGraph.updateWindow(svg);};
@@ -699,6 +702,9 @@ var GraphCreator = function(svg, nodes, edges, permission){
     this.state.justScaleTransGraph = true;
     d3.select("." + this.consts.graphClass)
       .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+    this.consts.zoom = d3.event.scale;
+    $('#zoom').val(this.consts.zoom);
+    this.translate = d3.event.translate;
   };
 
   GraphCreator.prototype.updateWindow = function(svg){
