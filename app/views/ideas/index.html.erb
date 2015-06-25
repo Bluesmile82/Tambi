@@ -96,6 +96,10 @@
     <!-- <div>
       <i class="fa fa-link fa-3x" id="open-canvas" data-toggle="modal" data-target="#myModal" ></i>
     </div> -->
+    <div class="">
+      <label id='zoom-label' for=zoom><h5>Zoom</h5></label>
+      <input id="zoom" type="range" orient="vertical" min="0.1" value= graph.consts.zoom max="3" step='0.1'>
+    </div>
     <div>
       <i class="fa fa-eye fa-3x" id="open-url"></i>
     </div>
@@ -118,5 +122,8 @@
     <% end %>
     <div>
       <i class="fa fa-compress fa-3x" id="focus"></i>
+    </div>
+    <div>
+      <i class="fa fa-dot-circle-o fa-3x" id="center-tambi"></i>
     </div>
   </div>

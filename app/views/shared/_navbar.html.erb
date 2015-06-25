@@ -17,6 +17,7 @@
       <ul class="nav navbar-nav navbar-right">
         <% if user_signed_in? %>
           <% if @graph %>
+             <!-- <li><a>Search<input></input></a><li> -->
             <li> <a><em><%= @graph.title %></em></a>  </li>
           <% end %>
             <li><%= link_to "My Tambis", user_graphs_path(current_user) %></li>

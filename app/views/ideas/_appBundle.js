@@ -113,10 +113,16 @@
 	    });
 	  });
 
+	  d3.select("#center-tambi").on("click", function () {
+	    graph.consts.translate = [0, 0];
+	    graph.dragSvg.translate([0, 0]);
+	    updateGraphTransform();
+	  });
+
 	  // hotkeys
 
 	  $("body").on("keydown", function (event) {
-	    console.log(event.which);
+	    // console.log(event.which);
 	    // event.preventDefault();
 	    switch (event.which) {
 	      case 83:
@@ -201,6 +207,21 @@
 	      $("#delay-label").text(parseInt(selected / 1000) + "secs");
 	      graph.consts.delay = selected;
 	    });
+	  }
+
+	  var zoomDiv = document.getElementById("zoom");
+	  if (zoomDiv != null) {
+	    zoomDiv.addEventListener("change", function () {
+	      var selected = this.value;
+	      $("#zoom-label").text(parseInt(selected * 100) + "%");
+	      graph.consts.zoom = selected;
+	      graph.dragSvg.scale(selected);
+	      updateGraphTransform();
+	    });
+	  }
+
+	  function updateGraphTransform() {
+	    d3.select("." + graph.consts.graphClass).attr("transform", "translate(" + graph.consts.translate + ") scale(" + graph.consts.zoom + ")");
 	  }
 
 	  // document.getElementById('in').addEventListener('change', function() {
@@ -448,7 +469,10 @@
 	    });
 
 	    // listen for dragging
-	    var dragSvg = d3.behavior.zoom().on('zoom', function () {
+	    // var dragSvg = d3.behavior.zoom();
+	    // d3.select('.graph').call(dragSvg);
+
+	    thisGraph.dragSvg = d3.behavior.zoom().on('zoom', function () {
 	      if (d3.event.sourceEvent.shiftKey) {
 	        // TODO  the internal d3 state is still changing
 	        return false;
@@ -466,7 +490,7 @@
 	      d3.select('body').style('cursor', 'auto');
 	    });
 
-	    svg.call(dragSvg).on('dblclick.zoom', null);
+	    svg.call(thisGraph.dragSvg).on('dblclick.zoom', null);
 
 	    // listen for resize
 	    window.onresize = function () {
@@ -997,6 +1021,9 @@
 	  GraphCreator.prototype.zoomed = function () {
 	    this.state.justScaleTransGraph = true;
 	    d3.select('.' + this.consts.graphClass).attr('transform', 'translate(' + d3.event.translate + ') scale(' + d3.event.scale + ')');
+	    this.consts.zoom = d3.event.scale;
+	    $('#zoom').val(this.consts.zoom);
+	    this.translate = d3.event.translate;
 	  };
 
 	  GraphCreator.prototype.updateWindow = function (svg) {
@@ -1505,8 +1532,12 @@
 	    bias: 300,
 	    duration_in: 1000,
 	    duration: 10000,
-	    delay: 5000
+	    delay: 5000,
+	    zoom: 1,
+	    translate: [0, 0]
 	  };
+
+	  $("#zoom").val(graph.consts.zoom);
 
 	  // var force = d3.layout.force()
 	  //   .size([windowSize().width, windowSize().height])

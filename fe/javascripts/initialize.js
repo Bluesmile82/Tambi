@@ -31,8 +31,12 @@ var windowSize = utils.windowSize;
     bias: 300,
     duration_in: 1000,
     duration: 10000,
-    delay: 5000
+    delay: 5000,
+    zoom: 1,
+    translate: [0,0]
   };
+
+ $('#zoom').val(graph.consts.zoom);
 
   // var force = d3.layout.force()
   //   .size([windowSize().width, windowSize().height])
