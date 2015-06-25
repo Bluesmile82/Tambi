@@ -704,6 +704,7 @@ var GraphCreator = function(svg, nodes, edges, permission){
       .attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
     this.consts.zoom = d3.event.scale;
     $('#zoom').val(this.consts.zoom);
+    $('#zoom-label').html(parseInt(this.consts.zoom * 100) + '%');
     this.translate = d3.event.translate;
   };
 
