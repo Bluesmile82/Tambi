@@ -80,6 +80,7 @@ $( "body" ).on( "keydown", function( event ) {
       $('#open-url').click();
     break;
     case 67: // c
+      event.preventDefault();
       $('#add-text').click();
     break;
     // case 107: // +
