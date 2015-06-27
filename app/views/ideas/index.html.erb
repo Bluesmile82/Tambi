@@ -34,40 +34,40 @@
   <div id='alert'></div>
   <div id="toolbox">
   <button id="close-toolbox" class="close"><span aria-hidden="true">&times;</span></button>
-    <div id="random-button" class="btn btn-default">
+    <div id="random-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest random concepts">
       <span class='label label-default'>1</span>
        Random</div>
-    <div id="related_idol-button" class="btn btn-default">
+    <div id="related_idol-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest related concepts (hp idol)">
       <span class='label label-default'>2</span>
      Related</div>
-    <div id="wiki_category-button" class="btn btn-default">
+    <div id="wiki_category-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest Wikipedia category">
       <span class='label label-default'>3</span>
      Wikipedia Category</div>
     <!-- <div id="flickr_tags-button" class="btn btn-default">Flickr related tags</div> -->
-    <div id="user-button" class="btn btn-default">
+    <div id="user-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest related ideas from other users">
       <span class='label label-default'>4</span>
      User matches</div>
-    <div id="pinterest-button" class="btn btn-default">
+    <div id="pinterest-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest images from Pinterest">
       <span class='label label-default'>5</span>
        Pinterest</div>
-    <div id="youtube-button" class="btn btn-default">
+    <div id="youtube-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest videos from youtube">
       <span class='label label-default'>6</span>
        Youtube</div>
-    <div id="synonym-button" class="btn btn-default">
+    <div id="synonym-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest synonims (wordnik)">
       <span class='label label-default'>7</span>
        Synonyms</div>
-    <div id="related-wordnik-button" class="btn btn-default">
+    <div id="related-wordnik-button" class="btn btn-default" data-toggle="tooltip" data-placement="down" title="Suggest related from thesaurus (wordnik)">
       <span class='label label-default'>8</span>
-       Related terms</div>
-    <div class="inline">
+       Thesaurus</div>
+    <div class="inline" >
       <label for=delay>Pace</label>
       <!-- <span id='delay-label'>5 sec</span> -->
-      <input id="delay" type="range" min="100" value="5000" max="20000">
+      <input data-toggle="tooltip" data-placement="left" title="Change the pace in which suggestions appear" id="delay" type="range" min="100" value="5000" max="20000">
     </div>
     <div class="inline">
       <label for=duration class="inline">Duration</label>
       <!-- <span id='duration-label'>10 sec</span> -->
-      <input id="duration" type="range" name="suggestions-duration" value="10000" min="2000" max="22000">
+      <input data-toggle="tooltip" data-placement="left" title="Change the speed in which suggestions appear" id="duration" type="range" name="suggestions-duration" value="10000" min="2000" max="22000">
     </div>
     <!-- <div class="inline">
       <label for=in>Ease-in</label>
@@ -100,10 +100,10 @@
       <label id='zoom-label' for=zoom><h5>Zoom</h5></label>
       <input id="zoom" type="range" orient="vertical" min="0.1" value= graph.consts.zoom max="3" step='0.1'>
     </div>
-    <div>
+    <div data-toggle="tooltip" data-placement="left" title="View info">
       <i class="fa fa-eye fa-3x" id="open-url"></i>
     </div>
-    <div>
+    <div data-toggle="tooltip" data-placement="left" title="Search on duckduckgo">
       <i class="fa fa-search fa-3x" id="search"></i>
     </div>
     <!-- <div>
@@ -116,14 +116,14 @@
       <div>
         <i class="fa fa-minus-circle fa-3x" id="idea-minus"></i>
       </div> -->
-    <div>
+    <div data-toggle="tooltip" data-placement="left" title="Comment">
       <i class="fa fa-comment fa-3x" id="add-text"></i>
     </div>
     <% end %>
-    <div>
+    <div data-toggle="tooltip" data-placement="left" title="Hide/show navbar">
       <i class="fa fa-compress fa-3x" id="focus"></i>
     </div>
-    <div>
+    <div data-toggle="tooltip" data-placement="left" title="Center to origin">
       <i class="fa fa-dot-circle-o fa-3x" id="center-tambi"></i>
     </div>
   </div>
